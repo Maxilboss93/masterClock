@@ -152,9 +152,9 @@ export function campaignToJson(campaign: CampaignState): string {
   return JSON.stringify(campaign, null, 2)
 }
 
-export function downloadCampaignJson(campaign: CampaignState) {
+export function downloadCampaignJson(campaign: CampaignState, label = campaign.campaignName) {
   const slug =
-    campaign.campaignName
+    label
       .trim()
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')

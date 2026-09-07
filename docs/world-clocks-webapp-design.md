@@ -23,7 +23,7 @@ La richiesta del master, ridotta all'essenziale:
 - Le impostazioni delle barre devono essere modificabili.
 - Un tasto `Salva` deve chiedere un nome per il salvataggio.
 - I salvataggi nominati devono comparire in una barra laterale e poter essere ricaricati al volo.
-- Deve restare possibile esportare tutta la pagina in `.json`.
+- Il tasto `Salva` deve anche creare/scaricare un file `.json` visibile al master, pensato solo come backup e per eventuale importazione.
 - Il JSON deve permettere di ricreare la pagina tra sessioni.
 - La webapp deve essere responsive e utilizzabile in modo semplificato anche da cellulare con gesture mobile.
 
@@ -52,7 +52,7 @@ In alto:
 - Pulsante `Crea grafici giocatore`.
 - Pulsante `Salva`.
 - Pulsante `Carica`.
-- Pulsante `Esporta JSON`, se si decide di separarlo da `Salva`.
+- Il file JSON viene generato dal flusso `Salva`, senza richiedere al master di capire il formato.
 - Eventuale pulsante `Reset`.
 
 Subito sotto:
@@ -114,7 +114,7 @@ Il flusso centrale per un clock globale deve essere questo:
 6. Il master trascina la card dove preferisce.
 7. Durante la sessione modifica avanzamento, lunghezza e impostazioni direttamente dalla card.
 8. Alla fine preme `Salva`, inserisce un nome per il salvataggio e lo ritrova nella barra laterale.
-9. Se vuole un backup o deve spostare la campagna su un altro dispositivo, esporta un JSON completo della plancia.
+9. Insieme al salvataggio interno, la webapp scarica anche un JSON completo della plancia per backup o importazione futura.
 
 Il feedback deve essere immediato: quando il master cambia numero di spicchi, valore, stile o impostazioni, la grafica deve aggiornarsi subito.
 
@@ -368,9 +368,7 @@ Se il master riduce il numero di segmenti sotto il valore gia riempito, il valor
 
 Il numero di segmenti/spicchi non deve avere un massimo fisso nell'MVP. Il minimo resta `2`; se viene inserito un valore non valido, la UI deve riportarlo a un valore valido senza rompere il clock.
 
-## Salvataggio JSON
-
-Il formato JSON e obbligatorio come formato portabile, ma il flusso rapido del master deve usare salvataggi nominati interni alla webapp.
+## Salvataggio
 
 ## Salvataggi Con Nome E Barra Laterale
 
@@ -380,6 +378,7 @@ Quando il master preme `Salva`:
 - Se il nome e nuovo, crea una nuova schermata salvata.
 - Se il nome esiste gia, chiede se sovrascrivere oppure salvare una copia con nome diverso.
 - Il salvataggio viene aggiunto o aggiornato nella barra laterale.
+- La webapp scarica anche un file `.json` con lo stesso stato, cosi il master ha un file visibile solo per backup, importazione futura o passaggio a un altro dispositivo.
 - Ogni salvataggio contiene l'intero stato della pagina: campagna, barre, clock, posizioni, valori, stili e impostazioni.
 - Cliccando un salvataggio dalla barra laterale, la webapp ricarica quella schermata.
 - Se la plancia corrente ha modifiche non salvate, la webapp chiede conferma prima di sostituirla.
@@ -411,16 +410,16 @@ Struttura dati locale consigliata:
 }
 ```
 
-## Esportazione JSON
+## File JSON Di Backup
 
-Il pulsante `Esporta JSON`, oppure una voce dentro il flusso `Salva`, deve permettere di scaricare un file `.json`.
+Il file `.json` viene creato dal flusso `Salva`.
 
-Quando viene premuto:
+Quando il master salva:
 
 - La webapp prende lo stato corrente della pagina.
 - Genera un file `.json`.
 - Il file contiene barre, card-clock, nomi, valori, stile grafico, spicchi/segmenti, avanzamento, posizione e impostazioni visive.
-- Il master conserva quel file come persistenza tra sessioni.
+- Il master puo conservare quel file senza doverlo aprire o capire: serve solo per importarlo in futuro o spostarlo su un altro dispositivo.
 
 Nome file consigliato:
 
@@ -523,6 +522,7 @@ Comportamento:
 - Chiede conferma prima di sostituire la plancia corrente.
 - Dopo il caricamento, permette di salvarlo con nome nella barra laterale.
 - Se il file non e valido, mostra un errore chiaro e non cancella nulla.
+- Il caricamento da JSON non crea automaticamente una voce nella barra laterale: dopo aver importato, il master puo premere `Salva` per registrare quella schermata con nome.
 
 ## Autosave Locale
 
@@ -648,7 +648,7 @@ public/
 Versione 0.1:
 
 - Schermata vuota con sfondo fantasy.
-- Header minimale con `Aggiungi`, `Salva`, `Carica`, eventuale `Esporta JSON`.
+- Header minimale con `Aggiungi`, `Salva`, `Carica`.
 - Salvataggio con nome tramite modale semplice.
 - Barra laterale con schermate salvate ricaricabili al volo.
 - Due barre fisse da 21 quadratini:
@@ -665,7 +665,7 @@ Versione 0.1:
 - Spostamento delle card-clock sulla plancia.
 - Possibilita di fissare i clock globali in alto nella zona `Party`.
 - Spostamento delle card giocatore sulla plancia.
-- Esportazione completa in JSON.
+- Download automatico del JSON completo quando si preme `Salva`.
 - Caricamento da JSON.
 - Autosave in `localStorage`.
 - Layout responsive.
@@ -682,7 +682,7 @@ Versione 0.2, solo se serve:
 - Blocco posizione.
 - Colori o categorie.
 - Archivio dei clock completati.
-- Gestione avanzata dei salvataggi: rinomina, duplica, elimina, esporta singolo salvataggio.
+- Gestione avanzata dei salvataggi: rinomina, duplica, elimina.
 
 ## Cose Da Evitare
 
@@ -708,8 +708,7 @@ Versione 0.2, solo se serve:
 - Le barre fisse devono essere sempre in alto o anche loro posizionabili?
 - Serve una modalita schermo intero per usarla al tavolo?
 - La barra laterale dei salvataggi su mobile deve diventare un drawer, una tendina o una sezione in alto?
-- `Salva` deve sempre sovrascrivere il salvataggio attivo dopo la prima scelta del nome, oppure deve chiedere il nome ogni volta?
-- L'esportazione JSON deve essere un pulsante separato oppure una scelta dentro la modale di salvataggio?
+- Quando si sta modificando un salvataggio gia attivo, `Salva` deve proporre quel nome come default e aggiornare quel salvataggio se il master conferma lo stesso nome.
 - I clock dentro una card giocatore devono essere sempre visibili o collassabili per non occupare troppo spazio?
 - La card giocatore deve avere anche un clock riepilogativo/totale automatico o solo i clock che il master aggiunge manualmente?
 - La zona `Party` deve essere sempre visibile anche quando non contiene clock, oppure apparire solo quando almeno un clock e fissato?

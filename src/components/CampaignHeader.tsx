@@ -1,4 +1,4 @@
-import { FileDown, FolderOpen, Plus, RotateCcw } from 'lucide-react'
+import { FolderOpen, Plus, RotateCcw, Save } from 'lucide-react'
 import { useRef } from 'react'
 
 interface CampaignHeaderProps {
@@ -37,7 +37,7 @@ export function CampaignHeader({
           Aggiungi
         </button>
         <button type="button" className="plank-button" onClick={onSave}>
-          <FileDown aria-hidden="true" size={18} />
+          <Save aria-hidden="true" size={18} />
           Salva
         </button>
         <button
