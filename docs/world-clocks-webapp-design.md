@@ -72,6 +72,14 @@ Al centro:
 
 La pagina non deve sembrare una dashboard gestionale moderna. Deve sembrare una plancia fantasy da master: legno scuro, pergamena, oro brunito, elementi come segnalini appoggiati sul tavolo.
 
+Vincoli di leggibilita e contenimento:
+
+- Ogni card deve contenere sempre tutti i propri controlli: input, select, barre segmentate e pulsanti non devono uscire dal bordo della card.
+- I controlli dentro una card devono adattarsi alla larghezza disponibile con griglie responsive, `min-width: 0` e dimensioni stabili.
+- Il contrasto tra testo, controlli, segmenti e sfondo deve essere controllato con attenzione, perche lo sfondo fantasy e molto scuro e textureizzato.
+- Gli stati vuoti, pieni, selezionati e disabilitati dei clock devono essere distinguibili anche quando il colore scelto e scuro.
+- Le card devono poter essere compatte, ma non sacrificare leggibilita e tap target.
+
 ## Responsive E Uso Mobile
 
 La webapp deve essere comoda anche da cellulare, ma senza forzare la stessa esperienza desktop in uno spazio troppo piccolo.
@@ -314,6 +322,7 @@ Requisiti:
 - Nome sempre leggibile.
 - Indicazione discreta tipo `3 / 6`.
 - Stato completato quando tutti gli spicchi sono pieni.
+- Il grafico deve avere abbastanza contrasto tra spicchi vuoti, spicchi pieni, bordi e sfondo della card.
 
 Implementazione consigliata:
 
@@ -656,6 +665,8 @@ Versione 0.1:
 - Autosave in `localStorage`.
 - Layout responsive.
 - Su mobile, vista semplificata a lista con gesture principali per avanzamento.
+- Card e controlli interni sempre contenuti, senza overflow visivo.
+- Contrasto rinforzato su sfondi scuri e textureizzati.
 
 Versione 0.2, solo se serve:
 

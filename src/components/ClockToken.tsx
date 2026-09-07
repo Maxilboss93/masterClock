@@ -160,7 +160,7 @@ export function ClockToken({
         </button>
       </div>
 
-      <div className="clock-settings-row">
+      <div className="clock-settings-row clock-settings-primary">
         <label>
           Stile
           <select
@@ -190,7 +190,7 @@ export function ClockToken({
         </label>
       </div>
 
-      <div className="clock-settings-row">
+      <div className="clock-settings-row clock-settings-footer">
         <label>
           Colore
           <select
