@@ -8,7 +8,7 @@ La richiesta del master, ridotta all'essenziale:
 
 - Schermata inizialmente vuota.
 - Un pulsante `Aggiungi`.
-- Da `Aggiungi` si crea una card-clock.
+- Da `Aggiungi` si puo creare una card-clock oppure una barra discreta da plancia.
 - Un pulsante `Crea grafici giocatore`.
 - Da `Crea grafici giocatore` si crea una card dedicata a un giocatore.
 - Ogni card giocatore deve avere il nome del giocatore.
@@ -21,6 +21,7 @@ La richiesta del master, ridotta all'essenziale:
 - Il clock a torta resta la forma principale, ma l'interfaccia deve poter ospitare piu stili visivi.
 - Servono anche due barre fisse da 21 quadratini, con valore centrale `0`.
 - Le impostazioni delle barre devono essere modificabili.
+- Deve essere possibile creare altre barre con la stessa UX delle due barre fisse, direttamente dal pulsante `Aggiungi`.
 - Un tasto `Salva` deve chiedere un nome per il salvataggio.
 - I salvataggi nominati devono comparire in una barra laterale e poter essere ricaricati al volo.
 - Il tasto `Salva` deve anche creare/scaricare un file `.json` visibile al master, pensato solo come backup e per eventuale importazione.
@@ -67,7 +68,7 @@ Lateralmente:
 
 Al centro:
 
-- Una plancia libera dove il master posiziona le card dei clock globali e le card giocatore.
+- Una plancia libera dove il master posiziona le card dei clock globali, le barre create al volo e le card giocatore.
 - Una zona alta `Party`, facoltativa, dove fissare i clock globali che devono restare sempre visibili.
 
 La pagina non deve sembrare una dashboard gestionale moderna. Deve sembrare una plancia fantasy da master: legno scuro, pergamena, oro brunito, elementi come segnalini appoggiati sul tavolo.
@@ -117,6 +118,15 @@ Il flusso centrale per un clock globale deve essere questo:
 9. Insieme al salvataggio interno, la webapp scarica anche un JSON completo della plancia per backup o importazione futura.
 
 Il feedback deve essere immediato: quando il master cambia numero di spicchi, valore, stile o impostazioni, la grafica deve aggiornarsi subito.
+
+Il flusso centrale per una barra da plancia deve essere questo:
+
+1. Il master preme `Aggiungi`.
+2. Sceglie `Barra 21 caselle`.
+3. Inserisce nome, etichetta sinistra, etichetta centrale ed etichetta destra.
+4. Conferma.
+5. La webapp crea una card-barra sulla plancia.
+6. Il master puo cliccare i quadratini per impostare il valore, trascinare la card, modificarne le etichette o eliminarla.
 
 ## Grafici Globali E Zona Party
 
@@ -269,6 +279,51 @@ Ogni barra deve:
 - Salvare il valore nel JSON.
 
 Dato che il master parla di quadratini, le barre non devono essere slider continui. Devono essere discrete, fisiche, quasi da scheda cartacea.
+
+## Barre Da Plancia
+
+Oltre alle due barre fisse in alto, il master deve poter creare altre barre dalla UX di `Aggiungi`.
+
+Comportamento:
+
+- Le barre create da `Aggiungi` usano la stessa interazione delle barre fisse: 21 quadratini, centro `0`, click sul quadratino per impostare il valore.
+- Vivono come card libere sulla plancia, quindi hanno posizione, blocco posizione ed eliminazione.
+- Hanno nome, etichetta sinistra, etichetta centrale, etichetta destra e valore modificabili.
+- Sono salvate nel JSON e nei salvataggi nominati.
+- Non entrano nella zona `Party`, che resta dedicata ai clock globali/totali.
+- Su mobile vengono mostrate come card in lista, con quadratini tappabili.
+
+Decisione strutturale:
+
+- Le due barre obbligatorie restano in `tracks`.
+- Le barre create dal master vanno in una collezione separata `boardTracks`.
+- Questa separazione evita di confondere le barre sempre presenti con quelle narrative create per una scena specifica.
+
+Esempio dati:
+
+```json
+{
+  "boardTracks": [
+    {
+      "id": "board-track-1",
+      "name": "Tensione del sogno",
+      "leftLabel": "Calma",
+      "centerLabel": "0",
+      "rightLabel": "Frattura",
+      "min": -10,
+      "max": 10,
+      "value": 0,
+      "position": {
+        "x": 80,
+        "y": 340
+      },
+      "size": "medium",
+      "locked": false,
+      "updatedAt": "2026-09-07T00:00:00.000Z"
+    }
+  ]
+}
+```
 
 ## Clock
 
@@ -622,6 +677,7 @@ src/
     SegmentedBarClock.tsx
     AddClockModal.tsx
     ClockSettingsPanel.tsx
+    TrackToken.tsx
     SavedScenesSidebar.tsx
     SaveSceneModal.tsx
     MobileClockList.tsx
@@ -656,6 +712,7 @@ Versione 0.1:
   - `Percezione delle fazioni`: `Rinati` / `0` / `Cantori`.
 - Impostazioni modificabili per nome/estremi/valori delle barre.
 - Creazione card-clock con scelta dello stile grafico.
+- Creazione barra da plancia con la stessa UX delle due barre fisse.
 - Creazione card giocatore con nome del giocatore.
 - Possibilita di aggiungere piu clock dentro ogni card giocatore.
 - Creazione clock a torta con nome e numero spicchi.
@@ -663,6 +720,7 @@ Versione 0.1:
 - Avanzamento del clock cliccando il grafico o usando `-1` / `+1`.
 - Modifica in tempo reale di lunghezza, stile e impostazioni.
 - Spostamento delle card-clock sulla plancia.
+- Spostamento delle barre create sulla plancia.
 - Possibilita di fissare i clock globali in alto nella zona `Party`.
 - Spostamento delle card giocatore sulla plancia.
 - Download automatico del JSON completo quando si preme `Salva`.
@@ -712,6 +770,7 @@ Versione 0.2, solo se serve:
 - I clock dentro una card giocatore devono essere sempre visibili o collassabili per non occupare troppo spazio?
 - La card giocatore deve avere anche un clock riepilogativo/totale automatico o solo i clock che il master aggiunge manualmente?
 - La zona `Party` deve essere sempre visibile anche quando non contiene clock, oppure apparire solo quando almeno un clock e fissato?
+- Le barre da plancia devono poter avere una scala diversa da 21 caselle in futuro, oppure 21 deve restare lo standard unico?
 
 ## Stima
 
@@ -740,7 +799,7 @@ Totale realistico: una giornata corta, con margine per rifinire il feeling visiv
 
 Procedere con React + Vite + TypeScript, senza backend.
 
-Il cuore dell'app deve essere questo: una plancia fantasy vuota, due barre fisse da 21 caselle e un pulsante `Aggiungi` che crea card-clock globali nominabili, posizionabili e configurabili in tempo reale. I clock globali restano liberi sulla plancia, ma possono essere fissati in alto nella zona `Party`. Deve esserci anche `Crea grafici giocatore`, che crea una card giocatore con nome e con la possibilita di aggiungere piu clock interni. Il master deve poter salvare schermate con nome nella barra laterale e richiamarle subito; il JSON deve restare il formato portabile per backup e passaggio tra sessioni o dispositivi. Su desktop la webapp funziona come plancia libera, mentre su cellulare diventa una lista operativa semplificata con gesture rapide.
+Il cuore dell'app deve essere questo: una plancia fantasy vuota, due barre fisse da 21 caselle e un pulsante `Aggiungi` che crea card-clock globali oppure barre da plancia nominabili, posizionabili e configurabili in tempo reale. I clock globali restano liberi sulla plancia, ma possono essere fissati in alto nella zona `Party`. Deve esserci anche `Crea grafici giocatore`, che crea una card giocatore con nome e con la possibilita di aggiungere piu clock interni. Il master deve poter salvare schermate con nome nella barra laterale e richiamarle subito; il JSON deve restare il formato portabile per backup e passaggio tra sessioni o dispositivi. Su desktop la webapp funziona come plancia libera, mentre su cellulare diventa una lista operativa semplificata con gesture rapide.
 
 ## Regola Di Lavoro Sul Documento
 

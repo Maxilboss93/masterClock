@@ -107,6 +107,7 @@
 
 .campaign-title span,
 .track-card label,
+.track-token label,
 .clock-settings-row label,
 .add-clock-modal label,
 .add-clock-modal legend {
@@ -351,7 +352,8 @@
 }
 
 .board::before,
-.clock-token::before {
+.clock-token::before,
+.track-token::before {
   content: "";
   position: absolute;
   width: 12px;
@@ -382,7 +384,8 @@
   font-size: 1.8rem;
 }
 
-.clock-token {
+.clock-token,
+.track-token {
   --clock-accent: var(--gold);
   position: absolute;
   display: grid;
@@ -396,13 +399,23 @@
   box-shadow: var(--shadow);
 }
 
-.clock-token::before {
+.clock-token::before,
+.track-token::before {
   right: 8px;
   bottom: 8px;
 }
 
-.clock-token > * {
+.clock-token > *,
+.track-token > * {
   min-width: 0;
+}
+
+.clock-token {
+  width: 248px;
+}
+
+.track-token {
+  width: min(520px, calc(100% - 24px));
 }
 
 .clock-token.ember {
@@ -425,6 +438,14 @@
   width: 290px;
 }
 
+.track-token.small {
+  width: min(440px, calc(100% - 24px));
+}
+
+.track-token.large {
+  width: min(640px, calc(100% - 24px));
+}
+
 .clock-token.party-pinned {
   position: relative;
   left: auto;
@@ -438,6 +459,7 @@
 }
 
 .clock-token-topline,
+.track-token-topline,
 .clock-visual,
 .clock-token-actions,
 .clock-settings-row {
@@ -452,11 +474,19 @@
   gap: 8px;
 }
 
+.track-token-topline {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) minmax(42px, auto) 30px;
+  align-items: center;
+  gap: 8px;
+}
+
 .clock-token-topline:has(.party-chip) {
   grid-template-columns: 30px auto minmax(0, 1fr) 30px 30px;
 }
 
-.clock-token-topline input {
+.clock-token-topline input,
+.track-token-topline input {
   min-width: 0;
   width: 100%;
   padding: 0.25rem 0.35rem;
@@ -464,6 +494,11 @@
   border-color: transparent;
   background: transparent;
   text-overflow: ellipsis;
+}
+
+.track-token-topline strong {
+  color: var(--gold-soft);
+  text-align: right;
 }
 
 .drag-handle {
@@ -585,6 +620,25 @@
   grid-template-columns: minmax(0, 1fr) 40px;
 }
 
+.track-token-footer {
+  display: grid;
+  grid-template-columns: minmax(96px, 140px) 40px;
+  gap: 8px;
+  align-items: end;
+  justify-content: end;
+}
+
+.track-token-footer label {
+  display: grid;
+  gap: 4px;
+}
+
+.track-token-footer input {
+  width: 100%;
+  padding: 0.35rem 0.45rem;
+  font-size: 0.86rem;
+}
+
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -639,6 +693,13 @@
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 6px;
+}
+
+.track-draft-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(70px, 90px) minmax(0, 1fr);
+  gap: 10px;
+  align-items: end;
 }
 
 .preset {
@@ -702,8 +763,22 @@
     min-height: 620px;
   }
 
-  .clock-token {
+  .clock-token,
+  .track-token {
     width: min(100%, 280px);
+  }
+
+  .track-token .track-squares {
+    grid-template-columns: repeat(21, minmax(8px, 1fr));
+  }
+
+  .track-token .track-label-row,
+  .track-draft-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .track-token .track-label-row input:last-child {
+    text-align: left;
   }
 
   .party-rail {

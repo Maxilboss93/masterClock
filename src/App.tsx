@@ -9,7 +9,7 @@ import { defaultCampaign } from './state/defaultCampaign'
 import { campaignToJson, downloadCampaignJson, parseCampaignJson } from './state/jsonPersistence'
 import { loadSavedScenes, makeSavedScene, saveSavedScenes } from './state/savedScenes'
 import { loadStoredCampaign, saveStoredCampaign } from './state/storage'
-import type { Clock } from './types/campaign'
+import type { BoardTrack, Clock } from './types/campaign'
 import type { SavedScene } from './types/savedScene'
 import './styles/theme.css'
 import './styles/app.css'
@@ -34,8 +34,41 @@ function App() {
     ? campaignToJson(campaign) !== campaignToJson(activeSave.campaign)
     : campaignToJson(campaign) !== campaignToJson(defaultCampaign)
 
-  const createClock = (draft: Pick<Clock, 'type' | 'name' | 'segments' | 'color'>) => {
-    const nextIndex = campaign.clocks.length + 1
+  const createBoardElement = (
+    draft:
+      | ({
+          kind: 'clock'
+        } & Pick<Clock, 'type' | 'name' | 'segments' | 'color'>)
+      | ({
+          kind: 'track'
+        } & Pick<BoardTrack, 'name' | 'leftLabel' | 'centerLabel' | 'rightLabel'>),
+  ) => {
+    const nextIndex = campaign.clocks.length + campaign.boardTracks.length + 1
+
+    if (draft.kind === 'track') {
+      const track: BoardTrack = {
+        id: `board-track-${Date.now()}`,
+        name: draft.name,
+        leftLabel: draft.leftLabel,
+        centerLabel: draft.centerLabel,
+        rightLabel: draft.rightLabel,
+        min: -10,
+        max: 10,
+        value: 0,
+        position: {
+          x: 36 + ((nextIndex - 1) % 3) * 44,
+          y: 36 + ((nextIndex - 1) % 3) * 38,
+        },
+        size: 'medium',
+        locked: false,
+        updatedAt: new Date().toISOString(),
+      }
+
+      dispatch({ type: 'addBoardTrack', track })
+      setIsAddModalOpen(false)
+      return
+    }
+
     const clock: Clock = {
       id: `clock-${Date.now()}`,
       type: draft.type,
@@ -51,9 +84,9 @@ function App() {
         x: 40 + ((nextIndex - 1) % 4) * 40,
         y: 40 + ((nextIndex - 1) % 4) * 34,
       },
-      size: 'medium',
-      locked: false,
-      pinnedToParty: false,
+        size: 'medium',
+        locked: false,
+        pinnedToParty: false,
       updatedAt: new Date().toISOString(),
     }
 
@@ -199,15 +232,21 @@ function App() {
 
         <Board
           clocks={campaign.clocks}
+          boardTracks={campaign.boardTracks}
           onUpdateClock={(id, patch) => dispatch({ type: 'updateClock', id, patch })}
           onSetClockFilled={(id, filled) => dispatch({ type: 'setClockFilled', id, filled })}
           onMoveClock={(id, x, y) => dispatch({ type: 'moveClock', id, x, y })}
           onDeleteClock={(id) => dispatch({ type: 'deleteClock', id })}
+          onUpdateBoardTrack={(id, patch) =>
+            dispatch({ type: 'updateBoardTrack', id, patch })
+          }
+          onMoveBoardTrack={(id, x, y) => dispatch({ type: 'moveBoardTrack', id, x, y })}
+          onDeleteBoardTrack={(id) => dispatch({ type: 'deleteBoardTrack', id })}
         />
       </div>
 
       {isAddModalOpen ? (
-        <AddClockModal onClose={() => setIsAddModalOpen(false)} onCreate={createClock} />
+        <AddClockModal onClose={() => setIsAddModalOpen(false)} onCreate={createBoardElement} />
       ) : null}
     </div>
   )

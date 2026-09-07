@@ -1,4 +1,5 @@
 import type {
+  BoardTrack,
   CampaignState,
   Clock,
   ClockColor,
@@ -116,6 +117,44 @@ function validateClock(value: unknown): Clock | null {
   }
 }
 
+function validateBoardTrack(value: unknown): BoardTrack | null {
+  if (!isObject(value)) {
+    return null
+  }
+
+  const {
+    position,
+    size,
+    locked,
+    updatedAt,
+  } = value
+  const track = validateTrack(value)
+
+  if (
+    !track ||
+    !isObject(position) ||
+    !isNumber(position.x) ||
+    !isNumber(position.y) ||
+    !clockSizes.includes(size as ClockSize) ||
+    typeof locked !== 'boolean' ||
+    !isString(updatedAt)
+  ) {
+    return null
+  }
+
+  return {
+    ...track,
+    value: Math.min(Math.max(Math.round(track.value), track.min), track.max),
+    position: {
+      x: Math.max(0, Math.round(position.x)),
+      y: Math.max(0, Math.round(position.y)),
+    },
+    size: size as ClockSize,
+    locked,
+    updatedAt,
+  }
+}
+
 export function parseCampaignJson(text: string): CampaignState {
   const parsed: unknown = JSON.parse(text)
 
@@ -123,7 +162,7 @@ export function parseCampaignJson(text: string): CampaignState {
     throw new Error('File non valido o versione schema non supportata.')
   }
 
-  const { campaignName, tracks, clocks } = parsed
+  const { campaignName, tracks, clocks, boardTracks } = parsed
 
   if (!isString(campaignName) || !Array.isArray(tracks) || !Array.isArray(clocks)) {
     throw new Error('Il file deve contenere campaignName, tracks e clocks.')
@@ -131,9 +170,16 @@ export function parseCampaignJson(text: string): CampaignState {
 
   const parsedTracks = tracks.map(validateTrack)
   const parsedClocks = clocks.map(validateClock)
+  const parsedBoardTracks = Array.isArray(boardTracks)
+    ? boardTracks.map(validateBoardTrack)
+    : []
 
   if (parsedTracks.some((track) => track === null)) {
     throw new Error('Una o piu barre nel file non sono valide.')
+  }
+
+  if (parsedBoardTracks.some((track) => track === null)) {
+    throw new Error('Una o piu barre da plancia nel file non sono valide.')
   }
 
   if (parsedClocks.some((clock) => clock === null)) {
@@ -144,6 +190,7 @@ export function parseCampaignJson(text: string): CampaignState {
     schemaVersion: 1,
     campaignName,
     tracks: parsedTracks as Track[],
+    boardTracks: parsedBoardTracks as BoardTrack[],
     clocks: parsedClocks as Clock[],
   }
 }

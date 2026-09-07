@@ -35,6 +35,7 @@ export function SavedScenesSidebar({
         <div className="saved-scenes-list">
           {orderedSaves.map((save) => {
             const clockCount = save.campaign.clocks.length
+            const trackCount = save.campaign.boardTracks.length
             const isActive = save.id === activeSaveId
 
             return (
@@ -46,7 +47,7 @@ export function SavedScenesSidebar({
               >
                 <span className="saved-scene-name">{save.name}</span>
                 <span className="saved-scene-meta">
-                  {formatDate(save.updatedAt)} · {clockCount} clock
+                  {formatDate(save.updatedAt)} · {clockCount} clock · {trackCount} barre
                 </span>
               </button>
             )

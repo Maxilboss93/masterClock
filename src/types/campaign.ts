@@ -40,9 +40,17 @@ export interface Clock {
   updatedAt: string
 }
 
+export interface BoardTrack extends Track {
+  position: ClockPosition
+  size: ClockSize
+  locked: boolean
+  updatedAt: string
+}
+
 export interface CampaignState {
   schemaVersion: 1
   campaignName: string
   tracks: Track[]
+  boardTracks: BoardTrack[]
   clocks: Clock[]
 }

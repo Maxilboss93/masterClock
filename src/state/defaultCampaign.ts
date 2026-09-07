@@ -25,5 +25,6 @@ export const defaultCampaign: CampaignState = {
       value: 0,
     },
   ],
+  boardTracks: [],
   clocks: [],
 }
