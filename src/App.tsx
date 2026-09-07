@@ -39,6 +39,7 @@ function App() {
       },
       size: 'medium',
       locked: false,
+      pinnedToParty: false,
       updatedAt: new Date().toISOString(),
     }
 

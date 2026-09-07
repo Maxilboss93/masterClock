@@ -14,6 +14,7 @@ La richiesta del master, ridotta all'essenziale:
 - Ogni card giocatore deve avere il nome del giocatore.
 - Dentro ogni card giocatore deve essere possibile aggiungere tutti i clock/grafici necessari.
 - Deve restare possibile avere grafici totali/globali, separati dai grafici dei singoli giocatori.
+- I grafici totali/globali restano card libere sulla plancia, ma possono essere fissati in alto in una zona `Party`.
 - La card-clock deve avere un nome.
 - Il master deve scegliere lo stile grafico del clock.
 - Il clock deve chiedere quanti spicchi/segmenti/caselle servono in base allo stile scelto.
@@ -67,6 +68,7 @@ Lateralmente:
 Al centro:
 
 - Una plancia libera dove il master posiziona le card dei clock globali e le card giocatore.
+- Una zona alta `Party`, facoltativa, dove fissare i clock globali che devono restare sempre visibili.
 
 La pagina non deve sembrare una dashboard gestionale moderna. Deve sembrare una plancia fantasy da master: legno scuro, pergamena, oro brunito, elementi come segnalini appoggiati sul tavolo.
 
@@ -107,6 +109,37 @@ Il flusso centrale per un clock globale deve essere questo:
 9. Se vuole un backup o deve spostare la campagna su un altro dispositivo, esporta un JSON completo della plancia.
 
 Il feedback deve essere immediato: quando il master cambia numero di spicchi, valore, stile o impostazioni, la grafica deve aggiornarsi subito.
+
+## Grafici Globali E Zona Party
+
+I grafici totali/globali restano card-clock libere sulla plancia. Il master deve pero poter fissare un clock globale in alto, in una zona contrassegnata dalla scritta `Party`.
+
+Comportamento:
+
+- Ogni clock globale puo essere libero sulla plancia oppure fissato nella zona `Party`.
+- Quando e libero, usa `position` e puo essere trascinato.
+- Quando e fissato in `Party`, viene mostrato nella fascia alta della plancia e non usa visivamente la posizione libera.
+- Se viene sbloccato da `Party`, torna sulla plancia usando la sua ultima `position` salvata.
+- La zona `Party` rappresenta i grafici globali/totali del gruppo, non un singolo giocatore.
+- I clock dentro le card giocatore non possono essere fissati in `Party`, perche appartengono al giocatore.
+
+Dato consigliato:
+
+```json
+{
+  "id": "clock-1",
+  "type": "pie",
+  "name": "Allarme della cittadella",
+  "segments": 6,
+  "filled": 2,
+  "color": "ember",
+  "pinnedToParty": true,
+  "position": {
+    "x": 480,
+    "y": 260
+  }
+}
+```
 
 ## Grafici Per Giocatore
 
@@ -429,6 +462,7 @@ Esempio:
       },
       "size": "medium",
       "locked": false,
+      "pinnedToParty": false,
       "updatedAt": "2026-09-07T00:00:00.000Z"
     }
   ],
@@ -615,6 +649,7 @@ Versione 0.1:
 - Avanzamento del clock cliccando il grafico o usando `-1` / `+1`.
 - Modifica in tempo reale di lunghezza, stile e impostazioni.
 - Spostamento delle card-clock sulla plancia.
+- Possibilita di fissare i clock globali in alto nella zona `Party`.
 - Spostamento delle card giocatore sulla plancia.
 - Esportazione completa in JSON.
 - Caricamento da JSON.
@@ -660,7 +695,7 @@ Versione 0.2, solo se serve:
 - L'esportazione JSON deve essere un pulsante separato oppure una scelta dentro la modale di salvataggio?
 - I clock dentro una card giocatore devono essere sempre visibili o collassabili per non occupare troppo spazio?
 - La card giocatore deve avere anche un clock riepilogativo/totale automatico o solo i clock che il master aggiunge manualmente?
-- I grafici totali/globali devono restare card libere sulla plancia o stare in una sezione/card `Totale` dedicata?
+- La zona `Party` deve essere sempre visibile anche quando non contiene clock, oppure apparire solo quando almeno un clock e fissato?
 
 ## Stima
 
@@ -672,6 +707,7 @@ Per una versione 0.1 piccola ma curata:
 - Impostazioni modificabili delle barre: 45-60 minuti.
 - Clock a torta SVG: 1-2 ore.
 - Clock a barra segmentata: 45-60 minuti.
+- Zona `Party` per fissare clock globali: 30-60 minuti.
 - Card giocatore con clock interni: 1-2 ore.
 - Picker stile grafico: 30-45 minuti.
 - Modale `Aggiungi`: 45-60 minuti.
@@ -688,7 +724,7 @@ Totale realistico: una giornata corta, con margine per rifinire il feeling visiv
 
 Procedere con React + Vite + TypeScript, senza backend.
 
-Il cuore dell'app deve essere questo: una plancia fantasy vuota, due barre fisse da 21 caselle e un pulsante `Aggiungi` che crea card-clock globali nominabili, posizionabili e configurabili in tempo reale. Deve esserci anche `Crea grafici giocatore`, che crea una card giocatore con nome e con la possibilita di aggiungere piu clock interni. Il master deve poter salvare schermate con nome nella barra laterale e richiamarle subito; il JSON deve restare il formato portabile per backup e passaggio tra sessioni o dispositivi. Su desktop la webapp funziona come plancia libera, mentre su cellulare diventa una lista operativa semplificata con gesture rapide.
+Il cuore dell'app deve essere questo: una plancia fantasy vuota, due barre fisse da 21 caselle e un pulsante `Aggiungi` che crea card-clock globali nominabili, posizionabili e configurabili in tempo reale. I clock globali restano liberi sulla plancia, ma possono essere fissati in alto nella zona `Party`. Deve esserci anche `Crea grafici giocatore`, che crea una card giocatore con nome e con la possibilita di aggiungere piu clock interni. Il master deve poter salvare schermate con nome nella barra laterale e richiamarle subito; il JSON deve restare il formato portabile per backup e passaggio tra sessioni o dispositivi. Su desktop la webapp funziona come plancia libera, mentre su cellulare diventa una lista operativa semplificata con gesture rapide.
 
 ## Regola Di Lavoro Sul Documento
 

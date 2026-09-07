@@ -36,6 +36,7 @@ export interface Clock {
   position: ClockPosition
   size: ClockSize
   locked: boolean
+  pinnedToParty: boolean
   updatedAt: string
 }
 

@@ -67,6 +67,7 @@ function validateClock(value: unknown): Clock | null {
     position,
     size,
     locked,
+    pinnedToParty,
     updatedAt,
   } = value
 
@@ -109,6 +110,7 @@ function validateClock(value: unknown): Clock | null {
     },
     size: size as ClockSize,
     locked,
+    pinnedToParty: typeof pinnedToParty === 'boolean' ? pinnedToParty : false,
     updatedAt,
   }
 }

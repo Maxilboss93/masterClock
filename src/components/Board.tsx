@@ -18,18 +18,39 @@ export function Board({
   onDeleteClock,
 }: BoardProps) {
   const boardRef = useRef<HTMLDivElement | null>(null)
+  const partyClocks = clocks.filter((clock) => clock.pinnedToParty)
+  const freeClocks = clocks.filter((clock) => !clock.pinnedToParty)
 
   return (
     <main className="board-shell">
+      {partyClocks.length > 0 ? (
+        <section className="party-rail" aria-label="Clock globali Party">
+          <h2>Party</h2>
+          <div className="party-clock-list">
+            {partyClocks.map((clock) => (
+              <ClockToken
+                key={clock.id}
+                clock={clock}
+                boardRef={boardRef}
+                onUpdate={onUpdateClock}
+                onSetFilled={onSetClockFilled}
+                onMove={onMoveClock}
+                onDelete={onDeleteClock}
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       <div className="board" ref={boardRef}>
-        {clocks.length === 0 ? (
+        {freeClocks.length === 0 ? (
           <div className="board-empty">
             <p>La plancia e vuota.</p>
             <span>Aggiungi un clock quando il mondo inizia a muoversi.</span>
           </div>
         ) : null}
 
-        {clocks.map((clock) => (
+        {freeClocks.map((clock) => (
           <ClockToken
             key={clock.id}
             clock={clock}

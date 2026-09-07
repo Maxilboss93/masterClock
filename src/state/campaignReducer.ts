@@ -61,6 +61,7 @@ export function campaignReducer(
             ...nextClock,
             segments,
             filled: clamp(nextClock.filled, 0, segments),
+            pinnedToParty: Boolean(nextClock.pinnedToParty),
           })
         }),
       }

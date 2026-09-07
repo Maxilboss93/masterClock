@@ -1,4 +1,13 @@
-import { GripHorizontal, Lock, Minus, Plus, Trash2, Unlock } from 'lucide-react'
+import {
+  GripHorizontal,
+  Lock,
+  Minus,
+  Pin,
+  PinOff,
+  Plus,
+  Trash2,
+  Unlock,
+} from 'lucide-react'
 import type { RefObject } from 'react'
 import type { Clock, ClockColor, ClockType } from '../types/campaign'
 import { PieClock } from './PieClock'
@@ -36,7 +45,7 @@ export function ClockToken({
   const beginDrag = (event: React.PointerEvent<HTMLButtonElement>) => {
     const boardElement = boardRef.current
 
-    if (clock.locked || !boardElement) {
+    if (clock.locked || clock.pinnedToParty || !boardElement) {
       return
     }
 
@@ -69,8 +78,10 @@ export function ClockToken({
 
   return (
     <article
-      className={`clock-token ${clock.color} ${clock.size}`}
-      style={{ left: clock.position.x, top: clock.position.y }}
+      className={`clock-token ${clock.color} ${clock.size} ${
+        clock.pinnedToParty ? 'party-pinned' : ''
+      }`}
+      style={clock.pinnedToParty ? undefined : { left: clock.position.x, top: clock.position.y }}
     >
       <div className="clock-token-topline">
         <button
@@ -81,6 +92,7 @@ export function ClockToken({
         >
           <GripHorizontal aria-hidden="true" size={18} />
         </button>
+        {clock.pinnedToParty ? <span className="party-chip">Party</span> : null}
         <input
           value={clock.name}
           onChange={(event) => onUpdate(clock.id, { name: event.target.value })}
@@ -96,6 +108,18 @@ export function ClockToken({
             <Lock aria-hidden="true" size={15} />
           ) : (
             <Unlock aria-hidden="true" size={15} />
+          )}
+        </button>
+        <button
+          type="button"
+          className="icon-button small"
+          onClick={() => onUpdate(clock.id, { pinnedToParty: !clock.pinnedToParty })}
+          aria-label={clock.pinnedToParty ? 'Libera dalla zona Party' : 'Fissa in Party'}
+        >
+          {clock.pinnedToParty ? (
+            <PinOff aria-hidden="true" size={15} />
+          ) : (
+            <Pin aria-hidden="true" size={15} />
           )}
         </button>
       </div>
