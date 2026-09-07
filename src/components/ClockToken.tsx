@@ -181,7 +181,6 @@ export function ClockToken({
           <input
             type="number"
             min={2}
-            max={12}
             value={clock.segments}
             onChange={(event) =>
               onUpdate(clock.id, { segments: Number(event.target.value) })

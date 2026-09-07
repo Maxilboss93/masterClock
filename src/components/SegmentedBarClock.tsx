@@ -12,7 +12,6 @@ export function SegmentedBarClock({
   return (
     <div
       className="segmented-clock"
-      style={{ '--segments': segments } as React.CSSProperties}
       role="group"
       aria-label="Clock a barra segmentata"
     >

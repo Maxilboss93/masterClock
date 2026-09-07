@@ -6,6 +6,7 @@ import type {
   ClockType,
   Track,
 } from '../types/campaign'
+import { normalizeSegmentCount } from './numbers'
 
 const clockTypes: ClockType[] = ['pie', 'bar']
 const clockColors: ClockColor[] = ['gold', 'ember', 'blood', 'moss']
@@ -91,7 +92,7 @@ function validateClock(value: unknown): Clock | null {
     return null
   }
 
-  const normalizedSegments = Math.min(Math.max(Math.round(segments), 2), 12)
+  const normalizedSegments = normalizeSegmentCount(segments)
 
   return {
     id,

@@ -444,13 +444,13 @@
 .segmented-clock {
   display: grid;
   width: 100%;
-  grid-template-columns: repeat(var(--segments, 6), 1fr);
-  gap: 5px;
+  grid-template-columns: repeat(auto-fit, minmax(16px, 1fr));
+  gap: 4px;
 }
 
 .bar-segment {
-  height: 42px;
-  min-height: 42px;
+  height: 34px;
+  min-height: 34px;
   padding: 0;
   background: rgb(69 66 50 / 0.98);
   border: 1px solid rgb(255 242 214 / 0.52);

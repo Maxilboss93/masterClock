@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { normalizeSegmentCount } from '../state/numbers'
 import type { ClockColor, ClockType } from '../types/campaign'
 
 interface AddClockModalProps {
@@ -70,10 +71,9 @@ export function AddClockModal({ onClose, onCreate }: AddClockModalProps) {
           <input
             type="number"
             min={2}
-            max={12}
             value={segments}
             onChange={(event) =>
-              setSegments(Math.min(Math.max(Number(event.target.value), 2), 12))
+              setSegments(normalizeSegmentCount(Number(event.target.value)))
             }
           />
         </fieldset>

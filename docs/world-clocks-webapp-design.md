@@ -294,7 +294,9 @@ Il numero di elementi deve essere richiesto sempre. Preset consigliati:
 - 10
 - 12
 
-Deve comunque essere possibile inserire un numero manuale entro un range ragionevole, ad esempio da 2 a 12 nella versione iniziale.
+Deve comunque essere possibile inserire un numero manuale libero. Il numero minimo resta `2`, ma non deve esserci un blocco massimo arbitrario come `12`.
+
+Nota visuale: con molti segmenti il clock deve restare contenuto nella card. La torta puo diventare molto fitta, mentre la barra segmentata deve poter andare a capo su piu righe senza uscire dal contenitore.
 
 ### Stili Di Clock
 
@@ -323,6 +325,7 @@ Requisiti:
 - Indicazione discreta tipo `3 / 6`.
 - Stato completato quando tutti gli spicchi sono pieni.
 - Il grafico deve avere abbastanza contrasto tra spicchi vuoti, spicchi pieni, bordi e sfondo della card.
+- Il numero di spicchi non deve essere limitato artificialmente a `12`; il master puo scegliere numeri piu alti, accettando che il grafico diventi piu fitto.
 
 Implementazione consigliata:
 
@@ -362,6 +365,8 @@ Ogni card-clock deve permettere modifiche immediate:
 - Salvare automaticamente lo stato in memoria locale dopo ogni modifica.
 
 Se il master riduce il numero di segmenti sotto il valore gia riempito, il valore `filled` va clampato al nuovo massimo.
+
+Il numero di segmenti/spicchi non deve avere un massimo fisso nell'MVP. Il minimo resta `2`; se viene inserito un valore non valido, la UI deve riportarlo a un valore valido senza rompere il clock.
 
 ## Salvataggio JSON
 
@@ -667,6 +672,7 @@ Versione 0.1:
 - Su mobile, vista semplificata a lista con gesture principali per avanzamento.
 - Card e controlli interni sempre contenuti, senza overflow visivo.
 - Contrasto rinforzato su sfondi scuri e textureizzati.
+- Segmenti/spicchi liberi oltre `12`, con minimo `2`.
 
 Versione 0.2, solo se serve:
 

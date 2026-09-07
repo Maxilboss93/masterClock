@@ -1,4 +1,5 @@
 import type { CampaignState, Clock, Track } from '../types/campaign'
+import { normalizeSegmentCount } from './numbers'
 
 type CampaignAction =
   | { type: 'setCampaignName'; name: string }
@@ -55,7 +56,7 @@ export function campaignReducer(
           }
 
           const nextClock = { ...clock, ...action.patch }
-          const segments = clamp(Math.round(nextClock.segments), 2, 12)
+          const segments = normalizeSegmentCount(nextClock.segments)
 
           return touchClock({
             ...nextClock,
