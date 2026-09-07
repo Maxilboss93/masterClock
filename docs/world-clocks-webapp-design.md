@@ -16,6 +16,8 @@ La richiesta del master, ridotta all'essenziale:
 - Deve restare possibile avere grafici totali/globali, separati dai grafici dei singoli giocatori.
 - I grafici totali/globali restano card libere sulla plancia, ma possono essere fissati in alto in una zona `Party`.
 - La card-clock deve avere un nome.
+- Ogni card deve avere un titolo modificabile.
+- Ogni grafico dentro una card deve avere una label modificabile visibile sopra il grafico.
 - Il master deve scegliere lo stile grafico del clock.
 - Il clock deve chiedere quanti spicchi/segmenti/caselle servono in base allo stile scelto.
 - Il clock a torta resta la forma principale, ma l'interfaccia deve poter ospitare piu stili visivi.
@@ -76,6 +78,7 @@ La pagina non deve sembrare una dashboard gestionale moderna. Deve sembrare una 
 Vincoli di leggibilita e contenimento:
 
 - Ogni card deve contenere sempre tutti i propri controlli: input, select, barre segmentate e pulsanti non devono uscire dal bordo della card.
+- Il titolo della card e la label del grafico sono due testi distinti: il titolo identifica la card, la label descrive il singolo grafico visualizzato dentro la card.
 - I controlli dentro una card devono adattarsi alla larghezza disponibile con griglie responsive, `min-width: 0` e dimensioni stabili.
 - Il contrasto tra testo, controlli, segmenti e sfondo deve essere controllato con attenzione, perche lo sfondo fantasy e molto scuro e textureizzato.
 - Gli stati vuoti, pieni, selezionati e disabilitati dei clock devono essere distinguibili anche quando il colore scelto e scuro.
@@ -109,7 +112,7 @@ Il flusso centrale per un clock globale deve essere questo:
 
 1. Il master preme `Aggiungi`.
 2. Sceglie lo stile del clock tra piu tipi grafici.
-3. Inserisce nome e quantita di segmenti, spicchi o caselle.
+3. Inserisce titolo della card, label del grafico e quantita di segmenti, spicchi o caselle.
 4. Conferma.
 5. La webapp crea una card-clock sulla plancia.
 6. Il master trascina la card dove preferisce.
@@ -123,7 +126,7 @@ Il flusso centrale per una barra da plancia deve essere questo:
 
 1. Il master preme `Aggiungi`.
 2. Sceglie `Barra 21 caselle`.
-3. Inserisce nome, etichetta sinistra, etichetta centrale ed etichetta destra.
+3. Inserisce titolo della card, label del grafico, etichetta sinistra, etichetta centrale ed etichetta destra.
 4. Conferma.
 5. La webapp crea una card-barra sulla plancia.
 6. Il master puo cliccare i quadratini per impostare il valore, trascinare la card, modificarne le etichette o eliminarla.
@@ -148,6 +151,7 @@ Dato consigliato:
   "id": "clock-1",
   "type": "pie",
   "name": "Allarme della cittadella",
+  "graphLabel": "Rintocchi mancanti",
   "segments": 6,
   "filled": 2,
   "color": "ember",
@@ -215,6 +219,7 @@ Esempio dati:
           "id": "player-clock-1",
           "type": "pie",
           "name": "Corruzione del sogno",
+          "graphLabel": "Soglia personale",
           "segments": 6,
           "filled": 2,
           "color": "moss",
@@ -288,7 +293,7 @@ Comportamento:
 
 - Le barre create da `Aggiungi` usano la stessa interazione delle barre fisse: 21 quadratini, centro `0`, click sul quadratino per impostare il valore.
 - Vivono come card libere sulla plancia, quindi hanno posizione, blocco posizione ed eliminazione.
-- Hanno nome, etichetta sinistra, etichetta centrale, etichetta destra e valore modificabili.
+- Hanno titolo card, label del grafico, etichetta sinistra, etichetta centrale, etichetta destra e valore modificabili.
 - Sono salvate nel JSON e nei salvataggi nominati.
 - Non entrano nella zona `Party`, che resta dedicata ai clock globali/totali.
 - Su mobile vengono mostrate come card in lista, con quadratini tappabili.
@@ -307,6 +312,7 @@ Esempio dati:
     {
       "id": "board-track-1",
       "name": "Tensione del sogno",
+      "graphLabel": "Equilibrio onirico",
       "leftLabel": "Calma",
       "centerLabel": "0",
       "rightLabel": "Frattura",
@@ -336,7 +342,8 @@ La card e il contenitore stabile: titolo, controlli rapidi, grafico e impostazio
 Quando il master preme `Aggiungi`, appare una piccola finestra/modale con:
 
 - Stile grafico del clock.
-- Nome del clock.
+- Titolo della card.
+- Label del grafico, mostrata sopra al grafico.
 - Numero di spicchi, segmenti o caselle.
 - Colore o tono visivo opzionale.
 - Pulsante `Crea`.
@@ -377,6 +384,7 @@ Requisiti:
 - Click su uno spicchio per impostare l'avanzamento.
 - Pulsanti rapidi `-1` e `+1`.
 - Nome sempre leggibile.
+- Label del grafico sempre leggibile sopra al quadrante.
 - Indicazione discreta tipo `3 / 6`.
 - Stato completato quando tutti gli spicchi sono pieni.
 - Il grafico deve avere abbastanza contrasto tra spicchi vuoti, spicchi pieni, bordi e sfondo della card.
@@ -415,6 +423,7 @@ Ogni card-clock deve permettere modifiche immediate:
 - Cambiare lunghezza del clock, cioe numero di segmenti/spicchi.
 - Cambiare stile grafico, se compatibile.
 - Cambiare nome.
+- Cambiare label del grafico.
 - Cambiare colore.
 - Spostare la card.
 - Salvare automaticamente lo stato in memoria locale dopo ogni modifica.
@@ -494,6 +503,7 @@ Esempio:
     {
       "id": "attitude",
       "name": "Atteggiamento",
+      "graphLabel": "Bilanciamento del gruppo",
       "leftLabel": "Sociale",
       "centerLabel": "0",
       "rightLabel": "Fisico",
@@ -504,6 +514,7 @@ Esempio:
     {
       "id": "factions",
       "name": "Percezione delle fazioni",
+      "graphLabel": "Vicinanza percepita",
       "leftLabel": "Rinati",
       "centerLabel": "0",
       "rightLabel": "Cantori",
@@ -517,6 +528,7 @@ Esempio:
       "id": "clock-1",
       "type": "pie",
       "name": "Il sogno si incrina",
+      "graphLabel": "Frattura del velo",
       "segments": 6,
       "filled": 2,
       "color": "ember",
@@ -713,6 +725,7 @@ Versione 0.1:
 - Impostazioni modificabili per nome/estremi/valori delle barre.
 - Creazione card-clock con scelta dello stile grafico.
 - Creazione barra da plancia con la stessa UX delle due barre fisse.
+- Titolo card e label sopra grafico modificabili per clock e barre.
 - Creazione card giocatore con nome del giocatore.
 - Possibilita di aggiungere piu clock dentro ogni card giocatore.
 - Creazione clock a torta con nome e numero spicchi.

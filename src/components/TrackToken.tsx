@@ -71,7 +71,7 @@ export function TrackToken({
         <input
           value={track.name}
           onChange={(event) => onUpdate(track.id, { name: event.target.value })}
-          aria-label="Nome barra"
+          aria-label="Titolo card"
         />
         <strong>{track.value > 0 ? `+${track.value}` : track.value}</strong>
         <button
@@ -87,6 +87,13 @@ export function TrackToken({
           )}
         </button>
       </div>
+
+      <input
+        className="graph-label-input"
+        value={track.graphLabel || track.name}
+        onChange={(event) => onUpdate(track.id, { graphLabel: event.target.value })}
+        aria-label="Label grafico"
+      />
 
       <TrackSquares
         track={track}

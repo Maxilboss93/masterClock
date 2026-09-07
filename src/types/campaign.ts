@@ -7,6 +7,7 @@ export type ClockSize = 'small' | 'medium' | 'large'
 export interface Track {
   id: string
   name: string
+  graphLabel: string
   leftLabel: string
   centerLabel: string
   rightLabel: string
@@ -29,6 +30,7 @@ export interface Clock {
   id: string
   type: ClockType
   name: string
+  graphLabel: string
   segments: number
   filled: number
   color: ClockColor

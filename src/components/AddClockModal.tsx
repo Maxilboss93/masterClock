@@ -12,12 +12,14 @@ interface AddClockModalProps {
           kind: 'clock'
           type: ClockType
           name: string
+          graphLabel: string
           segments: number
           color: ClockColor
         }
       | {
           kind: 'track'
           name: string
+          graphLabel: string
           leftLabel: string
           centerLabel: string
           rightLabel: string
@@ -31,6 +33,7 @@ export function AddClockModal({ onClose, onCreate }: AddClockModalProps) {
   const [kind, setKind] = useState<AddItemKind>('clock')
   const [type, setType] = useState<ClockType>('pie')
   const [name, setName] = useState('Nuovo clock')
+  const [graphLabel, setGraphLabel] = useState('Avanzamento')
   const [segments, setSegments] = useState(6)
   const [color, setColor] = useState<ClockColor>('gold')
   const [leftLabel, setLeftLabel] = useState('Sinistra')
@@ -48,6 +51,7 @@ export function AddClockModal({ onClose, onCreate }: AddClockModalProps) {
             onCreate({
               kind: 'track',
               name: name.trim() || 'Nuova barra',
+              graphLabel: graphLabel.trim() || 'Barra',
               leftLabel: leftLabel.trim() || 'Sinistra',
               centerLabel: centerLabel.trim() || '0',
               rightLabel: rightLabel.trim() || 'Destra',
@@ -59,6 +63,7 @@ export function AddClockModal({ onClose, onCreate }: AddClockModalProps) {
             kind: 'clock',
             type,
             name: name.trim() || 'Nuovo clock',
+            graphLabel: graphLabel.trim() || 'Grafico',
             segments,
             color,
           })
@@ -79,6 +84,7 @@ export function AddClockModal({ onClose, onCreate }: AddClockModalProps) {
               const nextKind = event.target.value as AddItemKind
               setKind(nextKind)
               setName(nextKind === 'track' ? 'Nuova barra' : 'Nuovo clock')
+              setGraphLabel(nextKind === 'track' ? 'Bilanciamento' : 'Avanzamento')
             }}
           >
             <option value="clock">Clock / grafico</option>
@@ -87,8 +93,13 @@ export function AddClockModal({ onClose, onCreate }: AddClockModalProps) {
         </label>
 
         <label>
-          Nome
+          Titolo card
           <input value={name} onChange={(event) => setName(event.target.value)} />
+        </label>
+
+        <label>
+          Label grafico
+          <input value={graphLabel} onChange={(event) => setGraphLabel(event.target.value)} />
         </label>
 
         {kind === 'clock' ? (

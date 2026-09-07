@@ -38,10 +38,10 @@ function App() {
     draft:
       | ({
           kind: 'clock'
-        } & Pick<Clock, 'type' | 'name' | 'segments' | 'color'>)
+        } & Pick<Clock, 'type' | 'name' | 'graphLabel' | 'segments' | 'color'>)
       | ({
           kind: 'track'
-        } & Pick<BoardTrack, 'name' | 'leftLabel' | 'centerLabel' | 'rightLabel'>),
+        } & Pick<BoardTrack, 'name' | 'graphLabel' | 'leftLabel' | 'centerLabel' | 'rightLabel'>),
   ) => {
     const nextIndex = campaign.clocks.length + campaign.boardTracks.length + 1
 
@@ -49,6 +49,7 @@ function App() {
       const track: BoardTrack = {
         id: `board-track-${Date.now()}`,
         name: draft.name,
+        graphLabel: draft.graphLabel,
         leftLabel: draft.leftLabel,
         centerLabel: draft.centerLabel,
         rightLabel: draft.rightLabel,
@@ -73,6 +74,7 @@ function App() {
       id: `clock-${Date.now()}`,
       type: draft.type,
       name: draft.name,
+      graphLabel: draft.graphLabel,
       segments: draft.segments,
       filled: 0,
       color: draft.color,

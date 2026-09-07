@@ -96,7 +96,7 @@ export function ClockToken({
         <input
           value={clock.name}
           onChange={(event) => onUpdate(clock.id, { name: event.target.value })}
-          aria-label="Nome clock"
+          aria-label="Titolo card"
         />
         <button
           type="button"
@@ -123,6 +123,13 @@ export function ClockToken({
           )}
         </button>
       </div>
+
+      <input
+        className="graph-label-input"
+        value={clock.graphLabel || clock.name}
+        onChange={(event) => onUpdate(clock.id, { graphLabel: event.target.value })}
+        aria-label="Label grafico"
+      />
 
       <div className="clock-visual">
         {clock.type === 'pie' ? (

@@ -18,10 +18,19 @@ export function FixedTracks({ tracks, onTrackChange }: FixedTracksProps) {
               onChange={(event) =>
                 onTrackChange(track.id, { name: event.target.value })
               }
-              aria-label="Nome barra"
+              aria-label="Titolo barra"
             />
             <strong>{track.value > 0 ? `+${track.value}` : track.value}</strong>
           </div>
+
+          <input
+            className="graph-label-input"
+            value={track.graphLabel || track.name}
+            onChange={(event) =>
+              onTrackChange(track.id, { graphLabel: event.target.value })
+            }
+            aria-label="Label grafico"
+          />
 
           <TrackSquares
             track={track}

@@ -230,6 +230,24 @@
   font-weight: 700;
 }
 
+.graph-label-input {
+  width: 100%;
+  min-width: 0;
+  color: var(--gold-soft);
+  background: rgb(16 11 7 / 0.54);
+  border-color: rgb(214 196 135 / 0.28);
+  padding: 0.32rem 0.45rem;
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+  text-overflow: ellipsis;
+}
+
+.track-card .graph-label-input {
+  margin-bottom: 10px;
+}
+
 .track-squares {
   display: grid;
   grid-template-columns: repeat(21, minmax(16px, 1fr));

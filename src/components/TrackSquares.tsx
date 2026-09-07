@@ -12,7 +12,7 @@ export function TrackSquares({ track, onValueChange }: TrackSquaresProps) {
   )
 
   return (
-    <div className="track-squares" role="group" aria-label={track.name}>
+    <div className="track-squares" role="group" aria-label={track.graphLabel || track.name}>
       {values.map((value) => {
         const isCenter = value === 0
         const isSelected = value === track.value

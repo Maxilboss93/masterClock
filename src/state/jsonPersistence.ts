@@ -29,6 +29,7 @@ function validateTrack(value: unknown): Track | null {
   const {
     id,
     name,
+    graphLabel,
     leftLabel,
     centerLabel,
     rightLabel,
@@ -50,7 +51,17 @@ function validateTrack(value: unknown): Track | null {
     return null
   }
 
-  return { id, name, leftLabel, centerLabel, rightLabel, min, max, value: current }
+  return {
+    id,
+    name,
+    graphLabel: isString(graphLabel) ? graphLabel : name,
+    leftLabel,
+    centerLabel,
+    rightLabel,
+    min,
+    max,
+    value: current,
+  }
 }
 
 function validateClock(value: unknown): Clock | null {
@@ -62,6 +73,7 @@ function validateClock(value: unknown): Clock | null {
     id,
     type,
     name,
+    graphLabel,
     segments,
     filled,
     color,
@@ -99,6 +111,7 @@ function validateClock(value: unknown): Clock | null {
     id,
     type: type as ClockType,
     name,
+    graphLabel: isString(graphLabel) ? graphLabel : name,
     segments: normalizedSegments,
     filled: Math.min(Math.max(Math.round(filled), 0), normalizedSegments),
     color: color as ClockColor,

@@ -7,6 +7,7 @@ export const defaultCampaign: CampaignState = {
     {
       id: 'attitude',
       name: 'Atteggiamento',
+      graphLabel: 'Bilanciamento del gruppo',
       leftLabel: 'Sociale',
       centerLabel: '0',
       rightLabel: 'Fisico',
@@ -17,6 +18,7 @@ export const defaultCampaign: CampaignState = {
     {
       id: 'factions',
       name: 'Percezione delle fazioni',
+      graphLabel: 'Vicinanza percepita',
       leftLabel: 'Rinati',
       centerLabel: '0',
       rightLabel: 'Cantori',
