@@ -1,121 +1,103 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useEffect, useReducer, useState } from 'react'
+import { AddClockModal } from './components/AddClockModal'
+import { Board } from './components/Board'
+import { CampaignHeader } from './components/CampaignHeader'
+import { FixedTracks } from './components/FixedTracks'
+import { campaignReducer } from './state/campaignReducer'
+import { defaultCampaign } from './state/defaultCampaign'
+import { downloadCampaignJson, parseCampaignJson } from './state/jsonPersistence'
+import { loadStoredCampaign, saveStoredCampaign } from './state/storage'
+import type { Clock } from './types/campaign'
+import './styles/theme.css'
+import './styles/app.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [campaign, dispatch] = useReducer(campaignReducer, undefined, loadStoredCampaign)
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const [loadError, setLoadError] = useState('')
+
+  useEffect(() => {
+    saveStoredCampaign(campaign)
+  }, [campaign])
+
+  const createClock = (draft: Pick<Clock, 'type' | 'name' | 'segments' | 'color'>) => {
+    const nextIndex = campaign.clocks.length + 1
+    const clock: Clock = {
+      id: `clock-${Date.now()}`,
+      type: draft.type,
+      name: draft.name,
+      segments: draft.segments,
+      filled: 0,
+      color: draft.color,
+      settings: {
+        showValue: true,
+        showControls: true,
+      },
+      position: {
+        x: 40 + ((nextIndex - 1) % 4) * 40,
+        y: 40 + ((nextIndex - 1) % 4) * 34,
+      },
+      size: 'medium',
+      locked: false,
+      updatedAt: new Date().toISOString(),
+    }
+
+    dispatch({ type: 'addClock', clock })
+    setIsAddModalOpen(false)
+  }
+
+  const loadFile = async (file: File) => {
+    setLoadError('')
+
+    try {
+      const text = await file.text()
+      const loadedCampaign = parseCampaignJson(text)
+      const shouldReplace =
+        campaign.clocks.length === 0 ||
+        window.confirm('Sostituire la plancia corrente con il file selezionato?')
+
+      if (shouldReplace) {
+        dispatch({ type: 'loadCampaign', campaign: loadedCampaign })
+      }
+    } catch (error) {
+      setLoadError(error instanceof Error ? error.message : 'File JSON non valido.')
+    }
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="app-shell">
+      <CampaignHeader
+        campaignName={campaign.campaignName}
+        onCampaignNameChange={(name) => dispatch({ type: 'setCampaignName', name })}
+        onAddClock={() => setIsAddModalOpen(true)}
+        onSave={() => downloadCampaignJson(campaign)}
+        onLoadFile={loadFile}
+        onReset={() => {
+          if (window.confirm('Ripartire da una plancia vuota?')) {
+            dispatch({ type: 'resetCampaign', campaign: defaultCampaign })
+          }
+        }}
+      />
 
-      <div className="ticks"></div>
+      <FixedTracks
+        tracks={campaign.tracks}
+        onTrackChange={(id, patch) => dispatch({ type: 'updateTrack', id, patch })}
+      />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      {loadError ? <p className="load-error">{loadError}</p> : null}
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      <Board
+        clocks={campaign.clocks}
+        onUpdateClock={(id, patch) => dispatch({ type: 'updateClock', id, patch })}
+        onSetClockFilled={(id, filled) => dispatch({ type: 'setClockFilled', id, filled })}
+        onMoveClock={(id, x, y) => dispatch({ type: 'moveClock', id, x, y })}
+        onDeleteClock={(id) => dispatch({ type: 'deleteClock', id })}
+      />
+
+      {isAddModalOpen ? (
+        <AddClockModal onClose={() => setIsAddModalOpen(false)} onCreate={createClock} />
+      ) : null}
+    </div>
   )
 }
 

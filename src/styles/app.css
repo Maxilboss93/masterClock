@@ -1,0 +1,486 @@
+#root {
+  min-height: 100svh;
+}
+
+.app-shell {
+  min-height: 100svh;
+  padding: 20px;
+}
+
+.campaign-header {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) auto;
+  gap: 16px;
+  align-items: end;
+  max-width: 1440px;
+  margin: 0 auto 16px;
+  padding: 16px;
+  background: linear-gradient(180deg, rgb(23 27 21 / 0.94), rgb(16 19 15 / 0.94));
+  border: 1px solid rgb(185 154 86 / 0.32);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.campaign-title {
+  display: grid;
+  gap: 6px;
+}
+
+.campaign-title span,
+.track-card label,
+.clock-settings-row label,
+.add-clock-modal label,
+.add-clock-modal legend {
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.2;
+}
+
+.campaign-title input {
+  width: 100%;
+  max-width: 560px;
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  line-height: 1.1;
+  border-color: transparent;
+  background: transparent;
+  padding: 0;
+}
+
+.campaign-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.plank-button,
+.icon-button,
+.preset {
+  min-height: 40px;
+  border: 1px solid rgb(214 196 135 / 0.32);
+  color: var(--text);
+  background:
+    linear-gradient(rgb(16 19 15 / 0.28), rgb(16 19 15 / 0.62)),
+    url('/assets/button-plank.png') center / cover;
+  border-radius: 6px;
+  box-shadow: inset 0 1px 0 rgb(255 242 214 / 0.1), 0 8px 18px rgb(0 0 0 / 0.25);
+}
+
+.plank-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 14px;
+}
+
+.plank-button.primary,
+.preset.active {
+  border-color: rgb(214 196 135 / 0.72);
+  color: #fff7df;
+  background:
+    linear-gradient(rgb(185 154 86 / 0.32), rgb(60 57 43 / 0.64)),
+    url('/assets/button-plank-active.png') center / cover;
+}
+
+.icon-button {
+  display: inline-grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  padding: 0;
+}
+
+.icon-button.small {
+  width: 30px;
+  height: 30px;
+  min-height: 30px;
+}
+
+.icon-button.danger {
+  color: #ffd6cd;
+  border-color: rgb(111 44 41 / 0.7);
+  background: linear-gradient(rgb(111 44 41 / 0.35), rgb(16 11 7 / 0.86));
+}
+
+.fixed-tracks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  max-width: 1440px;
+  margin: 0 auto 16px;
+}
+
+.track-card {
+  padding: 14px;
+  background: rgb(16 19 15 / 0.92);
+  border: 1px solid rgb(104 104 81 / 0.68);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.track-card-header,
+.clock-token-topline,
+.clock-token-actions,
+.clock-settings-row,
+.track-label-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.track-card-header {
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.track-card-header strong {
+  color: var(--gold-soft);
+  min-width: 40px;
+  text-align: right;
+}
+
+.track-name-input {
+  width: 100%;
+  color: var(--text);
+  border-color: transparent;
+  background: transparent;
+  padding: 0;
+  font-weight: 700;
+}
+
+.track-squares {
+  display: grid;
+  grid-template-columns: repeat(21, minmax(16px, 1fr));
+  gap: 4px;
+}
+
+.track-square {
+  aspect-ratio: 1;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  color: var(--field);
+  background: var(--parchment);
+  border: 1px solid rgb(214 196 135 / 0.26);
+  border-radius: 3px;
+}
+
+.track-square.center {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--text);
+  background: rgb(185 154 86 / 0.28);
+}
+
+.track-square.selected {
+  background: var(--gold-soft);
+  border-color: #fff2d6;
+  box-shadow: 0 0 0 2px rgb(185 154 86 / 0.25), 0 0 18px rgb(214 196 135 / 0.35);
+}
+
+.track-label-row {
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.track-label-row input {
+  width: 42%;
+  padding: 0.4rem 0.5rem;
+  font-size: 0.9rem;
+}
+
+.track-label-row input:last-child {
+  text-align: right;
+}
+
+.track-label-row span {
+  color: var(--gold-soft);
+  font-size: 0.88rem;
+}
+
+.load-error {
+  max-width: 1440px;
+  margin: 0 auto 14px;
+  padding: 10px 12px;
+  color: #ffd6cd;
+  background: rgb(111 44 41 / 0.38);
+  border: 1px solid rgb(111 44 41 / 0.72);
+  border-radius: 8px;
+}
+
+.board-shell {
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.board {
+  position: relative;
+  min-height: calc(100svh - 260px);
+  overflow: hidden;
+  background:
+    radial-gradient(circle at top, rgb(185 154 86 / 0.09), transparent 36%),
+    linear-gradient(180deg, rgb(16 19 15 / 0.74), rgb(6 8 7 / 0.78));
+  border: 1px solid rgb(185 154 86 / 0.26);
+  border-radius: 8px;
+  box-shadow: inset 0 0 90px rgb(0 0 0 / 0.52), var(--shadow);
+}
+
+.board::before,
+.clock-token::before {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: url('/assets/rivet-iron.png') center / contain no-repeat;
+  opacity: 0.75;
+}
+
+.board::before {
+  left: 12px;
+  top: 12px;
+}
+
+.board-empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  gap: 6px;
+  text-align: center;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.board-empty p {
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+}
+
+.clock-token {
+  --clock-accent: var(--gold);
+  position: absolute;
+  display: grid;
+  gap: 12px;
+  width: 248px;
+  padding: 12px;
+  background: linear-gradient(180deg, rgb(23 27 21 / 0.96), rgb(16 11 7 / 0.96));
+  border: 1px solid color-mix(in srgb, var(--clock-accent), #fff2d6 15%);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.clock-token::before {
+  right: 8px;
+  bottom: 8px;
+}
+
+.clock-token.ember {
+  --clock-accent: var(--ember);
+}
+
+.clock-token.blood {
+  --clock-accent: var(--blood);
+}
+
+.clock-token.moss {
+  --clock-accent: var(--moss);
+}
+
+.clock-token.small {
+  width: 220px;
+}
+
+.clock-token.large {
+  width: 290px;
+}
+
+.clock-token-topline input {
+  flex: 1;
+  padding: 0.25rem 0.35rem;
+  font-weight: 800;
+  border-color: transparent;
+  background: transparent;
+}
+
+.drag-handle {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  min-height: 30px;
+  place-items: center;
+  padding: 0;
+  color: var(--muted);
+  background: transparent;
+  border: 0;
+  touch-action: none;
+  cursor: grab;
+}
+
+.clock-visual {
+  display: grid;
+  min-height: 138px;
+  place-items: center;
+}
+
+.pie-clock {
+  width: 136px;
+  height: 136px;
+  filter: drop-shadow(0 10px 14px rgb(0 0 0 / 0.34));
+}
+
+.clock-segment {
+  fill: rgb(60 57 43 / 0.82);
+  stroke: rgb(255 242 214 / 0.58);
+  stroke-width: 1.3;
+  transition: fill 150ms ease;
+}
+
+.clock-segment.filled,
+.bar-segment.filled {
+  fill: var(--clock-accent);
+  background: var(--clock-accent);
+}
+
+.clock-segment:focus {
+  outline: none;
+  fill: var(--gold-soft);
+}
+
+.pie-clock-center {
+  fill: var(--field);
+  stroke: rgb(255 242 214 / 0.55);
+  stroke-width: 1;
+}
+
+.segmented-clock {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(var(--segments, 6), 1fr);
+  gap: 5px;
+}
+
+.bar-segment {
+  height: 42px;
+  min-height: 42px;
+  padding: 0;
+  background: rgb(60 57 43 / 0.86);
+  border: 1px solid rgb(255 242 214 / 0.4);
+  border-radius: 4px;
+}
+
+.clock-token-actions {
+  justify-content: center;
+}
+
+.clock-token-actions strong {
+  min-width: 58px;
+  color: var(--gold-soft);
+  text-align: center;
+}
+
+.clock-settings-row {
+  align-items: end;
+}
+
+.clock-settings-row label {
+  display: grid;
+  flex: 1;
+  gap: 4px;
+}
+
+.clock-settings-row input,
+.clock-settings-row select {
+  width: 100%;
+  padding: 0.35rem 0.45rem;
+  font-size: 0.86rem;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgb(0 0 0 / 0.64);
+}
+
+.add-clock-modal {
+  display: grid;
+  width: min(440px, 100%);
+  gap: 14px;
+  padding: 18px;
+  color: var(--text);
+  background: linear-gradient(180deg, rgb(23 27 21 / 0.98), rgb(16 19 15 / 0.98));
+  border: 1px solid rgb(214 196 135 / 0.42);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.add-clock-modal header,
+.add-clock-modal footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.add-clock-modal h2 {
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  font-weight: 700;
+}
+
+.add-clock-modal label {
+  display: grid;
+  gap: 5px;
+}
+
+.add-clock-modal fieldset {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.preset-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.preset {
+  min-height: 36px;
+}
+
+@media (max-width: 860px) {
+  .app-shell {
+    padding: 12px;
+  }
+
+  .campaign-header,
+  .fixed-tracks {
+    grid-template-columns: 1fr;
+  }
+
+  .campaign-actions {
+    justify-content: stretch;
+  }
+
+  .campaign-actions .plank-button {
+    flex: 1;
+  }
+
+  .track-squares {
+    gap: 3px;
+  }
+
+  .board {
+    min-height: 620px;
+  }
+}
