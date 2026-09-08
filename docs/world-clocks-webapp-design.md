@@ -74,7 +74,7 @@ La webapp implementa:
 - valore corrente delle barre mostrato in modo evidente vicino al testo principale;
 - quadratini e controlli contenuti dentro le card;
 - target di icone e maniglie rinforzati per uso touch;
-- pattern delle card bloccate alleggerito per non ridurre la leggibilita;
+- card bloccate distinguibili tramite tinta di background diversa, senza oscurare i contenuti;
 - scroll verticale della plancia quando il contenuto cresce.
 
 ## Struttura Attuale Del Codice
@@ -293,6 +293,7 @@ Quando una card e bloccata:
 - non si puo fissare o liberare dalla fascia alta o da `Party`;
 - dentro una card giocatore, anche tutti i grafici interni diventano in sola lettura;
 - deve restare attivo solo il pulsante del lucchetto per sbloccarla.
+- deve restare ben visibile: lo stato bloccato si comunica con una tinta di background diversa, non con overlay scuri o pattern sopra i contenuti.
 
 Questo vale per:
 
@@ -422,7 +423,7 @@ Regole di leggibilita:
 - le barre devono restare dentro le card;
 - icone, maniglie e controlli rapidi devono avere una dimensione comoda per mouse e touch;
 - le barre di scroll non devono sembrare elementi di sistema fuori stile;
-- il pattern di blocco deve comunicare sola lettura senza coprire testo e grafici;
+- lo stato bloccato deve comunicare sola lettura senza coprire testo e grafici;
 - nessun testo deve uscire dai pulsanti o sovrapporsi ai controlli vicini;
 - gli elementi interattivi devono restare comodi anche su mobile.
 
