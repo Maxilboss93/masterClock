@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { normalizeSegmentCount } from '../state/numbers'
+import { normalizeSegmentCount, normalizeTrackCellCount } from '../state/numbers'
 import type { ClockColor, ClockType } from '../types/campaign'
 
 type AddItemKind = 'clock' | 'track'
@@ -20,6 +20,7 @@ interface AddClockModalProps {
           kind: 'track'
           name: string
           graphLabel: string
+          cells: number
           leftLabel: string
           centerLabel: string
           rightLabel: string
@@ -35,6 +36,7 @@ export function AddClockModal({ onClose, onCreate }: AddClockModalProps) {
   const [name, setName] = useState('Nuovo clock')
   const [graphLabel, setGraphLabel] = useState('Avanzamento')
   const [segments, setSegments] = useState(6)
+  const [trackCells, setTrackCells] = useState(21)
   const [color, setColor] = useState<ClockColor>('gold')
   const [leftLabel, setLeftLabel] = useState('Sinistra')
   const [centerLabel, setCenterLabel] = useState('0')
@@ -52,6 +54,7 @@ export function AddClockModal({ onClose, onCreate }: AddClockModalProps) {
               kind: 'track',
               name: name.trim() || 'Nuova barra',
               graphLabel: graphLabel.trim() || 'Barra',
+              cells: trackCells,
               leftLabel: leftLabel.trim() || 'Sinistra',
               centerLabel: centerLabel.trim() || '0',
               rightLabel: rightLabel.trim() || 'Destra',
@@ -87,8 +90,8 @@ export function AddClockModal({ onClose, onCreate }: AddClockModalProps) {
               setGraphLabel(nextKind === 'track' ? 'Bilanciamento' : 'Avanzamento')
             }}
           >
-            <option value="clock">Clock / grafico</option>
-            <option value="track">Barra 21 caselle</option>
+            <option value="clock">Clock</option>
+            <option value="track">Barra</option>
           </select>
         </label>
 
@@ -147,20 +150,36 @@ export function AddClockModal({ onClose, onCreate }: AddClockModalProps) {
             </label>
           </>
         ) : (
-          <div className="track-draft-grid">
+          <>
             <label>
-              Etichetta sinistra
-              <input value={leftLabel} onChange={(event) => setLeftLabel(event.target.value)} />
+              Caselle
+              <input
+                type="number"
+                min={2}
+                value={trackCells}
+                onChange={(event) =>
+                  setTrackCells(normalizeTrackCellCount(Number(event.target.value)))
+                }
+              />
             </label>
-            <label>
-              Centro
-              <input value={centerLabel} onChange={(event) => setCenterLabel(event.target.value)} />
-            </label>
-            <label>
-              Etichetta destra
-              <input value={rightLabel} onChange={(event) => setRightLabel(event.target.value)} />
-            </label>
-          </div>
+            <div className="track-draft-grid">
+              <label>
+                Etichetta sinistra
+                <input value={leftLabel} onChange={(event) => setLeftLabel(event.target.value)} />
+              </label>
+              <label>
+                Centro
+                <input
+                  value={centerLabel}
+                  onChange={(event) => setCenterLabel(event.target.value)}
+                />
+              </label>
+              <label>
+                Etichetta destra
+                <input value={rightLabel} onChange={(event) => setRightLabel(event.target.value)} />
+              </label>
+            </div>
+          </>
         )}
 
         <footer>

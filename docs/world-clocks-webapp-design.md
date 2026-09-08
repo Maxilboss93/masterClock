@@ -23,7 +23,7 @@ La richiesta del master, ridotta all'essenziale:
 - Il clock a torta resta la forma principale, ma l'interfaccia deve poter ospitare piu stili visivi.
 - Servono anche due barre iniziali da 21 quadratini, con valore centrale `0`, ma non devono essere obbligatoriamente fisse in alto.
 - Le impostazioni delle barre devono essere modificabili.
-- Deve essere possibile creare altre barre con la stessa UX delle due barre iniziali, direttamente dal pulsante `Aggiungi`.
+- Deve essere possibile creare altre barre con la stessa UX delle due barre iniziali, direttamente dal pulsante `Aggiungi`, scegliendo liberamente quante caselle devono avere.
 - Un tasto `Salva` deve chiedere un nome per il salvataggio.
 - I salvataggi nominati devono comparire in una barra laterale e poter essere ricaricati al volo.
 - Il tasto `Salva` deve anche creare/scaricare un file `.json` visibile al master, pensato solo come backup e per eventuale importazione.
@@ -97,7 +97,7 @@ Comportamento consigliato:
 - Desktop e tablet: plancia libera con card-clock posizionabili tramite drag and drop.
 - Cellulare: vista semplificata verticale, con card in lista e controlli piu grandi.
 - Le posizioni delle card restano salvate per desktop/tablet, ma su mobile possono essere ignorate visivamente.
-- Le barre da 21 quadratini devono restare usabili su schermo piccolo, eventualmente andando a capo o usando quadratini piu compatti.
+- Le barre devono restare usabili su schermo piccolo anche quando hanno molte caselle, usando quadratini piu compatti o scorrimento interno alla card.
 - I controlli principali devono essere raggiungibili con tap: `Aggiungi`, `Salva`, salvataggi laterali, `+1`, `-1`, cambio valore barre.
 
 Gesture mobile consigliate:
@@ -129,11 +129,11 @@ Il feedback deve essere immediato: quando il master cambia numero di spicchi, va
 Il flusso centrale per una barra da plancia deve essere questo:
 
 1. Il master preme `Aggiungi`.
-2. Sceglie `Barra 21 caselle`.
-3. Inserisce titolo della card, label del grafico, etichetta sinistra, etichetta centrale ed etichetta destra.
+2. Sceglie `Barra`.
+3. Inserisce titolo della card, label del grafico, numero di caselle, etichetta sinistra, etichetta centrale ed etichetta destra.
 4. Conferma.
 5. La webapp crea una card-barra sulla plancia.
-6. Il master puo cliccare i quadratini per impostare il valore, trascinare la card, modificarne le etichette o eliminarla.
+6. Il master puo cliccare i quadratini per impostare il valore, trascinare la card, modificarne numero di caselle ed etichette o eliminarla.
 
 ## Grafici Globali E Zona Party
 
@@ -244,7 +244,7 @@ Nota: i grafici dentro una card giocatore non hanno bisogno di una posizione pro
 
 ## Barre Iniziali E Fascia Barre
 
-Servono due barre iniziali, ognuna con 21 quadratini. Il valore logico va da `-10` a `+10`, con `0` al centro.
+Servono due barre iniziali, ognuna con 21 quadratini. Il valore logico iniziale va da `-10` a `+10`, con `0` al centro.
 
 Queste barre non sono fisse per forza: partono nella fascia alta `Barre`, ma devono comportarsi come le altre card-barra. Il master deve poterle lasciare in alto, spostarle nella plancia, bloccarle/sbloccarle e modificarle con la stessa UX delle barre create dopo.
 
@@ -254,6 +254,9 @@ La fascia `Barre` deve usare un layout fluido:
 - Le barre fissate in alto si ridimensionano entro limiti leggibili.
 - Quando lo spazio non basta, vanno a capo automaticamente.
 - I quadratini restano contenuti nella card; se la scala diventa troppo lunga, lo scorrimento deve essere interno alla barra e non rompere la card.
+- Il numero di caselle di una barra deve essere modificabile sia durante la creazione sia dalla card gia creata.
+- Il default resta 21 per conservare la scala `-10 / 0 / +10`, ma non deve essere un limite.
+- Se il master sceglie un numero pari, la barra conserva il numero esatto di caselle e include comunque lo `0`; la scala numerica risulta leggermente asimmetrica di una casella.
 
 ### Barra 1: Atteggiamento
 
@@ -289,8 +292,8 @@ Interpretazione:
 
 Ogni barra deve:
 
-- Mostrare 21 quadratini.
-- Avere il quadratino centrale marcato come `0`.
+- Mostrare il numero di quadratini scelto dal master.
+- Avere il quadratino che rappresenta il valore `0` marcato chiaramente.
 - Consentire al master di cliccare un quadratino per impostare il valore.
 - Evidenziare il valore corrente.
 - Mostrare chiaramente gli estremi testuali.
@@ -305,7 +308,7 @@ Oltre alle due barre iniziali, il master deve poter creare altre barre dalla UX 
 
 Comportamento:
 
-- Le barre create da `Aggiungi` usano la stessa interazione delle barre iniziali: 21 quadratini, centro `0`, click sul quadratino per impostare il valore.
+- Le barre create da `Aggiungi` usano la stessa interazione delle barre iniziali: numero di quadratini scelto, centro `0`, click sul quadratino per impostare il valore.
 - Vivono come card libere sulla plancia o nella fascia alta `Barre`, quindi hanno posizione, blocco posizione, fissaggio in alto ed eliminazione.
 - Hanno titolo card, label del grafico, etichetta sinistra, etichetta centrale, etichetta destra e valore modificabili.
 - Sono salvate nel JSON e nei salvataggi nominati.
@@ -332,8 +335,8 @@ Esempio dati:
       "leftLabel": "Calma",
       "centerLabel": "0",
       "rightLabel": "Frattura",
-      "min": -10,
-      "max": 10,
+      "min": -7,
+      "max": 7,
       "value": 0,
       "position": {
         "x": 80,
@@ -820,7 +823,6 @@ Versione 0.2, solo se serve:
 - I grafici dentro una card giocatore devono essere sempre visibili o collassabili per non occupare troppo spazio?
 - La card giocatore deve avere anche un grafico riepilogativo/totale automatico o solo i grafici che il master aggiunge manualmente?
 - La zona `Party` deve essere sempre visibile anche quando non contiene clock, oppure apparire solo quando almeno un clock e fissato?
-- Le barre da plancia devono poter avere una scala diversa da 21 caselle in futuro, oppure 21 deve restare lo standard unico?
 
 ## Stima
 
@@ -828,7 +830,7 @@ Per una versione 0.1 piccola ma curata:
 
 - Setup React/Vite/TypeScript: 30-60 minuti.
 - Layout fantasy e plancia: 1-2 ore.
-- Barre da 21 quadratini: 1 ora.
+- Barre a caselle configurabili: 1 ora.
 - Impostazioni modificabili delle barre: 45-60 minuti.
 - Clock a torta SVG: 1-2 ore.
 - Clock a barra segmentata: 45-60 minuti.

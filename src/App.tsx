@@ -8,6 +8,7 @@ import { TrackRail } from './components/TrackRail'
 import { campaignReducer } from './state/campaignReducer'
 import { defaultCampaign } from './state/defaultCampaign'
 import { campaignToJson, downloadCampaignJson, parseCampaignJson } from './state/jsonPersistence'
+import { getCenteredTrackRange } from './state/numbers'
 import { loadSavedScenes, makeSavedScene, saveSavedScenes } from './state/savedScenes'
 import { loadStoredCampaign, saveStoredCampaign } from './state/storage'
 import type { BoardTrack, Clock, PlayerCard } from './types/campaign'
@@ -43,12 +44,15 @@ function App() {
         } & Pick<Clock, 'type' | 'name' | 'graphLabel' | 'segments' | 'color'>)
       | ({
           kind: 'track'
-        } & Pick<BoardTrack, 'name' | 'graphLabel' | 'leftLabel' | 'centerLabel' | 'rightLabel'>),
+        } & Pick<BoardTrack, 'name' | 'graphLabel' | 'leftLabel' | 'centerLabel' | 'rightLabel'> & {
+            cells: number
+          }),
   ) => {
     const nextIndex =
       campaign.clocks.length + campaign.boardTracks.length + campaign.playerCards.length + 1
 
     if (draft.kind === 'track') {
+      const range = getCenteredTrackRange(draft.cells)
       const track: BoardTrack = {
         id: `board-track-${Date.now()}`,
         name: draft.name,
@@ -56,8 +60,8 @@ function App() {
         leftLabel: draft.leftLabel,
         centerLabel: draft.centerLabel,
         rightLabel: draft.rightLabel,
-        min: -10,
-        max: 10,
+        min: range.min,
+        max: range.max,
         value: 0,
         position: {
           x: 36 + ((nextIndex - 1) % 3) * 44,

@@ -1,5 +1,6 @@
 import { GripHorizontal, Lock, Pin, PinOff, Trash2, Unlock } from 'lucide-react'
 import type { RefObject } from 'react'
+import { getCenteredTrackRange, normalizeTrackCellCount } from '../state/numbers'
 import type { BoardTrack } from '../types/campaign'
 import { TrackSquares } from './TrackSquares'
 
@@ -24,6 +25,14 @@ export function TrackToken({
   onDelete,
   onTogglePinnedTop,
 }: TrackTokenProps) {
+  const cellCount = track.max - track.min + 1
+
+  const updateCellCount = (value: number) => {
+    const range = getCenteredTrackRange(normalizeTrackCellCount(value))
+
+    onUpdate(track.id, range)
+  }
+
   const beginDrag = (event: React.PointerEvent<HTMLButtonElement>) => {
     const boardElement = boardRef?.current
 
@@ -138,6 +147,15 @@ export function TrackToken({
       </div>
 
       <div className="track-token-footer">
+        <label>
+          Caselle
+          <input
+            type="number"
+            min={2}
+            value={cellCount}
+            onChange={(event) => updateCellCount(Number(event.target.value))}
+          />
+        </label>
         <label>
           Centro
           <input
