@@ -1,10 +1,11 @@
-import { FolderOpen, Plus, RotateCcw, Save } from 'lucide-react'
+import { FolderOpen, Plus, RotateCcw, Save, UserPlus } from 'lucide-react'
 import { useRef } from 'react'
 
 interface CampaignHeaderProps {
   campaignName: string
   onCampaignNameChange: (name: string) => void
   onAddClock: () => void
+  onAddPlayer: () => void
   onSave: () => void
   onLoadFile: (file: File) => void
   onReset: () => void
@@ -14,6 +15,7 @@ export function CampaignHeader({
   campaignName,
   onCampaignNameChange,
   onAddClock,
+  onAddPlayer,
   onSave,
   onLoadFile,
   onReset,
@@ -35,6 +37,10 @@ export function CampaignHeader({
         <button type="button" className="plank-button primary" onClick={onAddClock}>
           <Plus aria-hidden="true" size={18} />
           Aggiungi
+        </button>
+        <button type="button" className="plank-button" onClick={onAddPlayer}>
+          <UserPlus aria-hidden="true" size={18} />
+          Aggiungi giocatore
         </button>
         <button type="button" className="plank-button" onClick={onSave}>
           <Save aria-hidden="true" size={18} />

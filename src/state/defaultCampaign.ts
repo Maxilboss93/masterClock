@@ -28,5 +28,6 @@ export const defaultCampaign: CampaignState = {
     },
   ],
   boardTracks: [],
+  playerCards: [],
   clocks: [],
 }

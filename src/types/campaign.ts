@@ -49,10 +49,25 @@ export interface BoardTrack extends Track {
   updatedAt: string
 }
 
+export interface PlayerTrack extends Track {
+  updatedAt: string
+}
+
+export interface PlayerCard {
+  id: string
+  playerName: string
+  position: ClockPosition
+  size: ClockSize
+  locked: boolean
+  tracks: PlayerTrack[]
+  updatedAt: string
+}
+
 export interface CampaignState {
   schemaVersion: 1
   campaignName: string
   tracks: Track[]
   boardTracks: BoardTrack[]
+  playerCards: PlayerCard[]
   clocks: Clock[]
 }

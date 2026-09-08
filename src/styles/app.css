@@ -108,6 +108,7 @@
 .campaign-title span,
 .track-card label,
 .track-token label,
+.player-card label,
 .clock-settings-row label,
 .add-clock-modal label,
 .add-clock-modal legend {
@@ -250,8 +251,10 @@
 
 .track-squares {
   display: grid;
-  grid-template-columns: repeat(21, minmax(16px, 1fr));
+  grid-template-columns: repeat(var(--track-count, 21), minmax(var(--track-square-min, 16px), 1fr));
   gap: 4px;
+  overflow-x: auto;
+  padding-bottom: 2px;
 }
 
 .track-square {
@@ -371,7 +374,8 @@
 
 .board::before,
 .clock-token::before,
-.track-token::before {
+.track-token::before,
+.player-card::before {
   content: "";
   position: absolute;
   width: 12px;
@@ -403,9 +407,11 @@
 }
 
 .clock-token,
-.track-token {
+.track-token,
+.player-card {
   --clock-accent: var(--gold);
   position: absolute;
+  z-index: 1;
   display: grid;
   gap: 12px;
   width: 248px;
@@ -417,14 +423,25 @@
   box-shadow: var(--shadow);
 }
 
+.clock-token:hover,
+.track-token:hover,
+.player-card:hover,
+.clock-token:focus-within,
+.track-token:focus-within,
+.player-card:focus-within {
+  z-index: 5;
+}
+
 .clock-token::before,
-.track-token::before {
+.track-token::before,
+.player-card::before {
   right: 8px;
   bottom: 8px;
 }
 
 .clock-token > *,
-.track-token > * {
+.track-token > *,
+.player-card > * {
   min-width: 0;
 }
 
@@ -434,6 +451,10 @@
 
 .track-token {
   width: min(520px, calc(100% - 24px));
+}
+
+.player-card {
+  width: min(620px, calc(100% - 24px));
 }
 
 .clock-token.ember {
@@ -464,6 +485,14 @@
   width: min(640px, calc(100% - 24px));
 }
 
+.player-card.small {
+  width: min(520px, calc(100% - 24px));
+}
+
+.player-card.large {
+  width: min(760px, calc(100% - 24px));
+}
+
 .clock-token.party-pinned {
   position: relative;
   left: auto;
@@ -478,6 +507,7 @@
 
 .clock-token-topline,
 .track-token-topline,
+.player-card-topline,
 .clock-visual,
 .clock-token-actions,
 .clock-settings-row {
@@ -499,12 +529,20 @@
   gap: 8px;
 }
 
+.player-card-topline {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) 30px 40px;
+  align-items: center;
+  gap: 8px;
+}
+
 .clock-token-topline:has(.party-chip) {
   grid-template-columns: 30px auto minmax(0, 1fr) 30px 30px;
 }
 
 .clock-token-topline input,
-.track-token-topline input {
+.track-token-topline input,
+.player-card-topline input {
   min-width: 0;
   width: 100%;
   padding: 0.25rem 0.35rem;
@@ -657,6 +695,82 @@
   font-size: 0.86rem;
 }
 
+.player-add-button {
+  justify-self: start;
+  min-height: 36px;
+}
+
+.player-card-empty {
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+
+.player-track-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(72px, 96px) auto;
+  gap: 8px;
+  align-items: end;
+  padding: 10px;
+  background: rgb(16 11 7 / 0.46);
+  border: 1px solid rgb(214 196 135 / 0.22);
+  border-radius: 6px;
+}
+
+.player-track-form label,
+.player-track-controls label {
+  display: grid;
+  gap: 4px;
+}
+
+.player-track-form input,
+.player-track-controls input {
+  width: 100%;
+  padding: 0.35rem 0.45rem;
+  font-size: 0.86rem;
+}
+
+.player-track-list {
+  display: grid;
+  gap: 12px;
+}
+
+.player-track {
+  display: grid;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid rgb(214 196 135 / 0.18);
+}
+
+.player-track .track-squares {
+  --track-square-min: 10px;
+  gap: 3px;
+}
+
+.player-track .track-square {
+  border-radius: 2px;
+}
+
+.player-track-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(72px, 96px) 40px;
+  gap: 8px;
+  align-items: end;
+}
+
+.player-track-labels {
+  margin-top: 0;
+}
+
+.player-track-labels span:last-child {
+  text-align: right;
+}
+
+.player-track-labels strong {
+  color: var(--gold-soft);
+  text-align: center;
+}
+
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -724,6 +838,16 @@
   min-height: 36px;
 }
 
+@media (max-width: 1380px) {
+  .campaign-header {
+    grid-template-columns: 1fr;
+  }
+
+  .campaign-actions {
+    justify-content: flex-start;
+  }
+}
+
 @media (max-width: 860px) {
   .app-shell {
     grid-template-columns: 1fr;
@@ -761,7 +885,7 @@
   }
 
   .track-squares {
-    grid-template-columns: repeat(21, minmax(10px, 1fr));
+    --track-square-min: 10px;
     gap: 3px;
   }
 
@@ -782,16 +906,19 @@
   }
 
   .clock-token,
-  .track-token {
+  .track-token,
+  .player-card {
     width: min(100%, 280px);
   }
 
   .track-token .track-squares {
-    grid-template-columns: repeat(21, minmax(8px, 1fr));
+    --track-square-min: 8px;
   }
 
   .track-token .track-label-row,
-  .track-draft-grid {
+  .track-draft-grid,
+  .player-track-form,
+  .player-track-controls {
     grid-template-columns: 1fr;
   }
 

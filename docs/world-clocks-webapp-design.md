@@ -9,10 +9,10 @@ La richiesta del master, ridotta all'essenziale:
 - Schermata inizialmente vuota.
 - Un pulsante `Aggiungi`.
 - Da `Aggiungi` si puo creare una card-clock oppure una barra discreta da plancia.
-- Un pulsante `Crea grafici giocatore`.
-- Da `Crea grafici giocatore` si crea una card dedicata a un giocatore.
+- Un pulsante `Aggiungi giocatore`.
+- Da `Aggiungi giocatore` si crea una card dedicata a un giocatore.
 - Ogni card giocatore deve avere il nome del giocatore.
-- Dentro ogni card giocatore deve essere possibile aggiungere tutti i clock/grafici necessari.
+- Dentro ogni card giocatore deve essere possibile aggiungere tutti i grafici necessari.
 - Deve restare possibile avere grafici totali/globali, separati dai grafici dei singoli giocatori.
 - I grafici totali/globali restano card libere sulla plancia, ma possono essere fissati in alto in una zona `Party`.
 - La card-clock deve avere un nome.
@@ -52,7 +52,7 @@ In alto:
 
 - Nome della campagna o della scena.
 - Pulsante `Aggiungi`.
-- Pulsante `Crea grafici giocatore`.
+- Pulsante `Aggiungi giocatore`.
 - Pulsante `Salva`.
 - Pulsante `Carica`.
 - Il file JSON viene generato dal flusso `Salva`, senza richiedere al master di capire il formato.
@@ -80,9 +80,11 @@ Vincoli di leggibilita e contenimento:
 - Ogni card deve contenere sempre tutti i propri controlli: input, select, barre segmentate e pulsanti non devono uscire dal bordo della card.
 - Il titolo della card e la label del grafico sono due testi distinti: il titolo identifica la card, la label descrive il singolo grafico visualizzato dentro la card.
 - I controlli dentro una card devono adattarsi alla larghezza disponibile con griglie responsive, `min-width: 0` e dimensioni stabili.
+- L'header deve poter mandare i pulsanti a capo sotto al titolo quando lo spazio orizzontale non basta, senza tagliare il nome della campagna.
 - Il contrasto tra testo, controlli, segmenti e sfondo deve essere controllato con attenzione, perche lo sfondo fantasy e molto scuro e textureizzato.
 - Gli stati vuoti, pieni, selezionati e disabilitati dei clock devono essere distinguibili anche quando il colore scelto e scuro.
 - Le card devono poter essere compatte, ma non sacrificare leggibilita e tap target.
+- Quando una card viene puntata o modificata, deve salire visivamente sopra le altre card per mantenere leggibili i controlli anche durante spostamenti o sovrapposizioni temporanee.
 
 ## Responsive E Uso Mobile
 
@@ -169,28 +171,30 @@ Oltre ai clock globali/totali, la webapp deve permettere di creare card dedicate
 
 Il flusso deve essere questo:
 
-1. Il master preme `Crea grafici giocatore`.
+1. Il master preme `Aggiungi giocatore`.
 2. Inserisce il nome del giocatore.
 3. La webapp crea una card giocatore sulla plancia.
-4. Dentro la card giocatore, il master puo aggiungere uno o piu clock/grafici.
-5. Ogni clock dentro la card giocatore usa gli stessi stili dei clock globali: `Torta`, `Barra segmentata`, e in futuro eventuali altri stili.
-6. Ogni clock interno ha nome, segmenti, avanzamento, colore e impostazioni proprie.
-7. La card giocatore puo essere spostata sulla plancia come una card-clock globale.
-8. Su mobile, le card giocatore entrano nella vista semplificata verticale insieme ai clock globali.
+4. In cima alla card il titolo e il nome del giocatore, modificabile.
+5. Dentro la card giocatore, il master puo premere `Aggiungi` quante volte vuole.
+6. Ogni aggiunta crea un grafico interno a barra simmetrica, con label e valore `X` configurabile.
+7. Se `X = 20`, il grafico mostra una scala discreta da `-20` a `+20`, con `0` al centro e 41 quadratini cliccabili.
+8. Ogni grafico interno ha label, valore corrente e scala `X` modificabili.
+9. La card giocatore puo essere spostata sulla plancia come una card-clock globale.
+10. Su mobile, le card giocatore entrano nella vista semplificata verticale insieme ai clock globali.
 
 Scopo:
 
 - Avere una vista totale/globale della situazione del mondo o della scena.
 - Avere una vista individuale per ogni giocatore.
-- Preparare piu clock per lo stesso giocatore senza riempire la plancia di card separate.
+- Preparare piu grafici per lo stesso giocatore senza riempire la plancia di card separate.
 
 Comportamento minimo:
 
 - Nome giocatore modificabile.
-- Pulsante `Aggiungi grafico` dentro la card giocatore.
-- Lista dei clock interni.
-- Ogni clock interno deve poter avanzare con tap/click e pulsanti `-1` / `+1`.
-- Ogni clock interno deve poter essere modificato nei suoi dati base.
+- Pulsante `Aggiungi` dentro la card giocatore.
+- Lista dei grafici interni.
+- Ogni grafico interno deve poter impostare il valore cliccando un quadratino.
+- Ogni grafico interno deve poter modificare label e ampiezza `X`.
 - La card giocatore deve salvare tutto nel JSON e nei salvataggi nominati.
 
 Decisione strutturale consigliata:
@@ -198,7 +202,7 @@ Decisione strutturale consigliata:
 - Trattare i clock globali e le card giocatore come due collezioni separate nello stato.
 - I clock globali restano in `clocks`.
 - Le card giocatore vanno in `playerCards`.
-- Ogni `playerCard` contiene una lista `clocks`.
+- Ogni `playerCard` contiene una lista `tracks` per i grafici interni a barra simmetrica.
 
 Esempio dati:
 
@@ -214,19 +218,18 @@ Esempio dati:
       },
       "size": "medium",
       "locked": false,
-      "clocks": [
+      "updatedAt": "2026-09-07T00:00:00.000Z",
+      "tracks": [
         {
-          "id": "player-clock-1",
-          "type": "pie",
-          "name": "Corruzione del sogno",
-          "graphLabel": "Soglia personale",
-          "segments": 6,
-          "filled": 2,
-          "color": "moss",
-          "settings": {
-            "showValue": true,
-            "showControls": true
-          },
+          "id": "player-track-1",
+          "name": "Atteggiamento verso popolazione",
+          "graphLabel": "Atteggiamento verso popolazione",
+          "leftLabel": "-20",
+          "centerLabel": "0",
+          "rightLabel": "+20",
+          "min": -20,
+          "max": 20,
+          "value": 0,
           "updatedAt": "2026-09-07T00:00:00.000Z"
         }
       ]
@@ -235,7 +238,7 @@ Esempio dati:
 }
 ```
 
-Nota: i clock dentro una card giocatore non hanno bisogno di una posizione propria, perche sono ordinati dentro la card. La posizione appartiene alla card giocatore.
+Nota: i grafici dentro una card giocatore non hanno bisogno di una posizione propria, perche sono ordinati dentro la card. La posizione appartiene alla card giocatore.
 
 ## Barre Fisse
 
@@ -467,7 +470,9 @@ Struttura dati locale consigliata:
         "schemaVersion": 1,
         "campaignName": "Sogno Erotico",
         "tracks": [],
-        "clocks": []
+        "boardTracks": [],
+        "clocks": [],
+        "playerCards": []
       }
     }
   ]
@@ -523,6 +528,7 @@ Esempio:
       "value": 0
     }
   ],
+  "boardTracks": [],
   "clocks": [
     {
       "id": "clock-1",
@@ -556,18 +562,18 @@ Esempio:
       },
       "size": "medium",
       "locked": false,
-      "clocks": [
+      "updatedAt": "2026-09-07T00:00:00.000Z",
+      "tracks": [
         {
-          "id": "player-clock-1",
-          "type": "pie",
-          "name": "Corruzione del sogno",
-          "segments": 6,
-          "filled": 2,
-          "color": "moss",
-          "settings": {
-            "showValue": true,
-            "showControls": true
-          },
+          "id": "player-track-1",
+          "name": "Atteggiamento verso popolazione",
+          "graphLabel": "Atteggiamento verso popolazione",
+          "leftLabel": "-20",
+          "centerLabel": "0",
+          "rightLabel": "+20",
+          "min": -20,
+          "max": 20,
+          "value": 0,
           "updatedAt": "2026-09-07T00:00:00.000Z"
         }
       ]
@@ -585,7 +591,7 @@ Comportamento:
 - Legge il file.
 - Valida `schemaVersion`.
 - Controlla che esistano `tracks` e `clocks`.
-- Se esiste `playerCards`, valida anche le card giocatore e i clock interni.
+- Se esiste `playerCards`, valida anche le card giocatore e i grafici interni.
 - Chiede conferma prima di sostituire la plancia corrente.
 - Dopo il caricamento, permette di salvarlo con nome nella barra laterale.
 - Se il file non e valido, mostra un errore chiaro e non cancella nulla.
@@ -682,7 +688,7 @@ src/
     Board.tsx
     ClockToken.tsx
     PlayerCard.tsx
-    PlayerClockList.tsx
+    PlayerTrackList.tsx
     AddPlayerCardModal.tsx
     ClockStylePicker.tsx
     PieClock.tsx
@@ -727,7 +733,8 @@ Versione 0.1:
 - Creazione barra da plancia con la stessa UX delle due barre fisse.
 - Titolo card e label sopra grafico modificabili per clock e barre.
 - Creazione card giocatore con nome del giocatore.
-- Possibilita di aggiungere piu clock dentro ogni card giocatore.
+- Possibilita di aggiungere piu grafici a barra simmetrica dentro ogni card giocatore.
+- Grafici giocatore configurabili con label e valore `X`, per scale tipo `-20 / 0 / +20`.
 - Creazione clock a torta con nome e numero spicchi.
 - Creazione clock a barra segmentata con nome e numero segmenti.
 - Avanzamento del clock cliccando il grafico o usando `-1` / `+1`.
@@ -767,7 +774,7 @@ Versione 0.2, solo se serve:
 - Forzare il drag libero su cellulare come interazione principale.
 - Dipendenze pesanti per disegnare i clock.
 - Un editor da grafica professionale: deve restare uno strumento da sessione, non un costruttore complesso.
-- Creare una card separata per ogni singolo clock giocatore quando piu clock appartengono allo stesso giocatore.
+- Creare una card separata per ogni singolo grafico giocatore quando piu grafici appartengono allo stesso giocatore.
 
 ## Domande Ancora Aperte
 
@@ -780,8 +787,8 @@ Versione 0.2, solo se serve:
 - Serve una modalita schermo intero per usarla al tavolo?
 - La barra laterale dei salvataggi su mobile deve diventare un drawer, una tendina o una sezione in alto?
 - Quando si sta modificando un salvataggio gia attivo, `Salva` deve proporre quel nome come default e aggiornare quel salvataggio se il master conferma lo stesso nome.
-- I clock dentro una card giocatore devono essere sempre visibili o collassabili per non occupare troppo spazio?
-- La card giocatore deve avere anche un clock riepilogativo/totale automatico o solo i clock che il master aggiunge manualmente?
+- I grafici dentro una card giocatore devono essere sempre visibili o collassabili per non occupare troppo spazio?
+- La card giocatore deve avere anche un grafico riepilogativo/totale automatico o solo i grafici che il master aggiunge manualmente?
 - La zona `Party` deve essere sempre visibile anche quando non contiene clock, oppure apparire solo quando almeno un clock e fissato?
 - Le barre da plancia devono poter avere una scala diversa da 21 caselle in futuro, oppure 21 deve restare lo standard unico?
 
@@ -796,7 +803,7 @@ Per una versione 0.1 piccola ma curata:
 - Clock a torta SVG: 1-2 ore.
 - Clock a barra segmentata: 45-60 minuti.
 - Zona `Party` per fissare clock globali: 30-60 minuti.
-- Card giocatore con clock interni: 1-2 ore.
+- Card giocatore con grafici interni: 1-2 ore.
 - Picker stile grafico: 30-45 minuti.
 - Modale `Aggiungi`: 45-60 minuti.
 - Drag and drop: 1-2 ore.
@@ -812,7 +819,7 @@ Totale realistico: una giornata corta, con margine per rifinire il feeling visiv
 
 Procedere con React + Vite + TypeScript, senza backend.
 
-Il cuore dell'app deve essere questo: una plancia fantasy vuota, due barre fisse da 21 caselle e un pulsante `Aggiungi` che crea card-clock globali oppure barre da plancia nominabili, posizionabili e configurabili in tempo reale. I clock globali restano liberi sulla plancia, ma possono essere fissati in alto nella zona `Party`. Deve esserci anche `Crea grafici giocatore`, che crea una card giocatore con nome e con la possibilita di aggiungere piu clock interni. Il master deve poter salvare schermate con nome nella barra laterale e richiamarle subito; il JSON deve restare il formato portabile per backup e passaggio tra sessioni o dispositivi. Su desktop la webapp funziona come plancia libera, mentre su cellulare diventa una lista operativa semplificata con gesture rapide.
+Il cuore dell'app deve essere questo: una plancia fantasy vuota, due barre fisse da 21 caselle e un pulsante `Aggiungi` che crea card-clock globali oppure barre da plancia nominabili, posizionabili e configurabili in tempo reale. I clock globali restano liberi sulla plancia, ma possono essere fissati in alto nella zona `Party`. Deve esserci anche `Aggiungi giocatore`, che crea una card giocatore con nome e con la possibilita di aggiungere piu grafici interni a barra simmetrica, configurabili con label e valore `X`. Il master deve poter salvare schermate con nome nella barra laterale e richiamarle subito; il JSON deve restare il formato portabile per backup e passaggio tra sessioni o dispositivi. Su desktop la webapp funziona come plancia libera, mentre su cellulare diventa una lista operativa semplificata con gesture rapide.
 
 ## Regola Di Lavoro Sul Documento
 

@@ -1,5 +1,6 @@
 import { useEffect, useReducer, useState } from 'react'
 import { AddClockModal } from './components/AddClockModal'
+import { AddPlayerCardModal } from './components/AddPlayerCardModal'
 import { Board } from './components/Board'
 import { CampaignHeader } from './components/CampaignHeader'
 import { FixedTracks } from './components/FixedTracks'
@@ -9,7 +10,7 @@ import { defaultCampaign } from './state/defaultCampaign'
 import { campaignToJson, downloadCampaignJson, parseCampaignJson } from './state/jsonPersistence'
 import { loadSavedScenes, makeSavedScene, saveSavedScenes } from './state/savedScenes'
 import { loadStoredCampaign, saveStoredCampaign } from './state/storage'
-import type { BoardTrack, Clock } from './types/campaign'
+import type { BoardTrack, Clock, PlayerCard } from './types/campaign'
 import type { SavedScene } from './types/savedScene'
 import './styles/theme.css'
 import './styles/app.css'
@@ -18,6 +19,7 @@ function App() {
   const [campaign, dispatch] = useReducer(campaignReducer, undefined, loadStoredCampaign)
   const [savedScenes, setSavedScenes] = useState(loadSavedScenes)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const [isAddPlayerModalOpen, setIsAddPlayerModalOpen] = useState(false)
   const [loadError, setLoadError] = useState('')
   const [statusMessage, setStatusMessage] = useState('')
 
@@ -43,7 +45,8 @@ function App() {
           kind: 'track'
         } & Pick<BoardTrack, 'name' | 'graphLabel' | 'leftLabel' | 'centerLabel' | 'rightLabel'>),
   ) => {
-    const nextIndex = campaign.clocks.length + campaign.boardTracks.length + 1
+    const nextIndex =
+      campaign.clocks.length + campaign.boardTracks.length + campaign.playerCards.length + 1
 
     if (draft.kind === 'track') {
       const track: BoardTrack = {
@@ -86,14 +89,34 @@ function App() {
         x: 40 + ((nextIndex - 1) % 4) * 40,
         y: 40 + ((nextIndex - 1) % 4) * 34,
       },
-        size: 'medium',
-        locked: false,
-        pinnedToParty: false,
+      size: 'medium',
+      locked: false,
+      pinnedToParty: false,
       updatedAt: new Date().toISOString(),
     }
 
     dispatch({ type: 'addClock', clock })
     setIsAddModalOpen(false)
+  }
+
+  const createPlayerCard = (playerName: string) => {
+    const nextIndex =
+      campaign.clocks.length + campaign.boardTracks.length + campaign.playerCards.length + 1
+    const playerCard: PlayerCard = {
+      id: `player-${Date.now()}`,
+      playerName,
+      position: {
+        x: 52 + ((nextIndex - 1) % 3) * 50,
+        y: 52 + ((nextIndex - 1) % 3) * 44,
+      },
+      size: 'medium',
+      locked: false,
+      tracks: [],
+      updatedAt: new Date().toISOString(),
+    }
+
+    dispatch({ type: 'addPlayerCard', playerCard })
+    setIsAddPlayerModalOpen(false)
   }
 
   const askForSaveName = (defaultName: string): string | null => {
@@ -213,6 +236,7 @@ function App() {
           campaignName={campaign.campaignName}
           onCampaignNameChange={(name) => dispatch({ type: 'setCampaignName', name })}
           onAddClock={() => setIsAddModalOpen(true)}
+          onAddPlayer={() => setIsAddPlayerModalOpen(true)}
           onSave={saveNamedScene}
           onLoadFile={loadFile}
           onReset={() => {
@@ -235,6 +259,7 @@ function App() {
         <Board
           clocks={campaign.clocks}
           boardTracks={campaign.boardTracks}
+          playerCards={campaign.playerCards}
           onUpdateClock={(id, patch) => dispatch({ type: 'updateClock', id, patch })}
           onSetClockFilled={(id, filled) => dispatch({ type: 'setClockFilled', id, filled })}
           onMoveClock={(id, x, y) => dispatch({ type: 'moveClock', id, x, y })}
@@ -244,11 +269,29 @@ function App() {
           }
           onMoveBoardTrack={(id, x, y) => dispatch({ type: 'moveBoardTrack', id, x, y })}
           onDeleteBoardTrack={(id) => dispatch({ type: 'deleteBoardTrack', id })}
+          onUpdatePlayerCard={(id, patch) => dispatch({ type: 'updatePlayerCard', id, patch })}
+          onMovePlayerCard={(id, x, y) => dispatch({ type: 'movePlayerCard', id, x, y })}
+          onDeletePlayerCard={(id) => dispatch({ type: 'deletePlayerCard', id })}
+          onAddPlayerTrack={(playerId, track) =>
+            dispatch({ type: 'addPlayerTrack', playerId, track })
+          }
+          onUpdatePlayerTrack={(playerId, trackId, patch) =>
+            dispatch({ type: 'updatePlayerTrack', playerId, trackId, patch })
+          }
+          onDeletePlayerTrack={(playerId, trackId) =>
+            dispatch({ type: 'deletePlayerTrack', playerId, trackId })
+          }
         />
       </div>
 
       {isAddModalOpen ? (
         <AddClockModal onClose={() => setIsAddModalOpen(false)} onCreate={createBoardElement} />
+      ) : null}
+      {isAddPlayerModalOpen ? (
+        <AddPlayerCardModal
+          onClose={() => setIsAddPlayerModalOpen(false)}
+          onCreate={createPlayerCard}
+        />
       ) : null}
     </div>
   )

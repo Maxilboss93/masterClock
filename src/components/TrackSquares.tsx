@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import type { Track } from '../types/campaign'
 
 interface TrackSquaresProps {
@@ -6,13 +7,19 @@ interface TrackSquaresProps {
 }
 
 export function TrackSquares({ track, onValueChange }: TrackSquaresProps) {
+  const label = track.graphLabel || track.name
   const values = Array.from(
     { length: track.max - track.min + 1 },
     (_, index) => track.min + index,
   )
 
   return (
-    <div className="track-squares" role="group" aria-label={track.graphLabel || track.name}>
+    <div
+      className="track-squares"
+      style={{ '--track-count': values.length } as CSSProperties}
+      role="group"
+      aria-label={label}
+    >
       {values.map((value) => {
         const isCenter = value === 0
         const isSelected = value === track.value
@@ -27,7 +34,7 @@ export function TrackSquares({ track, onValueChange }: TrackSquaresProps) {
               isSelected ? 'selected' : '',
             ].join(' ')}
             onClick={() => onValueChange(value)}
-            aria-label={`${track.name}: ${value}`}
+            aria-label={`${label}: ${value}`}
             aria-pressed={isSelected}
           >
             {isCenter ? track.centerLabel : ''}

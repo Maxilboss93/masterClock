@@ -1,4 +1,11 @@
-import type { BoardTrack, CampaignState, Clock, Track } from '../types/campaign'
+import type {
+  BoardTrack,
+  CampaignState,
+  Clock,
+  PlayerCard,
+  PlayerTrack,
+  Track,
+} from '../types/campaign'
 import { normalizeSegmentCount } from './numbers'
 
 type CampaignAction =
@@ -8,6 +15,13 @@ type CampaignAction =
   | { type: 'updateBoardTrack'; id: string; patch: Partial<BoardTrack> }
   | { type: 'moveBoardTrack'; id: string; x: number; y: number }
   | { type: 'deleteBoardTrack'; id: string }
+  | { type: 'addPlayerCard'; playerCard: PlayerCard }
+  | { type: 'updatePlayerCard'; id: string; patch: Partial<PlayerCard> }
+  | { type: 'movePlayerCard'; id: string; x: number; y: number }
+  | { type: 'deletePlayerCard'; id: string }
+  | { type: 'addPlayerTrack'; playerId: string; track: PlayerTrack }
+  | { type: 'updatePlayerTrack'; playerId: string; trackId: string; patch: Partial<PlayerTrack> }
+  | { type: 'deletePlayerTrack'; playerId: string; trackId: string }
   | { type: 'addClock'; clock: Clock }
   | { type: 'updateClock'; id: string; patch: Partial<Clock> }
   | { type: 'setClockFilled'; id: string; filled: number }
@@ -29,6 +43,23 @@ const touchBoardTrack = (track: BoardTrack): BoardTrack => ({
   updatedAt: new Date().toISOString(),
 })
 
+const touchPlayerCard = (playerCard: PlayerCard): PlayerCard => ({
+  ...playerCard,
+  updatedAt: new Date().toISOString(),
+})
+
+const touchPlayerTrack = (track: PlayerTrack): PlayerTrack => ({
+  ...track,
+  updatedAt: new Date().toISOString(),
+})
+
+function normalizeTrack<TTrack extends Track>(track: TTrack): TTrack {
+  return {
+    ...track,
+    value: clamp(track.value, track.min, track.max),
+  }
+}
+
 export function campaignReducer(
   state: CampaignState,
   action: CampaignAction,
@@ -46,10 +77,7 @@ export function campaignReducer(
           }
 
           const nextTrack = { ...track, ...action.patch }
-          return {
-            ...nextTrack,
-            value: clamp(nextTrack.value, nextTrack.min, nextTrack.max),
-          }
+          return normalizeTrack(nextTrack)
         }),
       }
 
@@ -93,6 +121,93 @@ export function campaignReducer(
       return {
         ...state,
         boardTracks: state.boardTracks.filter((track) => track.id !== action.id),
+      }
+
+    case 'addPlayerCard':
+      return {
+        ...state,
+        playerCards: [...state.playerCards, action.playerCard],
+      }
+
+    case 'updatePlayerCard':
+      return {
+        ...state,
+        playerCards: state.playerCards.map((playerCard) =>
+          playerCard.id === action.id
+            ? touchPlayerCard({
+                ...playerCard,
+                ...action.patch,
+                locked: Boolean(action.patch.locked ?? playerCard.locked),
+              })
+            : playerCard,
+        ),
+      }
+
+    case 'movePlayerCard':
+      return {
+        ...state,
+        playerCards: state.playerCards.map((playerCard) =>
+          playerCard.id === action.id
+            ? touchPlayerCard({
+                ...playerCard,
+                position: {
+                  x: Math.max(0, Math.round(action.x)),
+                  y: Math.max(0, Math.round(action.y)),
+                },
+              })
+            : playerCard,
+        ),
+      }
+
+    case 'deletePlayerCard':
+      return {
+        ...state,
+        playerCards: state.playerCards.filter((playerCard) => playerCard.id !== action.id),
+      }
+
+    case 'addPlayerTrack':
+      return {
+        ...state,
+        playerCards: state.playerCards.map((playerCard) =>
+          playerCard.id === action.playerId
+            ? touchPlayerCard({
+                ...playerCard,
+                tracks: [...playerCard.tracks, action.track],
+              })
+            : playerCard,
+        ),
+      }
+
+    case 'updatePlayerTrack':
+      return {
+        ...state,
+        playerCards: state.playerCards.map((playerCard) =>
+          playerCard.id === action.playerId
+            ? touchPlayerCard({
+                ...playerCard,
+                tracks: playerCard.tracks.map((track) => {
+                  if (track.id !== action.trackId) {
+                    return track
+                  }
+
+                  return touchPlayerTrack(normalizeTrack({ ...track, ...action.patch }))
+                }),
+              })
+            : playerCard,
+        ),
+      }
+
+    case 'deletePlayerTrack':
+      return {
+        ...state,
+        playerCards: state.playerCards.map((playerCard) =>
+          playerCard.id === action.playerId
+            ? touchPlayerCard({
+                ...playerCard,
+                tracks: playerCard.tracks.filter((track) => track.id !== action.trackId),
+              })
+            : playerCard,
+        ),
       }
 
     case 'addClock':

@@ -5,6 +5,8 @@ import type {
   ClockColor,
   ClockSize,
   ClockType,
+  PlayerCard,
+  PlayerTrack,
   Track,
 } from '../types/campaign'
 import { normalizeSegmentCount } from './numbers'
@@ -168,6 +170,74 @@ function validateBoardTrack(value: unknown): BoardTrack | null {
   }
 }
 
+function validatePlayerTrack(value: unknown): PlayerTrack | null {
+  if (!isObject(value)) {
+    return null
+  }
+
+  const { updatedAt } = value
+  const track = validateTrack(value)
+
+  if (!track || !isString(updatedAt)) {
+    return null
+  }
+
+  return {
+    ...track,
+    value: Math.min(Math.max(Math.round(track.value), track.min), track.max),
+    updatedAt,
+  }
+}
+
+function validatePlayerCard(value: unknown): PlayerCard | null {
+  if (!isObject(value)) {
+    return null
+  }
+
+  const {
+    id,
+    playerName,
+    position,
+    size,
+    locked,
+    tracks,
+    updatedAt,
+  } = value
+
+  if (
+    !isString(id) ||
+    !isString(playerName) ||
+    !isObject(position) ||
+    !isNumber(position.x) ||
+    !isNumber(position.y) ||
+    !clockSizes.includes(size as ClockSize) ||
+    typeof locked !== 'boolean' ||
+    !Array.isArray(tracks) ||
+    !isString(updatedAt)
+  ) {
+    return null
+  }
+
+  const parsedTracks = tracks.map(validatePlayerTrack)
+
+  if (parsedTracks.some((track) => track === null)) {
+    return null
+  }
+
+  return {
+    id,
+    playerName,
+    position: {
+      x: Math.max(0, Math.round(position.x)),
+      y: Math.max(0, Math.round(position.y)),
+    },
+    size: size as ClockSize,
+    locked,
+    tracks: parsedTracks as PlayerTrack[],
+    updatedAt,
+  }
+}
+
 export function parseCampaignJson(text: string): CampaignState {
   const parsed: unknown = JSON.parse(text)
 
@@ -175,7 +245,7 @@ export function parseCampaignJson(text: string): CampaignState {
     throw new Error('File non valido o versione schema non supportata.')
   }
 
-  const { campaignName, tracks, clocks, boardTracks } = parsed
+  const { campaignName, tracks, clocks, boardTracks, playerCards } = parsed
 
   if (!isString(campaignName) || !Array.isArray(tracks) || !Array.isArray(clocks)) {
     throw new Error('Il file deve contenere campaignName, tracks e clocks.')
@@ -186,6 +256,9 @@ export function parseCampaignJson(text: string): CampaignState {
   const parsedBoardTracks = Array.isArray(boardTracks)
     ? boardTracks.map(validateBoardTrack)
     : []
+  const parsedPlayerCards = Array.isArray(playerCards)
+    ? playerCards.map(validatePlayerCard)
+    : []
 
   if (parsedTracks.some((track) => track === null)) {
     throw new Error('Una o piu barre nel file non sono valide.')
@@ -193,6 +266,10 @@ export function parseCampaignJson(text: string): CampaignState {
 
   if (parsedBoardTracks.some((track) => track === null)) {
     throw new Error('Una o piu barre da plancia nel file non sono valide.')
+  }
+
+  if (parsedPlayerCards.some((playerCard) => playerCard === null)) {
+    throw new Error('Una o piu card giocatore nel file non sono valide.')
   }
 
   if (parsedClocks.some((clock) => clock === null)) {
@@ -204,6 +281,7 @@ export function parseCampaignJson(text: string): CampaignState {
     campaignName,
     tracks: parsedTracks as Track[],
     boardTracks: parsedBoardTracks as BoardTrack[],
+    playerCards: parsedPlayerCards as PlayerCard[],
     clocks: parsedClocks as Clock[],
   }
 }
