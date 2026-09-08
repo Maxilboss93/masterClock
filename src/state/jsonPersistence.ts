@@ -6,6 +6,7 @@ import type {
   ClockSize,
   ClockType,
   PlayerCard,
+  PlayerClock,
   PlayerTrack,
   Track,
 } from '../types/campaign'
@@ -84,6 +85,7 @@ function validateClock(value: unknown): Clock | null {
     size,
     locked,
     pinnedToParty,
+    createdAt,
     updatedAt,
   } = value
 
@@ -128,6 +130,7 @@ function validateClock(value: unknown): Clock | null {
     size: size as ClockSize,
     locked,
     pinnedToParty: typeof pinnedToParty === 'boolean' ? pinnedToParty : false,
+    createdAt: isString(createdAt) ? createdAt : undefined,
     updatedAt,
   }
 }
@@ -178,6 +181,7 @@ function validateBoardTrack(
     size: parsedSize,
     locked: parsedLocked,
     pinnedToTop: parsedPinnedToTop,
+    createdAt: isString(value.createdAt) ? value.createdAt : undefined,
     updatedAt: parsedUpdatedAt,
   }
 }
@@ -197,6 +201,59 @@ function validatePlayerTrack(value: unknown): PlayerTrack | null {
   return {
     ...track,
     value: Math.min(Math.max(Math.round(track.value), track.min), track.max),
+    createdAt: isString(value.createdAt) ? value.createdAt : undefined,
+    updatedAt,
+  }
+}
+
+function validatePlayerClock(value: unknown): PlayerClock | null {
+  if (!isObject(value)) {
+    return null
+  }
+
+  const {
+    id,
+    type,
+    name,
+    graphLabel,
+    segments,
+    filled,
+    color,
+    settings,
+    createdAt,
+    updatedAt,
+  } = value
+
+  if (
+    !isString(id) ||
+    !clockTypes.includes(type as ClockType) ||
+    !isString(name) ||
+    !isNumber(segments) ||
+    !isNumber(filled) ||
+    !clockColors.includes(color as ClockColor) ||
+    !isObject(settings) ||
+    typeof settings.showValue !== 'boolean' ||
+    typeof settings.showControls !== 'boolean' ||
+    !isString(updatedAt)
+  ) {
+    return null
+  }
+
+  const normalizedSegments = normalizeSegmentCount(segments)
+
+  return {
+    id,
+    type: type as ClockType,
+    name,
+    graphLabel: isString(graphLabel) ? graphLabel : name,
+    segments: normalizedSegments,
+    filled: Math.min(Math.max(Math.round(filled), 0), normalizedSegments),
+    color: color as ClockColor,
+    settings: {
+      showValue: settings.showValue,
+      showControls: settings.showControls,
+    },
+    createdAt: isString(createdAt) ? createdAt : undefined,
     updatedAt,
   }
 }
@@ -213,6 +270,8 @@ function validatePlayerCard(value: unknown): PlayerCard | null {
     size,
     locked,
     tracks,
+    clocks,
+    createdAt,
     updatedAt,
   } = value
 
@@ -231,8 +290,13 @@ function validatePlayerCard(value: unknown): PlayerCard | null {
   }
 
   const parsedTracks = tracks.map(validatePlayerTrack)
+  const parsedClocks = Array.isArray(clocks) ? clocks.map(validatePlayerClock) : []
 
   if (parsedTracks.some((track) => track === null)) {
+    return null
+  }
+
+  if (parsedClocks.some((clock) => clock === null)) {
     return null
   }
 
@@ -246,6 +310,8 @@ function validatePlayerCard(value: unknown): PlayerCard | null {
     size: size as ClockSize,
     locked,
     tracks: parsedTracks as PlayerTrack[],
+    clocks: parsedClocks as PlayerClock[],
+    createdAt: isString(createdAt) ? createdAt : undefined,
     updatedAt,
   }
 }

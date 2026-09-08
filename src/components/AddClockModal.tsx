@@ -3,7 +3,7 @@ import { X } from 'lucide-react'
 import { normalizeSegmentCount, normalizeTrackCellCount } from '../state/numbers'
 import type { ClockColor, ClockType } from '../types/campaign'
 
-type AddItemKind = 'clock' | 'track'
+type AddItemKind = 'clock' | 'track' | 'segmented'
 
 interface AddClockModalProps {
   onClose: () => void
@@ -33,7 +33,6 @@ const segmentPresets = [4, 6, 8, 10, 12]
 
 export function AddClockModal({ onClose, onCreate }: AddClockModalProps) {
   const [kind, setKind] = useState<AddItemKind>('clock')
-  const [type, setType] = useState<ClockType>('pie')
   const [name, setName] = useState('')
   const [graphLabel, setGraphLabel] = useState('')
   const [segments, setSegments] = useState(6)
@@ -43,9 +42,18 @@ export function AddClockModal({ onClose, onCreate }: AddClockModalProps) {
   const [centerLabel, setCenterLabel] = useState('0')
   const [rightLabel, setRightLabel] = useState('')
 
-  const isTrack = kind === 'track'
-  const titlePlaceholder = isTrack ? 'es. Tensione del sogno' : 'es. Allarme della cittadella'
-  const labelPlaceholder = isTrack ? 'es. Equilibrio onirico' : 'es. Rintocchi mancanti'
+  const titlePlaceholder =
+    kind === 'track'
+      ? 'es. Tensione del sogno'
+      : kind === 'segmented'
+        ? 'es. Rituale in corso'
+        : 'es. Allarme della cittadella'
+  const labelPlaceholder =
+    kind === 'track'
+      ? 'es. Equilibrio onirico'
+      : kind === 'segmented'
+        ? 'es. Progressi completati'
+        : 'es. Rintocchi mancanti'
 
   return (
     <div className="modal-backdrop" role="presentation">
@@ -69,9 +77,10 @@ export function AddClockModal({ onClose, onCreate }: AddClockModalProps) {
 
           onCreate({
             kind: 'clock',
-            type,
-            name: name.trim() || 'Nuovo clock',
-            graphLabel: graphLabel.trim() || 'Grafico',
+            type: (kind === 'segmented' ? 'bar' : 'pie') as ClockType,
+            name: name.trim() || (kind === 'segmented' ? 'Nuova barra segmentata' : 'Nuovo clock'),
+            graphLabel:
+              graphLabel.trim() || (kind === 'segmented' ? 'Barra segmentata' : 'Grafico'),
             segments,
             color,
           })
@@ -91,7 +100,7 @@ export function AddClockModal({ onClose, onCreate }: AddClockModalProps) {
         </header>
 
         <label>
-          Tipo
+          Tipo grafico
           <select
             value={kind}
             onChange={(event) => {
@@ -100,7 +109,8 @@ export function AddClockModal({ onClose, onCreate }: AddClockModalProps) {
             }}
           >
             <option value="clock">Clock</option>
-            <option value="track">Barra</option>
+            <option value="track">Barra -X / 0 / +X</option>
+            <option value="segmented">Barra segmentata</option>
           </select>
         </label>
 
@@ -122,18 +132,10 @@ export function AddClockModal({ onClose, onCreate }: AddClockModalProps) {
           />
         </label>
 
-        {kind === 'clock' ? (
+        {kind !== 'track' ? (
           <>
-            <label>
-              Stile
-              <select value={type} onChange={(event) => setType(event.target.value as ClockType)}>
-                <option value="pie">Torta</option>
-                <option value="bar">Barra segmentata</option>
-              </select>
-            </label>
-
             <fieldset>
-              <legend>Segmenti</legend>
+              <legend>{kind === 'segmented' ? 'Caselle' : 'Segmenti'}</legend>
               <div className="preset-row">
                 {segmentPresets.map((preset) => (
                   <button

@@ -9,18 +9,19 @@ La richiesta del master, ridotta all'essenziale:
 - Schermata inizialmente vuota.
 - Un pulsante `Aggiungi`.
 - Da `Aggiungi` si puo creare una card-clock oppure una barra discreta da plancia.
+- I tipi grafico principali sono tre e devono essere scelti subito in cima alla modale: `Clock`, `Barra -X / 0 / +X` e `Barra segmentata`.
 - Un pulsante `Aggiungi giocatore`.
 - Da `Aggiungi giocatore` si crea una card dedicata a un giocatore.
 - Ogni card giocatore deve avere il nome del giocatore.
-- Dentro ogni card giocatore deve essere possibile aggiungere tutti i grafici necessari.
+- Dentro ogni card giocatore deve essere possibile aggiungere gli stessi tipi grafico dell'`Aggiungi` principale, ma solo dentro quella card.
 - Deve restare possibile avere grafici totali/globali, separati dai grafici dei singoli giocatori.
 - I grafici totali/globali restano card libere sulla plancia, ma possono essere fissati in alto in una zona `Party`.
 - La card-clock deve avere un nome.
 - Ogni card deve avere un titolo modificabile.
 - Ogni grafico dentro una card deve avere una label modificabile visibile sopra il grafico.
-- Il master deve scegliere lo stile grafico del clock.
-- Il clock deve chiedere quanti spicchi/segmenti/caselle servono in base allo stile scelto.
-- Il clock a torta resta la forma principale, ma l'interfaccia deve poter ospitare piu stili visivi.
+- Il master deve scegliere il tipo grafico prima di compilare i campi specifici.
+- Il tipo `Clock` usa il quadrante a torta.
+- Il tipo `Barra segmentata` usa caselle normali che si riempiono progressivamente.
 - Servono anche due barre iniziali da 21 quadratini, con valore centrale `0`, ma non devono essere obbligatoriamente fisse in alto.
 - Le impostazioni delle barre devono essere modificabili.
 - Deve essere possibile creare altre barre con la stessa UX delle due barre iniziali, direttamente dal pulsante `Aggiungi`, scegliendo liberamente quante caselle devono avere.
@@ -51,6 +52,7 @@ La schermata deve partire quasi vuota, evocativa e leggibile.
 In alto:
 
 - Nome della campagna o della scena.
+- Il valore predefinito del titolo campagna e `La caduta dei cieli`, ma deve restare modificabile.
 - Pulsante `Aggiungi`.
 - Pulsante `Aggiungi giocatore`.
 - Pulsante `Salva`.
@@ -66,7 +68,8 @@ Subito sotto:
 
 Lateralmente:
 
-- Una barra laterale con i salvataggi nominati.
+- Una barra laterale a scomparsa con i salvataggi nominati, cosi la plancia puo usare quasi tutto lo spazio quando il master non sta caricando scene.
+- Anche quando e chiusa, la barra laterale deve restare richiamabile con un pulsante/linguetta visibile.
 - Ogni salvataggio deve mostrare almeno nome, data di aggiornamento e numero di clock.
 - Cliccando un salvataggio, la plancia corrente viene sostituita rapidamente dopo conferma se ci sono modifiche non salvate.
 
@@ -74,6 +77,7 @@ Al centro:
 
 - Una plancia libera dove il master posiziona le card dei clock globali, le barre non fissate in alto e le card giocatore.
 - Una zona alta `Party`, facoltativa, dove fissare i clock globali che devono restare sempre visibili.
+- Quando il master crea un nuovo elemento, questo deve comparire sotto gli elementi gia presenti nella plancia, oppure comunque sopra visivamente se c'e sovrapposizione temporanea: non deve nascere dietro o sotto altre card.
 
 La pagina non deve sembrare una dashboard gestionale moderna. Deve sembrare una plancia fantasy da master: legno scuro, pergamena, oro brunito, elementi come segnalini appoggiati sul tavolo.
 
@@ -90,6 +94,7 @@ Vincoli di leggibilita e contenimento:
 - I placeholder devono restare leggibili ma secondari rispetto al testo inserito.
 - Le card devono poter essere compatte, ma non sacrificare leggibilita e tap target.
 - Quando una card viene puntata o modificata, deve salire visivamente sopra le altre card per mantenere leggibili i controlli anche durante spostamenti o sovrapposizioni temporanee.
+- La plancia non deve avere altezza rigida con contenuti tagliati: deve crescere o permettere scroll verticale per mostrare tutti gli elementi.
 
 ## Responsive E Uso Mobile
 
@@ -118,7 +123,7 @@ La scelta strutturale e quindi una modalita ibrida: plancia libera dove c'e spaz
 Il flusso centrale per un clock globale deve essere questo:
 
 1. Il master preme `Aggiungi`.
-2. Sceglie lo stile del clock tra piu tipi grafici.
+2. Sceglie `Clock` come tipo grafico.
 3. Inserisce titolo della card, label del grafico e quantita di segmenti, spicchi o caselle.
 4. Conferma.
 5. La webapp crea una card-clock sulla plancia.
@@ -132,11 +137,19 @@ Il feedback deve essere immediato: quando il master cambia numero di spicchi, va
 Il flusso centrale per una barra da plancia deve essere questo:
 
 1. Il master preme `Aggiungi`.
-2. Sceglie `Barra`.
+2. Sceglie `Barra -X / 0 / +X`.
 3. Inserisce titolo della card, label del grafico, numero di caselle, etichetta sinistra, etichetta centrale ed etichetta destra.
 4. Conferma.
 5. La webapp crea una card-barra sulla plancia.
 6. Il master puo cliccare i quadratini per impostare il valore, trascinare la card, modificarne numero di caselle ed etichette o eliminarla.
+
+Il flusso centrale per una barra segmentata da plancia deve essere questo:
+
+1. Il master preme `Aggiungi`.
+2. Sceglie `Barra segmentata`.
+3. Inserisce titolo, label, numero di caselle e colore.
+4. Conferma.
+5. La webapp crea una card con caselle normali che si riempiono da `0` al totale scelto.
 
 ## Grafici Globali E Zona Party
 
@@ -181,9 +194,9 @@ Il flusso deve essere questo:
 3. La webapp crea una card giocatore sulla plancia.
 4. In cima alla card il titolo e il nome del giocatore, modificabile.
 5. Dentro la card giocatore, il master puo premere `Aggiungi` quante volte vuole.
-6. Ogni aggiunta crea un grafico interno a barra simmetrica, con label e valore `X` configurabile.
-7. Se `X = 20`, il grafico mostra una scala discreta da `-20` a `+20`, con `0` al centro e 41 quadratini cliccabili.
-8. Ogni grafico interno ha label, valore corrente e scala `X` modificabili.
+6. Ogni aggiunta permette di scegliere tra `Clock`, `Barra -X / 0 / +X` e `Barra segmentata`.
+7. Se il master sceglie `Barra -X / 0 / +X` e `X = 20`, il grafico mostra una scala discreta da `-20` a `+20`, con `0` al centro e 41 quadratini cliccabili.
+8. Ogni grafico interno ha titolo, label, valore corrente e impostazioni specifiche modificabili.
 9. La card giocatore puo essere spostata sulla plancia come una card-clock globale.
 10. Su mobile, le card giocatore entrano nella vista semplificata verticale insieme ai clock globali.
 
@@ -198,8 +211,8 @@ Comportamento minimo:
 - Nome giocatore modificabile.
 - Pulsante `Aggiungi` dentro la card giocatore.
 - Lista dei grafici interni.
-- Ogni grafico interno deve poter impostare il valore cliccando un quadratino.
-- Ogni grafico interno deve poter modificare label e ampiezza `X`.
+- Ogni grafico interno deve poter impostare il valore cliccando uno spicchio o un quadratino.
+- Ogni grafico interno deve poter modificare titolo, label e impostazioni specifiche, come ampiezza `X`, segmenti o caselle.
 - La card giocatore deve salvare tutto nel JSON e nei salvataggi nominati.
 
 Decisione strutturale consigliata:
@@ -207,7 +220,7 @@ Decisione strutturale consigliata:
 - Trattare i clock globali e le card giocatore come due collezioni separate nello stato.
 - I clock globali restano in `clocks`.
 - Le card giocatore vanno in `playerCards`.
-- Ogni `playerCard` contiene una lista `tracks` per i grafici interni a barra simmetrica.
+- Ogni `playerCard` contiene `tracks` per le barre simmetriche e `clocks` per clock a torta e barre segmentate.
 
 Esempio dati:
 
@@ -223,6 +236,7 @@ Esempio dati:
       },
       "size": "medium",
       "locked": false,
+      "clocks": [],
       "updatedAt": "2026-09-07T00:00:00.000Z",
       "tracks": [
         {
@@ -300,6 +314,7 @@ Ogni barra deve:
 - Consentire al master di cliccare un quadratino per impostare il valore.
 - Evidenziare il valore corrente.
 - Mostrare chiaramente gli estremi testuali.
+- Mostrare chiaramente anche i valori numerici agli estremi, per esempio `-10` e `+10`, oltre alle eventuali label narrative.
 - Permettere di modificare nome, etichetta sinistra, etichetta destra e valore corrente.
 - Salvare il valore nel JSON.
 
@@ -360,11 +375,11 @@ I clock vivono dentro card posizionabili sulla plancia.
 
 La card e il contenitore stabile: titolo, controlli rapidi, grafico e impostazioni. Il grafico interno puo cambiare stile, ma la card resta trascinabile, salvabile e configurabile nello stesso modo.
 
-### Creazione Clock
+### Creazione Grafico
 
 Quando il master preme `Aggiungi`, appare una piccola finestra/modale con:
 
-- Stile grafico del clock.
+- Tipo grafico in cima: `Clock`, `Barra -X / 0 / +X`, `Barra segmentata`.
 - Titolo della card.
 - Label del grafico, mostrata sopra al grafico.
 - Numero di spicchi, segmenti o caselle.
@@ -384,20 +399,19 @@ Deve comunque essere possibile inserire un numero manuale libero. Il numero mini
 
 Nota visuale: con molti segmenti il clock deve restare contenuto nella card. La torta puo diventare molto fitta, mentre la barra segmentata deve poter andare a capo su piu righe senza uscire dal contenitore.
 
-### Stili Di Clock
+### Tipi Di Grafico
 
-Gli stili devono condividere gli stessi dati di base: `segments`, `filled`, `name`, `color`, `position`, `size`, `settings`.
+I tipi grafico devono essere presentati come scelta principale, non come sottotipo del clock.
 
-Per i clock dentro una card giocatore, i dati condivisi restano gli stessi tranne `position` e `size`, che appartengono alla card contenitore.
+Tipi previsti:
 
-Stili consigliati:
+- `Clock`: cerchio diviso in spicchi. E lo stile principale per minacce, rituali e fronti narrativi.
+- `Barra -X / 0 / +X`: barra simmetrica con valori negativi a sinistra, `0` al centro e valori positivi a destra.
+- `Barra segmentata`: barra orizzontale divisa in caselle normali, utile per progressi lineari che si riempiono da `0` al totale.
 
-- `Torta`: cerchio diviso in spicchi. E lo stile principale per minacce, rituali e fronti narrativi.
-- `Barra segmentata`: barra orizzontale divisa in caselle, utile per progressi lineari.
-- `Caselle`: griglia di quadratini, vicina al linguaggio della bozza cartacea.
-- `Anello`: cerchio/anello che si riempie a segmenti, piu compatto e scenografico.
+Il `Clock` e la `Barra segmentata` possono condividere internamente alcuni dati (`segments`, `filled`, `name`, `color`, `settings`), ma la UI non deve presentarli come varianti dello stesso clock.
 
-Per la versione rapida possiamo implementare subito `Torta` e `Barra segmentata`, lasciando `Caselle` e `Anello` come stili successivi se il master li vuole davvero. L'importante e progettare i dati in modo che aggiungere uno stile non richieda di rifare il salvataggio.
+Per i grafici dentro una card giocatore, i dati condivisi restano gli stessi tranne `position` e `size`, che appartengono alla card contenitore.
 
 ### Clock A Torta
 
@@ -489,10 +503,10 @@ Struttura dati locale consigliata:
       "updatedAt": "2026-09-07T00:00:00.000Z",
       "campaign": {
         "schemaVersion": 1,
-        "campaignName": "Sogno Erotico",
+        "campaignName": "La caduta dei cieli",
         "tracks": [],
-        "boardTracks": [],
         "clocks": [],
+        "boardTracks": [],
         "playerCards": []
       }
     }
@@ -524,7 +538,7 @@ Esempio:
 ```json
 {
   "schemaVersion": 1,
-  "campaignName": "Sogno Erotico",
+  "campaignName": "La caduta dei cieli",
   "tracks": [
     {
       "id": "attitude",
@@ -761,20 +775,21 @@ Versione 0.1:
 - Schermata vuota con sfondo fantasy.
 - Header minimale con `Aggiungi`, `Salva`, `Carica`.
 - Salvataggio con nome tramite modale semplice.
-- Barra laterale con schermate salvate ricaricabili al volo.
+- Barra laterale a scomparsa con schermate salvate ricaricabili al volo.
 - Due barre iniziali da 21 quadratini, fissate in alto solo finche il master lo desidera:
   - `Atteggiamento`: `Sociale` / `0` / `Fisico`.
   - `Percezione delle fazioni`: `Rinati` / `0` / `Cantori`.
 - Fascia `Barre` con resize e ritorno a capo automatico quando il master fissa in alto piu barre.
 - Impostazioni modificabili per nome/estremi/valori delle barre.
 - Creazione card-clock con scelta dello stile grafico.
+- Creazione grafico con scelta principale tra `Clock`, `Barra -X / 0 / +X` e `Barra segmentata`.
 - Creazione barra da plancia con la stessa UX delle due barre iniziali.
 - Titolo card e label sopra grafico modificabili per clock e barre.
 - Creazione card giocatore con nome del giocatore.
-- Possibilita di aggiungere piu grafici a barra simmetrica dentro ogni card giocatore.
-- Grafici giocatore configurabili con label e valore `X`, per scale tipo `-20 / 0 / +20`.
+- Possibilita di aggiungere piu grafici di tutti e tre i tipi dentro ogni card giocatore.
+- Grafici giocatore configurabili con titolo, label, valore `X`, segmenti o caselle secondo il tipo scelto.
 - Creazione clock a torta con nome e numero spicchi.
-- Creazione clock a barra segmentata con nome e numero segmenti.
+- Creazione barra segmentata con nome e numero caselle.
 - Avanzamento del clock cliccando il grafico o usando `-1` / `+1`.
 - Modifica in tempo reale di lunghezza, stile e impostazioni.
 - Spostamento delle card-clock sulla plancia.
@@ -792,7 +807,6 @@ Versione 0.1:
 
 Versione 0.2, solo se serve:
 
-- Clock a caselle.
 - Clock ad anello.
 - Taglie piccola/media/grande.
 - Blocco posizione.
@@ -816,10 +830,8 @@ Versione 0.2, solo se serve:
 
 ## Domande Ancora Aperte
 
-- Il titolo della campagna deve essere davvero `Sogno Erotico` o e solo il nome della prima scena?
 - I clock devono avere una descrizione/note oppure basta il nome?
 - I clock completati restano visibili o vanno archiviati?
-- Quali stili grafici vuole davvero nella prima versione oltre a torta e barra segmentata?
 - Il master vuole poter cambiare colore ai clock gia nella prima versione?
 - Serve una modalita schermo intero per usarla al tavolo?
 - La barra laterale dei salvataggi su mobile deve diventare un drawer, una tendina o una sezione in alto?
@@ -837,7 +849,7 @@ Per una versione 0.1 piccola ma curata:
 - Barre a caselle configurabili: 1 ora.
 - Impostazioni modificabili delle barre: 45-60 minuti.
 - Clock a torta SVG: 1-2 ore.
-- Clock a barra segmentata: 45-60 minuti.
+- Barra segmentata: 45-60 minuti.
 - Zona `Party` per fissare clock globali: 30-60 minuti.
 - Card giocatore con grafici interni: 1-2 ore.
 - Picker stile grafico: 30-45 minuti.
@@ -855,7 +867,7 @@ Totale realistico: una giornata corta, con margine per rifinire il feeling visiv
 
 Procedere con React + Vite + TypeScript, senza backend.
 
-Il cuore dell'app deve essere questo: una plancia fantasy vuota, due barre iniziali da 21 caselle e un pulsante `Aggiungi` che crea card-clock globali oppure barre da plancia nominabili, posizionabili e configurabili in tempo reale. Le barre possono stare nella fascia alta `Barre`, con resize e ritorno a capo automatico, oppure vivere come card libere sulla plancia. I clock globali restano liberi sulla plancia, ma possono essere fissati in alto nella zona `Party`. Deve esserci anche `Aggiungi giocatore`, che crea una card giocatore con nome e con la possibilita di aggiungere piu grafici interni a barra simmetrica, configurabili con label e valore `X`. Il master deve poter salvare schermate con nome nella barra laterale e richiamarle subito; il JSON deve restare il formato portabile per backup e passaggio tra sessioni o dispositivi. Su desktop la webapp funziona come plancia libera, mentre su cellulare diventa una lista operativa semplificata con gesture rapide.
+Il cuore dell'app deve essere questo: una plancia fantasy vuota, due barre iniziali da 21 caselle e un pulsante `Aggiungi` che crea tre tipi grafico globali: `Clock`, `Barra -X / 0 / +X` e `Barra segmentata`. Le barre possono stare nella fascia alta `Barre`, con resize e ritorno a capo automatico, oppure vivere come card libere sulla plancia. I clock globali restano liberi sulla plancia, ma possono essere fissati in alto nella zona `Party`. Deve esserci anche `Aggiungi giocatore`, che crea una card giocatore con nome e con la possibilita di aggiungere gli stessi tre tipi grafico dentro la card. Il master deve poter salvare schermate con nome nella barra laterale e richiamarle subito; il JSON deve restare il formato portabile per backup e passaggio tra sessioni o dispositivi. Su desktop la webapp funziona come plancia libera scrollabile, mentre su cellulare diventa una lista operativa semplificata con gesture rapide.
 
 ## Regola Di Lavoro Sul Documento
 

@@ -9,7 +9,7 @@ import {
   Unlock,
 } from 'lucide-react'
 import type { RefObject } from 'react'
-import type { Clock, ClockColor, ClockType } from '../types/campaign'
+import type { Clock, ClockColor } from '../types/campaign'
 import { PieClock } from './PieClock'
 import { SegmentedBarClock } from './SegmentedBarClock'
 
@@ -20,11 +20,6 @@ interface ClockTokenProps {
   onSetFilled: (id: string, filled: number) => void
   onMove: (id: string, x: number, y: number) => void
   onDelete: (id: string) => void
-}
-
-const clockTypeLabels: Record<ClockType, string> = {
-  pie: 'Torta',
-  bar: 'Barra segmentata',
 }
 
 const clockColorLabels: Record<ClockColor, string> = {
@@ -171,22 +166,7 @@ export function ClockToken({
 
       <div className="clock-settings-row clock-settings-primary">
         <label>
-          Stile
-          <select
-            value={clock.type}
-            onChange={(event) =>
-              onUpdate(clock.id, { type: event.target.value as ClockType })
-            }
-          >
-            {Object.entries(clockTypeLabels).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Segmenti
+          {clock.type === 'bar' ? 'Caselle' : 'Segmenti'}
           <input
             type="number"
             min={2}

@@ -2,7 +2,7 @@ import type { CampaignState } from '../types/campaign'
 
 export const defaultCampaign: CampaignState = {
   schemaVersion: 1,
-  campaignName: 'Sogno Erotico',
+  campaignName: 'La caduta dei cieli',
   tracks: [
     {
       id: 'attitude',

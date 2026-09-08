@@ -135,19 +135,25 @@ export function TrackToken({
       />
 
       <div className="track-label-row">
-        <input
-          value={track.leftLabel}
-          placeholder="es. Sociale"
-          onChange={(event) => onUpdate(track.id, { leftLabel: event.target.value })}
-          aria-label={`${track.name}: etichetta sinistra`}
-        />
+        <div className="track-end-label">
+          <span className="track-end-value">{track.min}</span>
+          <input
+            value={track.leftLabel}
+            placeholder="es. Sociale"
+            onChange={(event) => onUpdate(track.id, { leftLabel: event.target.value })}
+            aria-label={`${track.name}: etichetta sinistra`}
+          />
+        </div>
         <span>{track.centerLabel}</span>
-        <input
-          value={track.rightLabel}
-          placeholder="es. Fisico"
-          onChange={(event) => onUpdate(track.id, { rightLabel: event.target.value })}
-          aria-label={`${track.name}: etichetta destra`}
-        />
+        <div className="track-end-label right">
+          <span className="track-end-value">{track.max > 0 ? `+${track.max}` : track.max}</span>
+          <input
+            value={track.rightLabel}
+            placeholder="es. Fisico"
+            onChange={(event) => onUpdate(track.id, { rightLabel: event.target.value })}
+            aria-label={`${track.name}: etichetta destra`}
+          />
+        </div>
       </div>
 
       <div className="track-token-footer">

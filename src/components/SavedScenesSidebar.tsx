@@ -1,9 +1,11 @@
-import { Clock3 } from 'lucide-react'
+import { Clock3, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 import type { SavedScene } from '../types/savedScene'
 
 interface SavedScenesSidebarProps {
   saves: SavedScene[]
   activeSaveId: string | null
+  isOpen: boolean
+  onToggle: () => void
   onLoadScene: (save: SavedScene) => void
 }
 
@@ -18,44 +20,66 @@ const formatDate = (isoDate: string) =>
 export function SavedScenesSidebar({
   saves,
   activeSaveId,
+  isOpen,
+  onToggle,
   onLoadScene,
 }: SavedScenesSidebarProps) {
   const orderedSaves = [...saves].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
 
   return (
-    <aside className="saved-scenes-sidebar" aria-label="Schermate salvate">
+    <aside
+      className={`saved-scenes-sidebar ${isOpen ? '' : 'collapsed'}`}
+      aria-label="Schermate salvate"
+    >
       <div className="saved-scenes-header">
-        <Clock3 aria-hidden="true" size={18} />
-        <h2>Salvataggi</h2>
+        <div className="saved-scenes-title">
+          <Clock3 aria-hidden="true" size={18} />
+          {isOpen ? <h2>Salvataggi</h2> : null}
+        </div>
+        <button
+          type="button"
+          className="icon-button small"
+          onClick={onToggle}
+          aria-label={isOpen ? 'Nascondi salvataggi' : 'Mostra salvataggi'}
+          title={isOpen ? 'Nascondi salvataggi' : 'Mostra salvataggi'}
+        >
+          {isOpen ? (
+            <PanelLeftClose aria-hidden="true" size={15} />
+          ) : (
+            <PanelLeftOpen aria-hidden="true" size={15} />
+          )}
+        </button>
       </div>
 
-      {orderedSaves.length === 0 ? (
-        <p className="saved-scenes-empty">Nessuna schermata salvata.</p>
-      ) : (
-        <div className="saved-scenes-list">
-          {orderedSaves.map((save) => {
-            const clockCount = save.campaign.clocks.length
-            const trackCount = save.campaign.boardTracks.length
-            const playerCount = save.campaign.playerCards.length
-            const isActive = save.id === activeSaveId
+      {isOpen ? (
+        orderedSaves.length === 0 ? (
+          <p className="saved-scenes-empty">Nessuna schermata salvata.</p>
+        ) : (
+          <div className="saved-scenes-list">
+            {orderedSaves.map((save) => {
+              const clockCount = save.campaign.clocks.length
+              const trackCount = save.campaign.boardTracks.length
+              const playerCount = save.campaign.playerCards.length
+              const isActive = save.id === activeSaveId
 
-            return (
-              <button
-                key={save.id}
-                type="button"
-                className={`saved-scene-button${isActive ? ' active' : ''}`}
-                onClick={() => onLoadScene(save)}
-              >
-                <span className="saved-scene-name">{save.name}</span>
-                <span className="saved-scene-meta">
-                  {formatDate(save.updatedAt)} · {clockCount} clock · {trackCount} barre ·{' '}
-                  {playerCount} giocatori
-                </span>
-              </button>
-            )
-          })}
-        </div>
-      )}
+              return (
+                <button
+                  key={save.id}
+                  type="button"
+                  className={`saved-scene-button${isActive ? ' active' : ''}`}
+                  onClick={() => onLoadScene(save)}
+                >
+                  <span className="saved-scene-name">{save.name}</span>
+                  <span className="saved-scene-meta">
+                    {formatDate(save.updatedAt)} · {clockCount} clock · {trackCount} barre ·{' '}
+                    {playerCount} giocatori
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        )
+      ) : null}
     </aside>
   )
 }

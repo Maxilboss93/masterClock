@@ -11,6 +11,10 @@
   padding: 20px;
 }
 
+.app-shell.sidebar-collapsed {
+  grid-template-columns: 52px minmax(0, 1fr);
+}
+
 .app-workspace {
   min-width: 0;
 }
@@ -29,11 +33,26 @@
   box-shadow: var(--shadow);
 }
 
+.saved-scenes-sidebar.collapsed {
+  justify-content: center;
+  gap: 0;
+  padding: 10px;
+  overflow: visible;
+}
+
 .saved-scenes-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
   color: var(--gold-soft);
+}
+
+.saved-scenes-title {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
 }
 
 .saved-scenes-header h2 {
@@ -41,6 +60,15 @@
   font-size: 1rem;
   line-height: 1;
   text-transform: uppercase;
+}
+
+.saved-scenes-sidebar.collapsed .saved-scenes-header {
+  display: grid;
+  justify-items: center;
+}
+
+.saved-scenes-sidebar.collapsed .saved-scenes-title {
+  justify-content: center;
 }
 
 .saved-scenes-empty {
@@ -285,7 +313,25 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   justify-content: stretch;
+  align-items: end;
   margin-top: 10px;
+}
+
+.track-end-label {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.track-end-label.right {
+  text-align: right;
+}
+
+.track-end-value {
+  color: #fff7df;
+  font-size: 0.76rem;
+  font-weight: 800;
+  line-height: 1;
 }
 
 .track-label-row input {
@@ -295,7 +341,7 @@
   font-size: 0.9rem;
 }
 
-.track-label-row input:last-child {
+.track-end-label.right input {
   text-align: right;
 }
 
@@ -363,7 +409,7 @@
 .board {
   position: relative;
   min-height: calc(100svh - 260px);
-  overflow: hidden;
+  overflow: visible;
   background:
     radial-gradient(circle at top, rgb(185 154 86 / 0.09), transparent 36%),
     linear-gradient(180deg, rgb(16 19 15 / 0.74), rgb(6 8 7 / 0.78));
@@ -684,7 +730,7 @@
 
 .clock-settings-primary {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(72px, 96px);
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .clock-settings-footer {
@@ -724,7 +770,7 @@
 
 .player-track-form {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(72px, 96px) auto;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
   gap: 8px;
   align-items: end;
   padding: 10px;
@@ -734,16 +780,36 @@
 }
 
 .player-track-form label,
+.player-track-form fieldset,
 .player-track-controls label {
   display: grid;
   gap: 4px;
 }
 
 .player-track-form input,
+.player-track-form select,
 .player-track-controls input {
   width: 100%;
   padding: 0.35rem 0.45rem;
   font-size: 0.86rem;
+}
+
+.player-track-form fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.preset-row.compact {
+  grid-template-columns: repeat(5, minmax(28px, 1fr));
+  gap: 4px;
+}
+
+.preset-row.compact .preset {
+  min-height: 32px;
+  padding: 0;
+  font-size: 0.78rem;
 }
 
 .player-track-list {
@@ -758,6 +824,33 @@
   overflow: hidden;
   padding-top: 12px;
   border-top: 1px solid rgb(214 196 135 / 0.18);
+}
+
+.player-graph-title-input {
+  width: 100%;
+  min-width: 0;
+  padding: 0.28rem 0.35rem;
+  color: #fff7df;
+  font-weight: 800;
+  background: transparent;
+  border-color: transparent;
+  text-overflow: ellipsis;
+}
+
+.player-clock {
+  --clock-accent: var(--gold);
+}
+
+.player-clock.ember {
+  --clock-accent: var(--ember);
+}
+
+.player-clock.blood {
+  --clock-accent: var(--blood);
+}
+
+.player-clock.moss {
+  --clock-accent: var(--moss);
 }
 
 .player-track .track-squares {
@@ -784,9 +877,26 @@
   text-align: right;
 }
 
-.player-track-labels strong {
+.player-track-labels > strong {
   color: var(--gold-soft);
   text-align: center;
+}
+
+.player-track-labels span {
+  display: inline-flex;
+  gap: 6px;
+  align-items: baseline;
+  min-width: 0;
+  color: var(--muted);
+}
+
+.player-track-labels span:last-child {
+  justify-content: end;
+}
+
+.player-track-labels span strong {
+  color: #fff7df;
+  white-space: nowrap;
 }
 
 .modal-backdrop {
@@ -875,10 +985,23 @@
     padding: 12px;
   }
 
+  .app-shell.sidebar-collapsed {
+    grid-template-columns: 1fr;
+  }
+
   .saved-scenes-sidebar {
     position: relative;
     top: auto;
     max-height: none;
+  }
+
+  .saved-scenes-sidebar.collapsed {
+    justify-content: stretch;
+  }
+
+  .saved-scenes-sidebar.collapsed .saved-scenes-header {
+    display: flex;
+    justify-content: space-between;
   }
 
   .saved-scenes-list {
@@ -951,7 +1074,8 @@
     grid-template-columns: 1fr;
   }
 
-  .track-token .track-label-row input:last-child {
+  .track-token .track-end-label.right,
+  .track-token .track-end-label.right input {
     text-align: left;
   }
 

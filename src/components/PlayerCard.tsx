@@ -1,7 +1,15 @@
-import { GripHorizontal, Lock, Plus, Trash2, Unlock } from 'lucide-react'
+import { GripHorizontal, Lock, Minus, Plus, Trash2, Unlock } from 'lucide-react'
 import { useState } from 'react'
 import type { RefObject } from 'react'
-import type { PlayerCard as PlayerCardType, PlayerTrack } from '../types/campaign'
+import { normalizeSegmentCount } from '../state/numbers'
+import type {
+  ClockColor,
+  PlayerCard as PlayerCardType,
+  PlayerClock,
+  PlayerTrack,
+} from '../types/campaign'
+import { PieClock } from './PieClock'
+import { SegmentedBarClock } from './SegmentedBarClock'
 import { TrackSquares } from './TrackSquares'
 
 interface PlayerCardProps {
@@ -13,9 +21,23 @@ interface PlayerCardProps {
   onAddTrack: (playerId: string, track: PlayerTrack) => void
   onUpdateTrack: (playerId: string, trackId: string, patch: Partial<PlayerTrack>) => void
   onDeleteTrack: (playerId: string, trackId: string) => void
+  onAddClock: (playerId: string, clock: PlayerClock) => void
+  onUpdateClock: (playerId: string, clockId: string, patch: Partial<PlayerClock>) => void
+  onSetClockFilled: (playerId: string, clockId: string, filled: number) => void
+  onDeleteClock: (playerId: string, clockId: string) => void
 }
 
+type PlayerGraphDraftKind = 'clock' | 'track' | 'segmented'
+
 const normalizeRange = (value: number) => Math.max(1, Math.round(value) || 1)
+const segmentPresets = [4, 6, 8, 10, 12]
+
+const clockColorLabels: Record<ClockColor, string> = {
+  gold: 'Oro',
+  ember: 'Brace',
+  blood: 'Sangue',
+  moss: 'Muschio',
+}
 
 export function PlayerCard({
   playerCard,
@@ -26,10 +48,21 @@ export function PlayerCard({
   onAddTrack,
   onUpdateTrack,
   onDeleteTrack,
+  onAddClock,
+  onUpdateClock,
+  onSetClockFilled,
+  onDeleteClock,
 }: PlayerCardProps) {
   const [isAddingTrack, setIsAddingTrack] = useState(false)
+  const [draftKind, setDraftKind] = useState<PlayerGraphDraftKind>('track')
+  const [draftName, setDraftName] = useState('')
   const [draftLabel, setDraftLabel] = useState('')
   const [draftRange, setDraftRange] = useState(20)
+  const [draftSegments, setDraftSegments] = useState(6)
+  const [draftColor, setDraftColor] = useState<ClockColor>('gold')
+
+  const playerTracks = playerCard.tracks ?? []
+  const playerClocks = playerCard.clocks ?? []
 
   const beginDrag = (event: React.PointerEvent<HTMLButtonElement>) => {
     const boardElement = boardRef.current
@@ -67,37 +100,88 @@ export function PlayerCard({
     window.addEventListener('pointerup', handleUp)
   }
 
-  const createTrack = () => {
-    const range = normalizeRange(draftRange)
-    const now = new Date().toISOString()
-
-    onAddTrack(playerCard.id, {
-      id: `player-track-${Date.now()}`,
-      name: draftLabel.trim() || 'Grafico giocatore',
-      graphLabel: draftLabel.trim() || 'Grafico giocatore',
-      leftLabel: `-${range}`,
-      centerLabel: '0',
-      rightLabel: `+${range}`,
-      min: -range,
-      max: range,
-      value: 0,
-      updatedAt: now,
-    })
+  const resetDraft = () => {
     setIsAddingTrack(false)
+    setDraftKind('track')
+    setDraftName('')
     setDraftLabel('')
     setDraftRange(20)
+    setDraftSegments(6)
+    setDraftColor('gold')
+  }
+
+  const createGraph = () => {
+    const now = new Date().toISOString()
+
+    if (draftKind === 'track') {
+      const range = normalizeRange(draftRange)
+      const title = draftName.trim() || 'Nuova barra giocatore'
+      const label = draftLabel.trim() || title
+
+      onAddTrack(playerCard.id, {
+        id: `player-track-${Date.now()}`,
+        name: title,
+        graphLabel: label,
+        leftLabel: `-${range}`,
+        centerLabel: '0',
+        rightLabel: `+${range}`,
+        min: -range,
+        max: range,
+        value: 0,
+        createdAt: now,
+        updatedAt: now,
+      })
+      resetDraft()
+      return
+    }
+
+    const isSegmented = draftKind === 'segmented'
+    const title = draftName.trim() || (isSegmented ? 'Nuova barra segmentata' : 'Nuovo clock')
+    const label = draftLabel.trim() || title
+    const segments = normalizeSegmentCount(draftSegments)
+
+    onAddClock(playerCard.id, {
+      id: `player-clock-${Date.now()}`,
+      type: isSegmented ? 'bar' : 'pie',
+      name: title,
+      graphLabel: label,
+      segments,
+      filled: 0,
+      color: draftColor,
+      settings: {
+        showValue: true,
+        showControls: true,
+      },
+      createdAt: now,
+      updatedAt: now,
+    })
+    resetDraft()
   }
 
   const updateTrackRange = (track: PlayerTrack, value: number) => {
     const range = normalizeRange(value)
 
     onUpdateTrack(playerCard.id, track.id, {
+      name: track.name,
       min: -range,
       max: range,
       leftLabel: `-${range}`,
       rightLabel: `+${range}`,
     })
   }
+
+  const graphItems = [
+    ...playerTracks.map((track) => ({
+      kind: 'track' as const,
+      createdAt: track.createdAt ?? track.updatedAt,
+      item: track,
+    })),
+    ...playerClocks.map((clock) => ({
+      kind: 'clock' as const,
+      createdAt: clock.createdAt ?? clock.updatedAt,
+      item: clock,
+    })),
+  ].sort((left, right) => left.createdAt.localeCompare(right.createdAt))
 
   return (
     <article
@@ -155,48 +239,221 @@ export function PlayerCard({
           className="player-track-form"
           onSubmit={(event) => {
             event.preventDefault()
-            createTrack()
+            createGraph()
           }}
         >
+          <label>
+            Tipo grafico
+            <select
+              value={draftKind}
+              onChange={(event) => setDraftKind(event.target.value as PlayerGraphDraftKind)}
+            >
+              <option value="clock">Clock</option>
+              <option value="track">Barra -X / 0 / +X</option>
+              <option value="segmented">Barra segmentata</option>
+            </select>
+          </label>
+          <label>
+            Titolo grafico
+            <input
+              value={draftName}
+              placeholder={
+                draftKind === 'track'
+                  ? 'es. Fiducia di Shisui'
+                  : draftKind === 'segmented'
+                    ? 'es. Ferite aperte'
+                    : 'es. Patto in bilico'
+              }
+              onChange={(event) => setDraftName(event.target.value)}
+            />
+          </label>
           <label>
             Label grafico
             <input
               value={draftLabel}
-              placeholder="es. Atteggiamento verso popolazione"
+              placeholder={
+                draftKind === 'track'
+                  ? 'es. Atteggiamento verso popolazione'
+                  : draftKind === 'segmented'
+                    ? 'es. Caselle riempite'
+                    : 'es. Rintocchi personali'
+              }
               onChange={(event) => setDraftLabel(event.target.value)}
             />
           </label>
-          <label>
-            Ampiezza X
-            <input
-              type="number"
-              min={1}
-              value={draftRange}
-              onChange={(event) => setDraftRange(normalizeRange(Number(event.target.value)))}
-            />
-          </label>
+          {draftKind === 'track' ? (
+            <label>
+              Ampiezza X
+              <input
+                type="number"
+                min={1}
+                value={draftRange}
+                onChange={(event) => setDraftRange(normalizeRange(Number(event.target.value)))}
+              />
+            </label>
+          ) : (
+            <>
+              <fieldset>
+                <legend>{draftKind === 'segmented' ? 'Caselle' : 'Segmenti'}</legend>
+                <div className="preset-row compact">
+                  {segmentPresets.map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      className={preset === draftSegments ? 'preset active' : 'preset'}
+                      onClick={() => setDraftSegments(preset)}
+                    >
+                      {preset}
+                    </button>
+                  ))}
+                </div>
+                <input
+                  type="number"
+                  min={2}
+                  value={draftSegments}
+                  onChange={(event) =>
+                    setDraftSegments(normalizeSegmentCount(Number(event.target.value)))
+                  }
+                />
+              </fieldset>
+              <label>
+                Colore
+                <select
+                  value={draftColor}
+                  onChange={(event) => setDraftColor(event.target.value as ClockColor)}
+                >
+                  {Object.entries(clockColorLabels).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </>
+          )}
           <button type="submit" className="plank-button primary">
             Crea
           </button>
         </form>
       ) : null}
 
-      {playerCard.tracks.length === 0 ? (
+      {graphItems.length === 0 ? (
         <p className="player-card-empty">Nessun grafico per questo giocatore.</p>
       ) : (
         <div className="player-track-list">
-          {playerCard.tracks.map((track) => {
+          {graphItems.map((graphItem) => {
+            if (graphItem.kind === 'clock') {
+              const clock = graphItem.item
+
+              return (
+                <section className={`player-track player-clock ${clock.color}`} key={clock.id}>
+                  <input
+                    className="player-graph-title-input"
+                    value={clock.name}
+                    placeholder="Titolo grafico"
+                    onChange={(event) =>
+                      onUpdateClock(playerCard.id, clock.id, { name: event.target.value })
+                    }
+                    aria-label="Titolo grafico giocatore"
+                  />
+                  <input
+                    className="graph-label-input"
+                    value={clock.graphLabel || clock.name}
+                    placeholder="Label grafico"
+                    onChange={(event) =>
+                      onUpdateClock(playerCard.id, clock.id, { graphLabel: event.target.value })
+                    }
+                    aria-label="Label grafico giocatore"
+                  />
+
+                  <div className="clock-visual">
+                    {clock.type === 'pie' ? (
+                      <PieClock
+                        segments={clock.segments}
+                        filled={clock.filled}
+                        onSetFilled={(filled) =>
+                          onSetClockFilled(playerCard.id, clock.id, filled)
+                        }
+                      />
+                    ) : (
+                      <SegmentedBarClock
+                        segments={clock.segments}
+                        filled={clock.filled}
+                        onSetFilled={(filled) =>
+                          onSetClockFilled(playerCard.id, clock.id, filled)
+                        }
+                      />
+                    )}
+                  </div>
+
+                  <div className="player-track-controls">
+                    <div className="clock-token-actions">
+                      <button
+                        type="button"
+                        className="icon-button small"
+                        onClick={() => onSetClockFilled(playerCard.id, clock.id, clock.filled - 1)}
+                        aria-label="Diminuisci avanzamento"
+                      >
+                        <Minus aria-hidden="true" size={15} />
+                      </button>
+                      <strong>{clock.filled} / {clock.segments}</strong>
+                      <button
+                        type="button"
+                        className="icon-button small"
+                        onClick={() => onSetClockFilled(playerCard.id, clock.id, clock.filled + 1)}
+                        aria-label="Aumenta avanzamento"
+                      >
+                        <Plus aria-hidden="true" size={15} />
+                      </button>
+                    </div>
+                    <label>
+                      {clock.type === 'bar' ? 'Caselle' : 'Segmenti'}
+                      <input
+                        type="number"
+                        min={2}
+                        value={clock.segments}
+                        onChange={(event) =>
+                          onUpdateClock(playerCard.id, clock.id, {
+                            segments: Number(event.target.value),
+                          })
+                        }
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      className="icon-button danger"
+                      onClick={() => onDeleteClock(playerCard.id, clock.id)}
+                      aria-label="Elimina grafico giocatore"
+                    >
+                      <Trash2 aria-hidden="true" size={16} />
+                    </button>
+                  </div>
+                </section>
+              )
+            }
+
+            const track = graphItem.item
             const range = Math.max(Math.abs(track.min), Math.abs(track.max))
 
             return (
               <section className="player-track" key={track.id}>
+                <input
+                  className="player-graph-title-input"
+                  value={track.name}
+                  placeholder="Titolo grafico"
+                  onChange={(event) =>
+                    onUpdateTrack(playerCard.id, track.id, {
+                      name: event.target.value,
+                    })
+                  }
+                  aria-label="Titolo grafico giocatore"
+                />
                 <input
                   className="graph-label-input"
                   value={track.graphLabel || track.name}
                   placeholder="Label grafico"
                   onChange={(event) =>
                     onUpdateTrack(playerCard.id, track.id, {
-                      name: event.target.value,
                       graphLabel: event.target.value,
                     })
                   }
@@ -212,9 +469,17 @@ export function PlayerCard({
 
                 <div className="player-track-controls">
                   <div className="track-label-row player-track-labels">
-                    <span>{track.leftLabel}</span>
+                    <span>
+                      <strong>{track.min}</strong>
+                      {track.leftLabel !== String(track.min) ? track.leftLabel : null}
+                    </span>
                     <strong>{track.value > 0 ? `+${track.value}` : track.value}</strong>
-                    <span>{track.rightLabel}</span>
+                    <span>
+                      {track.rightLabel !== `+${track.max}` && track.rightLabel !== String(track.max)
+                        ? track.rightLabel
+                        : null}
+                      <strong>{track.max > 0 ? `+${track.max}` : track.max}</strong>
+                    </span>
                   </div>
                   <label>
                     Ampiezza X

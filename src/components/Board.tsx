@@ -1,8 +1,9 @@
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type {
   BoardTrack,
   Clock,
   PlayerCard as PlayerCardType,
+  PlayerClock,
   PlayerTrack,
 } from '../types/campaign'
 import { ClockToken } from './ClockToken'
@@ -29,6 +30,10 @@ interface BoardProps {
   onAddPlayerTrack: (playerId: string, track: PlayerTrack) => void
   onUpdatePlayerTrack: (playerId: string, trackId: string, patch: Partial<PlayerTrack>) => void
   onDeletePlayerTrack: (playerId: string, trackId: string) => void
+  onAddPlayerClock: (playerId: string, clock: PlayerClock) => void
+  onUpdatePlayerClock: (playerId: string, clockId: string, patch: Partial<PlayerClock>) => void
+  onSetPlayerClockFilled: (playerId: string, clockId: string, filled: number) => void
+  onDeletePlayerClock: (playerId: string, clockId: string) => void
 }
 
 export function Board({
@@ -51,8 +56,13 @@ export function Board({
   onAddPlayerTrack,
   onUpdatePlayerTrack,
   onDeletePlayerTrack,
+  onAddPlayerClock,
+  onUpdatePlayerClock,
+  onSetPlayerClockFilled,
+  onDeletePlayerClock,
 }: BoardProps) {
   const boardRef = useRef<HTMLDivElement | null>(null)
+  const [boardMinHeight, setBoardMinHeight] = useState(620)
   const partyClocks = clocks.filter((clock) => clock.pinnedToParty)
   const freeClocks = clocks.filter((clock) => !clock.pinnedToParty)
   const freeTracks = tracks.filter((track) => !track.pinnedToTop)
@@ -62,6 +72,36 @@ export function Board({
     freeTracks.length === 0 &&
     freeBoardTracks.length === 0 &&
     playerCards.length === 0
+
+  useEffect(() => {
+    const board = boardRef.current
+
+    if (!board) {
+      return
+    }
+
+    const updateBoardHeight = () => {
+      const boardTop = board.getBoundingClientRect().top
+      const childBottoms = Array.from(board.children).map((child) =>
+        child.getBoundingClientRect().bottom - boardTop,
+      )
+      const nextHeight = Math.max(620, Math.ceil(Math.max(0, ...childBottoms) + 28))
+
+      setBoardMinHeight(nextHeight)
+    }
+
+    const frameId = window.requestAnimationFrame(updateBoardHeight)
+    const resizeObserver = new ResizeObserver(updateBoardHeight)
+
+    Array.from(board.children).forEach((child) => resizeObserver.observe(child))
+    window.addEventListener('resize', updateBoardHeight)
+
+    return () => {
+      window.cancelAnimationFrame(frameId)
+      resizeObserver.disconnect()
+      window.removeEventListener('resize', updateBoardHeight)
+    }
+  }, [freeClocks, freeTracks, freeBoardTracks, playerCards])
 
   return (
     <main className="board-shell">
@@ -84,11 +124,11 @@ export function Board({
         </section>
       ) : null}
 
-      <div className="board" ref={boardRef}>
+      <div className="board" ref={boardRef} style={{ minHeight: boardMinHeight }}>
         {isBoardEmpty ? (
           <div className="board-empty">
             <p>La plancia e vuota.</p>
-            <span>Aggiungi un clock o una barra quando il mondo inizia a muoversi.</span>
+            <span>Aggiungi un grafico quando il mondo inizia a muoversi.</span>
           </div>
         ) : null}
 
@@ -132,6 +172,10 @@ export function Board({
             onAddTrack={onAddPlayerTrack}
             onUpdateTrack={onUpdatePlayerTrack}
             onDeleteTrack={onDeletePlayerTrack}
+            onAddClock={onAddPlayerClock}
+            onUpdateClock={onUpdatePlayerClock}
+            onSetClockFilled={onSetPlayerClockFilled}
+            onDeleteClock={onDeletePlayerClock}
           />
         ))}
 

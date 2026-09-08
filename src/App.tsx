@@ -21,6 +21,7 @@ function App() {
   const [savedScenes, setSavedScenes] = useState(loadSavedScenes)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [isAddPlayerModalOpen, setIsAddPlayerModalOpen] = useState(false)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [loadError, setLoadError] = useState('')
   const [statusMessage, setStatusMessage] = useState('')
 
@@ -37,6 +38,34 @@ function App() {
     ? campaignToJson(campaign) !== campaignToJson(activeSave.campaign)
     : campaignToJson(campaign) !== campaignToJson(defaultCampaign)
 
+  const getNextBoardPosition = () => {
+    const freeTrackBottoms = campaign.tracks
+      .filter((track) => !track.pinnedToTop)
+      .map((track) => track.position.y + 250)
+    const freeBoardTrackBottoms = campaign.boardTracks
+      .filter((track) => !track.pinnedToTop)
+      .map((track) => track.position.y + 250)
+    const freeClockBottoms = campaign.clocks
+      .filter((clock) => !clock.pinnedToParty)
+      .map((clock) => clock.position.y + 330)
+    const playerBottoms = campaign.playerCards.map((playerCard) => {
+      const graphCount = (playerCard.tracks?.length ?? 0) + (playerCard.clocks?.length ?? 0)
+      return playerCard.position.y + 210 + graphCount * 230
+    })
+    const lowestBottom = Math.max(
+      0,
+      ...freeTrackBottoms,
+      ...freeBoardTrackBottoms,
+      ...freeClockBottoms,
+      ...playerBottoms,
+    )
+
+    return {
+      x: 36,
+      y: lowestBottom > 0 ? lowestBottom + 24 : 36,
+    }
+  }
+
   const createBoardElement = (
     draft:
       | ({
@@ -48,8 +77,8 @@ function App() {
             cells: number
           }),
   ) => {
-    const nextIndex =
-      campaign.clocks.length + campaign.boardTracks.length + campaign.playerCards.length + 1
+    const position = getNextBoardPosition()
+    const now = new Date().toISOString()
 
     if (draft.kind === 'track') {
       const range = getCenteredTrackRange(draft.cells)
@@ -63,14 +92,12 @@ function App() {
         min: range.min,
         max: range.max,
         value: 0,
-        position: {
-          x: 36 + ((nextIndex - 1) % 3) * 44,
-          y: 36 + ((nextIndex - 1) % 3) * 38,
-        },
+        position,
         size: 'medium',
         locked: false,
         pinnedToTop: false,
-        updatedAt: new Date().toISOString(),
+        createdAt: now,
+        updatedAt: now,
       }
 
       dispatch({ type: 'addBoardTrack', track })
@@ -90,14 +117,12 @@ function App() {
         showValue: true,
         showControls: true,
       },
-      position: {
-        x: 40 + ((nextIndex - 1) % 4) * 40,
-        y: 40 + ((nextIndex - 1) % 4) * 34,
-      },
+      position,
       size: 'medium',
       locked: false,
       pinnedToParty: false,
-      updatedAt: new Date().toISOString(),
+      createdAt: now,
+      updatedAt: now,
     }
 
     dispatch({ type: 'addClock', clock })
@@ -105,19 +130,17 @@ function App() {
   }
 
   const createPlayerCard = (playerName: string) => {
-    const nextIndex =
-      campaign.clocks.length + campaign.boardTracks.length + campaign.playerCards.length + 1
+    const now = new Date().toISOString()
     const playerCard: PlayerCard = {
       id: `player-${Date.now()}`,
       playerName,
-      position: {
-        x: 52 + ((nextIndex - 1) % 3) * 50,
-        y: 52 + ((nextIndex - 1) % 3) * 44,
-      },
+      position: getNextBoardPosition(),
       size: 'medium',
       locked: false,
       tracks: [],
-      updatedAt: new Date().toISOString(),
+      clocks: [],
+      createdAt: now,
+      updatedAt: now,
     }
 
     dispatch({ type: 'addPlayerCard', playerCard })
@@ -229,10 +252,12 @@ function App() {
   }
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell ${isSidebarOpen ? '' : 'sidebar-collapsed'}`}>
       <SavedScenesSidebar
         saves={savedScenes.saves}
         activeSaveId={savedScenes.activeSaveId}
+        isOpen={isSidebarOpen}
+        onToggle={() => setIsSidebarOpen((current) => !current)}
         onLoadScene={loadSavedScene}
       />
 
@@ -309,6 +334,18 @@ function App() {
           }
           onDeletePlayerTrack={(playerId, trackId) =>
             dispatch({ type: 'deletePlayerTrack', playerId, trackId })
+          }
+          onAddPlayerClock={(playerId, clock) =>
+            dispatch({ type: 'addPlayerClock', playerId, clock })
+          }
+          onUpdatePlayerClock={(playerId, clockId, patch) =>
+            dispatch({ type: 'updatePlayerClock', playerId, clockId, patch })
+          }
+          onSetPlayerClockFilled={(playerId, clockId, filled) =>
+            dispatch({ type: 'setPlayerClockFilled', playerId, clockId, filled })
+          }
+          onDeletePlayerClock={(playerId, clockId) =>
+            dispatch({ type: 'deletePlayerClock', playerId, clockId })
           }
         />
       </div>

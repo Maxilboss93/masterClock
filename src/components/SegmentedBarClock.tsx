@@ -13,7 +13,7 @@ export function SegmentedBarClock({
     <div
       className="segmented-clock"
       role="group"
-      aria-label="Clock a barra segmentata"
+      aria-label="Barra segmentata"
     >
       {Array.from({ length: segments }, (_, index) => (
         <button

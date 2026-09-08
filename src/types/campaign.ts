@@ -39,6 +39,7 @@ export interface Clock {
   size: ClockSize
   locked: boolean
   pinnedToParty: boolean
+  createdAt?: string
   updatedAt: string
 }
 
@@ -47,10 +48,25 @@ export interface BoardTrack extends Track {
   size: ClockSize
   locked: boolean
   pinnedToTop: boolean
+  createdAt?: string
   updatedAt: string
 }
 
 export interface PlayerTrack extends Track {
+  createdAt?: string
+  updatedAt: string
+}
+
+export interface PlayerClock {
+  id: string
+  type: ClockType
+  name: string
+  graphLabel: string
+  segments: number
+  filled: number
+  color: ClockColor
+  settings: ClockSettings
+  createdAt?: string
   updatedAt: string
 }
 
@@ -61,6 +77,8 @@ export interface PlayerCard {
   size: ClockSize
   locked: boolean
   tracks: PlayerTrack[]
+  clocks: PlayerClock[]
+  createdAt?: string
   updatedAt: string
 }
 

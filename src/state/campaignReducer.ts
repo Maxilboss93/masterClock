@@ -3,6 +3,7 @@ import type {
   CampaignState,
   Clock,
   PlayerCard,
+  PlayerClock,
   PlayerTrack,
 } from '../types/campaign'
 import { normalizeSegmentCount } from './numbers'
@@ -22,6 +23,10 @@ type CampaignAction =
   | { type: 'addPlayerTrack'; playerId: string; track: PlayerTrack }
   | { type: 'updatePlayerTrack'; playerId: string; trackId: string; patch: Partial<PlayerTrack> }
   | { type: 'deletePlayerTrack'; playerId: string; trackId: string }
+  | { type: 'addPlayerClock'; playerId: string; clock: PlayerClock }
+  | { type: 'updatePlayerClock'; playerId: string; clockId: string; patch: Partial<PlayerClock> }
+  | { type: 'setPlayerClockFilled'; playerId: string; clockId: string; filled: number }
+  | { type: 'deletePlayerClock'; playerId: string; clockId: string }
   | { type: 'addClock'; clock: Clock }
   | { type: 'updateClock'; id: string; patch: Partial<Clock> }
   | { type: 'setClockFilled'; id: string; filled: number }
@@ -50,6 +55,11 @@ const touchPlayerCard = (playerCard: PlayerCard): PlayerCard => ({
 
 const touchPlayerTrack = (track: PlayerTrack): PlayerTrack => ({
   ...track,
+  updatedAt: new Date().toISOString(),
+})
+
+const touchPlayerClock = (clock: PlayerClock): PlayerClock => ({
+  ...clock,
   updatedAt: new Date().toISOString(),
 })
 
@@ -194,6 +204,7 @@ export function campaignReducer(
             ? touchPlayerCard({
                 ...playerCard,
                 tracks: [...playerCard.tracks, action.track],
+                clocks: playerCard.clocks ?? [],
               })
             : playerCard,
         ),
@@ -206,6 +217,7 @@ export function campaignReducer(
           playerCard.id === action.playerId
             ? touchPlayerCard({
                 ...playerCard,
+                clocks: playerCard.clocks ?? [],
                 tracks: playerCard.tracks.map((track) => {
                   if (track.id !== action.trackId) {
                     return track
@@ -225,7 +237,84 @@ export function campaignReducer(
           playerCard.id === action.playerId
             ? touchPlayerCard({
                 ...playerCard,
+                clocks: playerCard.clocks ?? [],
                 tracks: playerCard.tracks.filter((track) => track.id !== action.trackId),
+              })
+            : playerCard,
+        ),
+      }
+
+    case 'addPlayerClock':
+      return {
+        ...state,
+        playerCards: state.playerCards.map((playerCard) =>
+          playerCard.id === action.playerId
+            ? touchPlayerCard({
+                ...playerCard,
+                tracks: playerCard.tracks ?? [],
+                clocks: [...(playerCard.clocks ?? []), action.clock],
+              })
+            : playerCard,
+        ),
+      }
+
+    case 'updatePlayerClock':
+      return {
+        ...state,
+        playerCards: state.playerCards.map((playerCard) =>
+          playerCard.id === action.playerId
+            ? touchPlayerCard({
+                ...playerCard,
+                tracks: playerCard.tracks ?? [],
+                clocks: (playerCard.clocks ?? []).map((clock) => {
+                  if (clock.id !== action.clockId) {
+                    return clock
+                  }
+
+                  const nextClock = { ...clock, ...action.patch }
+                  const segments = normalizeSegmentCount(nextClock.segments)
+
+                  return touchPlayerClock({
+                    ...nextClock,
+                    segments,
+                    filled: clamp(nextClock.filled, 0, segments),
+                  })
+                }),
+              })
+            : playerCard,
+        ),
+      }
+
+    case 'setPlayerClockFilled':
+      return {
+        ...state,
+        playerCards: state.playerCards.map((playerCard) =>
+          playerCard.id === action.playerId
+            ? touchPlayerCard({
+                ...playerCard,
+                tracks: playerCard.tracks ?? [],
+                clocks: (playerCard.clocks ?? []).map((clock) =>
+                  clock.id === action.clockId
+                    ? touchPlayerClock({
+                        ...clock,
+                        filled: clamp(action.filled, 0, clock.segments),
+                      })
+                    : clock,
+                ),
+              })
+            : playerCard,
+        ),
+      }
+
+    case 'deletePlayerClock':
+      return {
+        ...state,
+        playerCards: state.playerCards.map((playerCard) =>
+          playerCard.id === action.playerId
+            ? touchPlayerCard({
+                ...playerCard,
+                tracks: playerCard.tracks ?? [],
+                clocks: (playerCard.clocks ?? []).filter((clock) => clock.id !== action.clockId),
               })
             : playerCard,
         ),
