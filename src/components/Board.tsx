@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef } from 'react'
 import type {
   BoardTrack,
   Clock,
@@ -9,6 +9,29 @@ import type {
 import { ClockToken } from './ClockToken'
 import { PlayerCard } from './PlayerCard'
 import { TrackToken } from './TrackToken'
+
+type BoardItem =
+  | {
+      kind: 'track'
+      source: 'initial'
+      item: BoardTrack
+    }
+  | {
+      kind: 'track'
+      source: 'custom'
+      item: BoardTrack
+    }
+  | {
+      kind: 'player'
+      item: PlayerCardType
+    }
+  | {
+      kind: 'clock'
+      item: Clock
+    }
+
+const getBoardItemDate = (item: BoardItem) =>
+  item.item.createdAt ?? item.item.updatedAt
 
 interface BoardProps {
   tracks: BoardTrack[]
@@ -62,46 +85,30 @@ export function Board({
   onDeletePlayerClock,
 }: BoardProps) {
   const boardRef = useRef<HTMLDivElement | null>(null)
-  const [boardMinHeight, setBoardMinHeight] = useState(620)
   const partyClocks = clocks.filter((clock) => clock.pinnedToParty)
   const freeClocks = clocks.filter((clock) => !clock.pinnedToParty)
   const freeTracks = tracks.filter((track) => !track.pinnedToTop)
   const freeBoardTracks = boardTracks.filter((track) => !track.pinnedToTop)
-  const isBoardEmpty =
-    freeClocks.length === 0 &&
-    freeTracks.length === 0 &&
-    freeBoardTracks.length === 0 &&
-    playerCards.length === 0
-
-  useEffect(() => {
-    const board = boardRef.current
-
-    if (!board) {
-      return
-    }
-
-    const updateBoardHeight = () => {
-      const boardTop = board.getBoundingClientRect().top
-      const childBottoms = Array.from(board.children).map((child) =>
-        child.getBoundingClientRect().bottom - boardTop,
-      )
-      const nextHeight = Math.max(620, Math.ceil(Math.max(0, ...childBottoms) + 28))
-
-      setBoardMinHeight(nextHeight)
-    }
-
-    const frameId = window.requestAnimationFrame(updateBoardHeight)
-    const resizeObserver = new ResizeObserver(updateBoardHeight)
-
-    Array.from(board.children).forEach((child) => resizeObserver.observe(child))
-    window.addEventListener('resize', updateBoardHeight)
-
-    return () => {
-      window.cancelAnimationFrame(frameId)
-      resizeObserver.disconnect()
-      window.removeEventListener('resize', updateBoardHeight)
-    }
-  }, [freeClocks, freeTracks, freeBoardTracks, playerCards])
+  const boardItems: BoardItem[] = [
+    ...freeTracks.map((track) => ({
+      kind: 'track' as const,
+      source: 'initial' as const,
+      item: track,
+    })),
+    ...freeBoardTracks.map((track) => ({
+      kind: 'track' as const,
+      source: 'custom' as const,
+      item: track,
+    })),
+    ...playerCards.map((playerCard) => ({
+      kind: 'player' as const,
+      item: playerCard,
+    })),
+    ...freeClocks.map((clock) => ({ kind: 'clock' as const, item: clock })),
+  ].sort((left, right) =>
+    getBoardItemDate(left).localeCompare(getBoardItemDate(right)),
+  )
+  const isBoardEmpty = boardItems.length === 0
 
   return (
     <main className="board-shell">
@@ -124,7 +131,7 @@ export function Board({
         </section>
       ) : null}
 
-      <div className="board" ref={boardRef} style={{ minHeight: boardMinHeight }}>
+      <div className="board" ref={boardRef}>
         {isBoardEmpty ? (
           <div className="board-empty">
             <p>La plancia e vuota.</p>
@@ -132,64 +139,70 @@ export function Board({
           </div>
         ) : null}
 
-        {freeTracks.map((track) => (
-          <TrackToken
-            key={track.id}
-            track={track}
-            boardRef={boardRef}
-            canDelete={false}
-            onUpdate={onUpdateTrack}
-            onMove={onMoveTrack}
-            onDelete={() => undefined}
-            onTogglePinnedTop={(id) =>
-              onUpdateTrack(id, { pinnedToTop: true })
+        <div className="board-grid">
+          {boardItems.map((boardItem) => {
+            if (boardItem.kind === 'clock') {
+              const clock = boardItem.item
+
+              return (
+                <ClockToken
+                  key={clock.id}
+                  clock={clock}
+                  boardRef={boardRef}
+                  layout="grid"
+                  onUpdate={onUpdateClock}
+                  onSetFilled={onSetClockFilled}
+                  onMove={onMoveClock}
+                  onDelete={onDeleteClock}
+                />
+              )
             }
-          />
-        ))}
 
-        {freeBoardTracks.map((track) => (
-          <TrackToken
-            key={track.id}
-            track={track}
-            boardRef={boardRef}
-            onUpdate={onUpdateBoardTrack}
-            onMove={onMoveBoardTrack}
-            onDelete={onDeleteBoardTrack}
-            onTogglePinnedTop={(id) =>
-              onUpdateBoardTrack(id, { pinnedToTop: true })
+            if (boardItem.kind === 'player') {
+              const playerCard = boardItem.item
+
+              return (
+                <PlayerCard
+                  key={playerCard.id}
+                  playerCard={playerCard}
+                  boardRef={boardRef}
+                  layout="grid"
+                  onUpdate={onUpdatePlayerCard}
+                  onMove={onMovePlayerCard}
+                  onDelete={onDeletePlayerCard}
+                  onAddTrack={onAddPlayerTrack}
+                  onUpdateTrack={onUpdatePlayerTrack}
+                  onDeleteTrack={onDeletePlayerTrack}
+                  onAddClock={onAddPlayerClock}
+                  onUpdateClock={onUpdatePlayerClock}
+                  onSetClockFilled={onSetPlayerClockFilled}
+                  onDeleteClock={onDeletePlayerClock}
+                />
+              )
             }
-          />
-        ))}
 
-        {playerCards.map((playerCard) => (
-          <PlayerCard
-            key={playerCard.id}
-            playerCard={playerCard}
-            boardRef={boardRef}
-            onUpdate={onUpdatePlayerCard}
-            onMove={onMovePlayerCard}
-            onDelete={onDeletePlayerCard}
-            onAddTrack={onAddPlayerTrack}
-            onUpdateTrack={onUpdatePlayerTrack}
-            onDeleteTrack={onDeletePlayerTrack}
-            onAddClock={onAddPlayerClock}
-            onUpdateClock={onUpdatePlayerClock}
-            onSetClockFilled={onSetPlayerClockFilled}
-            onDeleteClock={onDeletePlayerClock}
-          />
-        ))}
+            const track = boardItem.item
+            const isInitialTrack = boardItem.source === 'initial'
 
-        {freeClocks.map((clock) => (
-          <ClockToken
-            key={clock.id}
-            clock={clock}
-            boardRef={boardRef}
-            onUpdate={onUpdateClock}
-            onSetFilled={onSetClockFilled}
-            onMove={onMoveClock}
-            onDelete={onDeleteClock}
-          />
-        ))}
+            return (
+              <TrackToken
+                key={track.id}
+                track={track}
+                boardRef={boardRef}
+                layout="grid"
+                canDelete={!isInitialTrack}
+                onUpdate={isInitialTrack ? onUpdateTrack : onUpdateBoardTrack}
+                onMove={isInitialTrack ? onMoveTrack : onMoveBoardTrack}
+                onDelete={isInitialTrack ? () => undefined : onDeleteBoardTrack}
+                onTogglePinnedTop={(id) =>
+                  isInitialTrack
+                    ? onUpdateTrack(id, { pinnedToTop: true })
+                    : onUpdateBoardTrack(id, { pinnedToTop: true })
+                }
+              />
+            )
+          })}
+        </div>
       </div>
     </main>
   )

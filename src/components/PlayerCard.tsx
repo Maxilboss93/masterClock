@@ -15,6 +15,7 @@ import { TrackSquares } from './TrackSquares'
 interface PlayerCardProps {
   playerCard: PlayerCardType
   boardRef: RefObject<HTMLDivElement | null>
+  layout?: 'free' | 'grid'
   onUpdate: (id: string, patch: Partial<PlayerCardType>) => void
   onMove: (id: string, x: number, y: number) => void
   onDelete: (id: string) => void
@@ -42,6 +43,7 @@ const clockColorLabels: Record<ClockColor, string> = {
 export function PlayerCard({
   playerCard,
   boardRef,
+  layout = 'free',
   onUpdate,
   onMove,
   onDelete,
@@ -53,6 +55,11 @@ export function PlayerCard({
   onSetClockFilled,
   onDeleteClock,
 }: PlayerCardProps) {
+  const cardClassName = [
+    'player-card',
+    playerCard.size,
+    layout === 'grid' ? 'grid-item' : '',
+  ].join(' ')
   const [isAddingTrack, setIsAddingTrack] = useState(false)
   const [draftKind, setDraftKind] = useState<PlayerGraphDraftKind>('track')
   const [draftName, setDraftName] = useState('')
@@ -67,7 +74,7 @@ export function PlayerCard({
   const beginDrag = (event: React.PointerEvent<HTMLButtonElement>) => {
     const boardElement = boardRef.current
 
-    if (playerCard.locked || !boardElement) {
+    if (layout === 'grid' || playerCard.locked || !boardElement) {
       return
     }
 
@@ -185,15 +192,19 @@ export function PlayerCard({
 
   return (
     <article
-      className={`player-card ${playerCard.size}`}
-      style={{ left: playerCard.position.x, top: playerCard.position.y }}
+      className={cardClassName}
+      style={
+        layout === 'free'
+          ? { left: playerCard.position.x, top: playerCard.position.y }
+          : undefined
+      }
     >
       <div className="player-card-topline">
         <button
           type="button"
           className="drag-handle"
           onPointerDown={beginDrag}
-          aria-label="Sposta giocatore"
+          aria-label={layout === 'grid' ? 'Giocatore agganciato in griglia' : 'Sposta giocatore'}
         >
           <GripHorizontal aria-hidden="true" size={18} />
         </button>

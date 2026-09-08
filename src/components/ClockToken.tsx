@@ -16,6 +16,7 @@ import { SegmentedBarClock } from './SegmentedBarClock'
 interface ClockTokenProps {
   clock: Clock
   boardRef: RefObject<HTMLDivElement | null>
+  layout?: 'free' | 'grid'
   onUpdate: (id: string, patch: Partial<Clock>) => void
   onSetFilled: (id: string, filled: number) => void
   onMove: (id: string, x: number, y: number) => void
@@ -32,15 +33,24 @@ const clockColorLabels: Record<ClockColor, string> = {
 export function ClockToken({
   clock,
   boardRef,
+  layout = 'free',
   onUpdate,
   onSetFilled,
   onMove,
   onDelete,
 }: ClockTokenProps) {
+  const tokenClassName = [
+    'clock-token',
+    clock.color,
+    clock.size,
+    clock.pinnedToParty ? 'party-pinned' : '',
+    layout === 'grid' ? 'grid-item' : '',
+  ].join(' ')
+
   const beginDrag = (event: React.PointerEvent<HTMLButtonElement>) => {
     const boardElement = boardRef.current
 
-    if (clock.locked || clock.pinnedToParty || !boardElement) {
+    if (layout === 'grid' || clock.locked || clock.pinnedToParty || !boardElement) {
       return
     }
 
@@ -73,17 +83,19 @@ export function ClockToken({
 
   return (
     <article
-      className={`clock-token ${clock.color} ${clock.size} ${
-        clock.pinnedToParty ? 'party-pinned' : ''
-      }`}
-      style={clock.pinnedToParty ? undefined : { left: clock.position.x, top: clock.position.y }}
+      className={tokenClassName}
+      style={
+        clock.pinnedToParty || layout === 'grid'
+          ? undefined
+          : { left: clock.position.x, top: clock.position.y }
+      }
     >
       <div className="clock-token-topline">
         <button
           type="button"
           className="drag-handle"
           onPointerDown={beginDrag}
-          aria-label="Sposta clock"
+          aria-label={layout === 'grid' ? 'Clock agganciato in griglia' : 'Sposta clock'}
         >
           <GripHorizontal aria-hidden="true" size={18} />
         </button>

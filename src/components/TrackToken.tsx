@@ -8,6 +8,7 @@ interface TrackTokenProps {
   track: BoardTrack
   boardRef?: RefObject<HTMLDivElement | null>
   variant?: 'board' | 'top'
+  layout?: 'free' | 'grid'
   canDelete?: boolean
   onUpdate: (id: string, patch: Partial<BoardTrack>) => void
   onMove: (id: string, x: number, y: number) => void
@@ -19,6 +20,7 @@ export function TrackToken({
   track,
   boardRef,
   variant = 'board',
+  layout = 'free',
   canDelete = true,
   onUpdate,
   onMove,
@@ -36,7 +38,7 @@ export function TrackToken({
   const beginDrag = (event: React.PointerEvent<HTMLButtonElement>) => {
     const boardElement = boardRef?.current
 
-    if (variant === 'top' || track.locked || !boardElement) {
+    if (variant === 'top' || layout === 'grid' || track.locked || !boardElement) {
       return
     }
 
@@ -75,16 +77,27 @@ export function TrackToken({
         'track-token',
         track.size,
         variant === 'top' ? 'top-pinned' : '',
+        layout === 'grid' ? 'grid-item' : '',
         canDelete ? 'has-delete' : '',
       ].join(' ')}
-      style={variant === 'board' ? { left: track.position.x, top: track.position.y } : undefined}
+      style={
+        variant === 'board' && layout === 'free'
+          ? { left: track.position.x, top: track.position.y }
+          : undefined
+      }
     >
       <div className="track-token-topline">
         <button
           type="button"
           className="drag-handle"
           onPointerDown={beginDrag}
-          aria-label={variant === 'top' ? 'Barra fissata in alto' : 'Sposta barra'}
+          aria-label={
+            variant === 'top'
+              ? 'Barra fissata in alto'
+              : layout === 'grid'
+                ? 'Barra agganciata in griglia'
+                : 'Sposta barra'
+          }
         >
           <GripHorizontal aria-hidden="true" size={18} />
         </button>

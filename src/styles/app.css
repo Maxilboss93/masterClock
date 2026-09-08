@@ -408,8 +408,10 @@
 
 .board {
   position: relative;
+  display: block;
   min-height: calc(100svh - 260px);
   overflow: visible;
+  padding: 16px;
   background:
     radial-gradient(circle at top, rgb(185 154 86 / 0.09), transparent 36%),
     linear-gradient(180deg, rgb(16 19 15 / 0.74), rgb(6 8 7 / 0.78));
@@ -444,6 +446,15 @@
   text-align: center;
   color: var(--muted);
   pointer-events: none;
+}
+
+.board-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
 }
 
 .board-empty p {
@@ -493,6 +504,32 @@
 
 .clock-token {
   width: 248px;
+}
+
+.clock-token.grid-item,
+.track-token.grid-item,
+.player-card.grid-item {
+  position: relative;
+  left: auto;
+  top: auto;
+  width: 100%;
+  min-width: 0;
+}
+
+.clock-token.grid-item .drag-handle,
+.track-token.grid-item .drag-handle,
+.player-card.grid-item .drag-handle {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.clock-token.grid-item.small,
+.clock-token.grid-item.large,
+.track-token.grid-item.small,
+.track-token.grid-item.large,
+.player-card.grid-item.small,
+.player-card.grid-item.large {
+  width: 100%;
 }
 
 .track-token {
@@ -979,6 +1016,12 @@
   }
 }
 
+@media (max-width: 1180px) {
+  .board-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 860px) {
   .app-shell {
     grid-template-columns: 1fr;
@@ -1047,6 +1090,11 @@
 
   .board {
     min-height: 620px;
+    padding: 10px;
+  }
+
+  .board-grid {
+    gap: 10px;
   }
 
   .clock-token,
@@ -1086,5 +1134,11 @@
   .party-rail h2 {
     justify-content: start;
     min-width: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  .board-grid {
+    grid-template-columns: 1fr;
   }
 }
