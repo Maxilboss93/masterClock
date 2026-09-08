@@ -4,13 +4,13 @@ import type {
   Clock,
   PlayerCard,
   PlayerTrack,
-  Track,
 } from '../types/campaign'
 import { normalizeSegmentCount } from './numbers'
 
 type CampaignAction =
   | { type: 'setCampaignName'; name: string }
-  | { type: 'updateTrack'; id: string; patch: Partial<Track> }
+  | { type: 'updateTrack'; id: string; patch: Partial<BoardTrack> }
+  | { type: 'moveTrack'; id: string; x: number; y: number }
   | { type: 'addBoardTrack'; track: BoardTrack }
   | { type: 'updateBoardTrack'; id: string; patch: Partial<BoardTrack> }
   | { type: 'moveBoardTrack'; id: string; x: number; y: number }
@@ -53,7 +53,7 @@ const touchPlayerTrack = (track: PlayerTrack): PlayerTrack => ({
   updatedAt: new Date().toISOString(),
 })
 
-function normalizeTrack<TTrack extends Track>(track: TTrack): TTrack {
+function normalizeTrack<TTrack extends Pick<BoardTrack, 'min' | 'max' | 'value'>>(track: TTrack): TTrack {
   return {
     ...track,
     value: clamp(track.value, track.min, track.max),
@@ -77,8 +77,28 @@ export function campaignReducer(
           }
 
           const nextTrack = { ...track, ...action.patch }
-          return normalizeTrack(nextTrack)
+          return touchBoardTrack({
+            ...normalizeTrack(nextTrack),
+            locked: Boolean(nextTrack.locked),
+            pinnedToTop: Boolean(nextTrack.pinnedToTop),
+          })
         }),
+      }
+
+    case 'moveTrack':
+      return {
+        ...state,
+        tracks: state.tracks.map((track) =>
+          track.id === action.id
+            ? touchBoardTrack({
+                ...track,
+                position: {
+                  x: Math.max(0, Math.round(action.x)),
+                  y: Math.max(0, Math.round(action.y)),
+                },
+              })
+            : track,
+        ),
       }
 
     case 'addBoardTrack':
@@ -97,6 +117,7 @@ export function campaignReducer(
             ...nextTrack,
             value: clamp(nextTrack.value, nextTrack.min, nextTrack.max),
             locked: Boolean(nextTrack.locked),
+            pinnedToTop: Boolean(nextTrack.pinnedToTop),
           })
         }),
       }

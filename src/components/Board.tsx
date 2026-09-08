@@ -1,13 +1,21 @@
 import { useRef } from 'react'
-import type { BoardTrack, Clock, PlayerCard as PlayerCardType, PlayerTrack } from '../types/campaign'
+import type {
+  BoardTrack,
+  Clock,
+  PlayerCard as PlayerCardType,
+  PlayerTrack,
+} from '../types/campaign'
 import { ClockToken } from './ClockToken'
 import { PlayerCard } from './PlayerCard'
 import { TrackToken } from './TrackToken'
 
 interface BoardProps {
+  tracks: BoardTrack[]
   clocks: Clock[]
   boardTracks: BoardTrack[]
   playerCards: PlayerCardType[]
+  onUpdateTrack: (id: string, patch: Partial<BoardTrack>) => void
+  onMoveTrack: (id: string, x: number, y: number) => void
   onUpdateClock: (id: string, patch: Partial<Clock>) => void
   onSetClockFilled: (id: string, filled: number) => void
   onMoveClock: (id: string, x: number, y: number) => void
@@ -24,9 +32,12 @@ interface BoardProps {
 }
 
 export function Board({
+  tracks,
   clocks,
   boardTracks,
   playerCards,
+  onUpdateTrack,
+  onMoveTrack,
   onUpdateClock,
   onSetClockFilled,
   onMoveClock,
@@ -44,7 +55,13 @@ export function Board({
   const boardRef = useRef<HTMLDivElement | null>(null)
   const partyClocks = clocks.filter((clock) => clock.pinnedToParty)
   const freeClocks = clocks.filter((clock) => !clock.pinnedToParty)
-  const isBoardEmpty = freeClocks.length === 0 && boardTracks.length === 0 && playerCards.length === 0
+  const freeTracks = tracks.filter((track) => !track.pinnedToTop)
+  const freeBoardTracks = boardTracks.filter((track) => !track.pinnedToTop)
+  const isBoardEmpty =
+    freeClocks.length === 0 &&
+    freeTracks.length === 0 &&
+    freeBoardTracks.length === 0 &&
+    playerCards.length === 0
 
   return (
     <main className="board-shell">
@@ -75,7 +92,22 @@ export function Board({
           </div>
         ) : null}
 
-        {boardTracks.map((track) => (
+        {freeTracks.map((track) => (
+          <TrackToken
+            key={track.id}
+            track={track}
+            boardRef={boardRef}
+            canDelete={false}
+            onUpdate={onUpdateTrack}
+            onMove={onMoveTrack}
+            onDelete={() => undefined}
+            onTogglePinnedTop={(id) =>
+              onUpdateTrack(id, { pinnedToTop: true })
+            }
+          />
+        ))}
+
+        {freeBoardTracks.map((track) => (
           <TrackToken
             key={track.id}
             track={track}
@@ -83,6 +115,9 @@ export function Board({
             onUpdate={onUpdateBoardTrack}
             onMove={onMoveBoardTrack}
             onDelete={onDeleteBoardTrack}
+            onTogglePinnedTop={(id) =>
+              onUpdateBoardTrack(id, { pinnedToTop: true })
+            }
           />
         ))}
 

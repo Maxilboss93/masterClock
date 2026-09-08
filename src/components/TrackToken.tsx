@@ -1,27 +1,33 @@
-import { GripHorizontal, Lock, Trash2, Unlock } from 'lucide-react'
+import { GripHorizontal, Lock, Pin, PinOff, Trash2, Unlock } from 'lucide-react'
 import type { RefObject } from 'react'
 import type { BoardTrack } from '../types/campaign'
 import { TrackSquares } from './TrackSquares'
 
 interface TrackTokenProps {
   track: BoardTrack
-  boardRef: RefObject<HTMLDivElement | null>
+  boardRef?: RefObject<HTMLDivElement | null>
+  variant?: 'board' | 'top'
+  canDelete?: boolean
   onUpdate: (id: string, patch: Partial<BoardTrack>) => void
   onMove: (id: string, x: number, y: number) => void
   onDelete: (id: string) => void
+  onTogglePinnedTop?: (id: string, pinnedToTop: boolean) => void
 }
 
 export function TrackToken({
   track,
   boardRef,
+  variant = 'board',
+  canDelete = true,
   onUpdate,
   onMove,
   onDelete,
+  onTogglePinnedTop,
 }: TrackTokenProps) {
   const beginDrag = (event: React.PointerEvent<HTMLButtonElement>) => {
-    const boardElement = boardRef.current
+    const boardElement = boardRef?.current
 
-    if (track.locked || !boardElement) {
+    if (variant === 'top' || track.locked || !boardElement) {
       return
     }
 
@@ -56,15 +62,20 @@ export function TrackToken({
 
   return (
     <article
-      className={`track-token ${track.size}`}
-      style={{ left: track.position.x, top: track.position.y }}
+      className={[
+        'track-token',
+        track.size,
+        variant === 'top' ? 'top-pinned' : '',
+        canDelete ? 'has-delete' : '',
+      ].join(' ')}
+      style={variant === 'board' ? { left: track.position.x, top: track.position.y } : undefined}
     >
       <div className="track-token-topline">
         <button
           type="button"
           className="drag-handle"
           onPointerDown={beginDrag}
-          aria-label="Sposta barra"
+          aria-label={variant === 'top' ? 'Barra fissata in alto' : 'Sposta barra'}
         >
           <GripHorizontal aria-hidden="true" size={18} />
         </button>
@@ -74,6 +85,18 @@ export function TrackToken({
           aria-label="Titolo card"
         />
         <strong>{track.value > 0 ? `+${track.value}` : track.value}</strong>
+        <button
+          type="button"
+          className="icon-button small"
+          onClick={() => onTogglePinnedTop?.(track.id, !track.pinnedToTop)}
+          aria-label={track.pinnedToTop ? 'Sposta in plancia' : 'Fissa in alto'}
+        >
+          {track.pinnedToTop ? (
+            <PinOff aria-hidden="true" size={15} />
+          ) : (
+            <Pin aria-hidden="true" size={15} />
+          )}
+        </button>
         <button
           type="button"
           className="icon-button small"
@@ -122,14 +145,16 @@ export function TrackToken({
             onChange={(event) => onUpdate(track.id, { centerLabel: event.target.value })}
           />
         </label>
-        <button
-          type="button"
-          className="icon-button danger"
-          onClick={() => onDelete(track.id)}
-          aria-label="Elimina barra"
-        >
-          <Trash2 aria-hidden="true" size={16} />
-        </button>
+        {canDelete ? (
+          <button
+            type="button"
+            className="icon-button danger track-delete-button"
+            onClick={() => onDelete(track.id)}
+            aria-label="Elimina barra"
+          >
+            <Trash2 aria-hidden="true" size={16} />
+          </button>
+        ) : null}
       </div>
     </article>
   )

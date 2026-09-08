@@ -21,9 +21,9 @@ La richiesta del master, ridotta all'essenziale:
 - Il master deve scegliere lo stile grafico del clock.
 - Il clock deve chiedere quanti spicchi/segmenti/caselle servono in base allo stile scelto.
 - Il clock a torta resta la forma principale, ma l'interfaccia deve poter ospitare piu stili visivi.
-- Servono anche due barre fisse da 21 quadratini, con valore centrale `0`.
+- Servono anche due barre iniziali da 21 quadratini, con valore centrale `0`, ma non devono essere obbligatoriamente fisse in alto.
 - Le impostazioni delle barre devono essere modificabili.
-- Deve essere possibile creare altre barre con la stessa UX delle due barre fisse, direttamente dal pulsante `Aggiungi`.
+- Deve essere possibile creare altre barre con la stessa UX delle due barre iniziali, direttamente dal pulsante `Aggiungi`.
 - Un tasto `Salva` deve chiedere un nome per il salvataggio.
 - I salvataggi nominati devono comparire in una barra laterale e poter essere ricaricati al volo.
 - Il tasto `Salva` deve anche creare/scaricare un file `.json` visibile al master, pensato solo come backup e per eventuale importazione.
@@ -60,7 +60,9 @@ In alto:
 
 Subito sotto:
 
-- Le due barre fisse da 21 quadratini.
+- Una fascia `Barre` per le barre fissate in alto.
+- Le due barre iniziali partono in questa fascia, ma il master puo spostarle in plancia.
+- Se nella fascia ci sono piu barre, il layout prova ad affiancarle; quando lo spazio non basta, le ridimensiona e va a capo automaticamente.
 
 Lateralmente:
 
@@ -70,7 +72,7 @@ Lateralmente:
 
 Al centro:
 
-- Una plancia libera dove il master posiziona le card dei clock globali, le barre create al volo e le card giocatore.
+- Una plancia libera dove il master posiziona le card dei clock globali, le barre non fissate in alto e le card giocatore.
 - Una zona alta `Party`, facoltativa, dove fissare i clock globali che devono restare sempre visibili.
 
 La pagina non deve sembrare una dashboard gestionale moderna. Deve sembrare una plancia fantasy da master: legno scuro, pergamena, oro brunito, elementi come segnalini appoggiati sul tavolo.
@@ -240,9 +242,18 @@ Esempio dati:
 
 Nota: i grafici dentro una card giocatore non hanno bisogno di una posizione propria, perche sono ordinati dentro la card. La posizione appartiene alla card giocatore.
 
-## Barre Fisse
+## Barre Iniziali E Fascia Barre
 
-Servono due barre sempre presenti, ognuna con 21 quadratini. Il valore logico va da `-10` a `+10`, con `0` al centro.
+Servono due barre iniziali, ognuna con 21 quadratini. Il valore logico va da `-10` a `+10`, con `0` al centro.
+
+Queste barre non sono fisse per forza: partono nella fascia alta `Barre`, ma devono comportarsi come le altre card-barra. Il master deve poterle lasciare in alto, spostarle nella plancia, bloccarle/sbloccarle e modificarle con la stessa UX delle barre create dopo.
+
+La fascia `Barre` deve usare un layout fluido:
+
+- Con spazio sufficiente, tre o piu barre possono stare una accanto all'altra.
+- Le barre fissate in alto si ridimensionano entro limiti leggibili.
+- Quando lo spazio non basta, vanno a capo automaticamente.
+- I quadratini restano contenuti nella card; se la scala diventa troppo lunga, lo scorrimento deve essere interno alla barra e non rompere la card.
 
 ### Barra 1: Atteggiamento
 
@@ -290,22 +301,24 @@ Dato che il master parla di quadratini, le barre non devono essere slider contin
 
 ## Barre Da Plancia
 
-Oltre alle due barre fisse in alto, il master deve poter creare altre barre dalla UX di `Aggiungi`.
+Oltre alle due barre iniziali, il master deve poter creare altre barre dalla UX di `Aggiungi`.
 
 Comportamento:
 
-- Le barre create da `Aggiungi` usano la stessa interazione delle barre fisse: 21 quadratini, centro `0`, click sul quadratino per impostare il valore.
-- Vivono come card libere sulla plancia, quindi hanno posizione, blocco posizione ed eliminazione.
+- Le barre create da `Aggiungi` usano la stessa interazione delle barre iniziali: 21 quadratini, centro `0`, click sul quadratino per impostare il valore.
+- Vivono come card libere sulla plancia o nella fascia alta `Barre`, quindi hanno posizione, blocco posizione, fissaggio in alto ed eliminazione.
 - Hanno titolo card, label del grafico, etichetta sinistra, etichetta centrale, etichetta destra e valore modificabili.
 - Sono salvate nel JSON e nei salvataggi nominati.
 - Non entrano nella zona `Party`, che resta dedicata ai clock globali/totali.
+- Possono invece entrare nella fascia `Barre`, insieme alle barre iniziali.
 - Su mobile vengono mostrate come card in lista, con quadratini tappabili.
 
 Decisione strutturale:
 
-- Le due barre obbligatorie restano in `tracks`.
+- Le due barre iniziali restano in `tracks`, ma con gli stessi campi di posizionamento delle barre da plancia.
 - Le barre create dal master vanno in una collezione separata `boardTracks`.
 - Questa separazione evita di confondere le barre sempre presenti con quelle narrative create per una scena specifica.
+- Entrambe le collezioni usano `pinnedToTop` per decidere se una barra e nella fascia alta o nella plancia.
 
 Esempio dati:
 
@@ -328,6 +341,7 @@ Esempio dati:
       },
       "size": "medium",
       "locked": false,
+      "pinnedToTop": false,
       "updatedAt": "2026-09-07T00:00:00.000Z"
     }
   ]
@@ -514,7 +528,15 @@ Esempio:
       "rightLabel": "Fisico",
       "min": -10,
       "max": 10,
-      "value": 0
+      "value": 0,
+      "position": {
+        "x": 36,
+        "y": 36
+      },
+      "size": "medium",
+      "locked": false,
+      "pinnedToTop": true,
+      "updatedAt": "2026-09-07T00:00:00.000Z"
     },
     {
       "id": "factions",
@@ -525,7 +547,15 @@ Esempio:
       "rightLabel": "Cantori",
       "min": -10,
       "max": 10,
-      "value": 0
+      "value": 0,
+      "position": {
+        "x": 96,
+        "y": 86
+      },
+      "size": "medium",
+      "locked": false,
+      "pinnedToTop": true,
+      "updatedAt": "2026-09-07T00:00:00.000Z"
     }
   ],
   "boardTracks": [],
@@ -683,7 +713,7 @@ src/
     app.css
   components/
     CampaignHeader.tsx
-    FixedTracks.tsx
+    TrackRail.tsx
     TrackSquares.tsx
     Board.tsx
     ClockToken.tsx
@@ -725,12 +755,13 @@ Versione 0.1:
 - Header minimale con `Aggiungi`, `Salva`, `Carica`.
 - Salvataggio con nome tramite modale semplice.
 - Barra laterale con schermate salvate ricaricabili al volo.
-- Due barre fisse da 21 quadratini:
+- Due barre iniziali da 21 quadratini, fissate in alto solo finche il master lo desidera:
   - `Atteggiamento`: `Sociale` / `0` / `Fisico`.
   - `Percezione delle fazioni`: `Rinati` / `0` / `Cantori`.
+- Fascia `Barre` con resize e ritorno a capo automatico quando il master fissa in alto piu barre.
 - Impostazioni modificabili per nome/estremi/valori delle barre.
 - Creazione card-clock con scelta dello stile grafico.
-- Creazione barra da plancia con la stessa UX delle due barre fisse.
+- Creazione barra da plancia con la stessa UX delle due barre iniziali.
 - Titolo card e label sopra grafico modificabili per clock e barre.
 - Creazione card giocatore con nome del giocatore.
 - Possibilita di aggiungere piu grafici a barra simmetrica dentro ogni card giocatore.
@@ -740,7 +771,7 @@ Versione 0.1:
 - Avanzamento del clock cliccando il grafico o usando `-1` / `+1`.
 - Modifica in tempo reale di lunghezza, stile e impostazioni.
 - Spostamento delle card-clock sulla plancia.
-- Spostamento delle barre create sulla plancia.
+- Spostamento delle barre iniziali e delle barre create sulla plancia.
 - Possibilita di fissare i clock globali in alto nella zona `Party`.
 - Spostamento delle card giocatore sulla plancia.
 - Download automatico del JSON completo quando si preme `Salva`.
@@ -783,7 +814,6 @@ Versione 0.2, solo se serve:
 - I clock completati restano visibili o vanno archiviati?
 - Quali stili grafici vuole davvero nella prima versione oltre a torta e barra segmentata?
 - Il master vuole poter cambiare colore ai clock gia nella prima versione?
-- Le barre fisse devono essere sempre in alto o anche loro posizionabili?
 - Serve una modalita schermo intero per usarla al tavolo?
 - La barra laterale dei salvataggi su mobile deve diventare un drawer, una tendina o una sezione in alto?
 - Quando si sta modificando un salvataggio gia attivo, `Salva` deve proporre quel nome come default e aggiornare quel salvataggio se il master conferma lo stesso nome.
@@ -819,7 +849,7 @@ Totale realistico: una giornata corta, con margine per rifinire il feeling visiv
 
 Procedere con React + Vite + TypeScript, senza backend.
 
-Il cuore dell'app deve essere questo: una plancia fantasy vuota, due barre fisse da 21 caselle e un pulsante `Aggiungi` che crea card-clock globali oppure barre da plancia nominabili, posizionabili e configurabili in tempo reale. I clock globali restano liberi sulla plancia, ma possono essere fissati in alto nella zona `Party`. Deve esserci anche `Aggiungi giocatore`, che crea una card giocatore con nome e con la possibilita di aggiungere piu grafici interni a barra simmetrica, configurabili con label e valore `X`. Il master deve poter salvare schermate con nome nella barra laterale e richiamarle subito; il JSON deve restare il formato portabile per backup e passaggio tra sessioni o dispositivi. Su desktop la webapp funziona come plancia libera, mentre su cellulare diventa una lista operativa semplificata con gesture rapide.
+Il cuore dell'app deve essere questo: una plancia fantasy vuota, due barre iniziali da 21 caselle e un pulsante `Aggiungi` che crea card-clock globali oppure barre da plancia nominabili, posizionabili e configurabili in tempo reale. Le barre possono stare nella fascia alta `Barre`, con resize e ritorno a capo automatico, oppure vivere come card libere sulla plancia. I clock globali restano liberi sulla plancia, ma possono essere fissati in alto nella zona `Party`. Deve esserci anche `Aggiungi giocatore`, che crea una card giocatore con nome e con la possibilita di aggiungere piu grafici interni a barra simmetrica, configurabili con label e valore `X`. Il master deve poter salvare schermate con nome nella barra laterale e richiamarle subito; il JSON deve restare il formato portabile per backup e passaggio tra sessioni o dispositivi. Su desktop la webapp funziona come plancia libera, mentre su cellulare diventa una lista operativa semplificata con gesture rapide.
 
 ## Regola Di Lavoro Sul Documento
 

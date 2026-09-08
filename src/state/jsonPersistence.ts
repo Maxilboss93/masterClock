@@ -132,7 +132,10 @@ function validateClock(value: unknown): Clock | null {
   }
 }
 
-function validateBoardTrack(value: unknown): BoardTrack | null {
+function validateBoardTrack(
+  value: unknown,
+  defaults?: Pick<BoardTrack, 'position' | 'size' | 'locked' | 'pinnedToTop' | 'updatedAt'>,
+): BoardTrack | null {
   if (!isObject(value)) {
     return null
   }
@@ -141,18 +144,29 @@ function validateBoardTrack(value: unknown): BoardTrack | null {
     position,
     size,
     locked,
+    pinnedToTop,
     updatedAt,
   } = value
   const track = validateTrack(value)
+  const parsedPosition = isObject(position) && isNumber(position.x) && isNumber(position.y)
+    ? {
+        x: Math.max(0, Math.round(position.x)),
+        y: Math.max(0, Math.round(position.y)),
+      }
+    : defaults?.position
+  const parsedSize = clockSizes.includes(size as ClockSize) ? size as ClockSize : defaults?.size
+  const parsedLocked = typeof locked === 'boolean' ? locked : defaults?.locked
+  const parsedPinnedToTop =
+    typeof pinnedToTop === 'boolean' ? pinnedToTop : defaults?.pinnedToTop
+  const parsedUpdatedAt = isString(updatedAt) ? updatedAt : defaults?.updatedAt
 
   if (
     !track ||
-    !isObject(position) ||
-    !isNumber(position.x) ||
-    !isNumber(position.y) ||
-    !clockSizes.includes(size as ClockSize) ||
-    typeof locked !== 'boolean' ||
-    !isString(updatedAt)
+    !parsedPosition ||
+    !parsedSize ||
+    typeof parsedLocked !== 'boolean' ||
+    typeof parsedPinnedToTop !== 'boolean' ||
+    !parsedUpdatedAt
   ) {
     return null
   }
@@ -160,13 +174,11 @@ function validateBoardTrack(value: unknown): BoardTrack | null {
   return {
     ...track,
     value: Math.min(Math.max(Math.round(track.value), track.min), track.max),
-    position: {
-      x: Math.max(0, Math.round(position.x)),
-      y: Math.max(0, Math.round(position.y)),
-    },
-    size: size as ClockSize,
-    locked,
-    updatedAt,
+    position: parsedPosition,
+    size: parsedSize,
+    locked: parsedLocked,
+    pinnedToTop: parsedPinnedToTop,
+    updatedAt: parsedUpdatedAt,
   }
 }
 
@@ -251,10 +263,33 @@ export function parseCampaignJson(text: string): CampaignState {
     throw new Error('Il file deve contenere campaignName, tracks e clocks.')
   }
 
-  const parsedTracks = tracks.map(validateTrack)
+  const now = new Date().toISOString()
+  const parsedTracks = tracks.map((track, index) =>
+    validateBoardTrack(track, {
+      position: {
+        x: 36 + (index % 3) * 60,
+        y: 36 + (index % 3) * 44,
+      },
+      size: 'medium',
+      locked: false,
+      pinnedToTop: true,
+      updatedAt: now,
+    }),
+  )
   const parsedClocks = clocks.map(validateClock)
   const parsedBoardTracks = Array.isArray(boardTracks)
-    ? boardTracks.map(validateBoardTrack)
+    ? boardTracks.map((track, index) =>
+        validateBoardTrack(track, {
+          position: {
+            x: 48 + (index % 3) * 60,
+            y: 48 + (index % 3) * 44,
+          },
+          size: 'medium',
+          locked: false,
+          pinnedToTop: false,
+          updatedAt: now,
+        }),
+      )
     : []
   const parsedPlayerCards = Array.isArray(playerCards)
     ? playerCards.map(validatePlayerCard)
@@ -279,7 +314,7 @@ export function parseCampaignJson(text: string): CampaignState {
   return {
     schemaVersion: 1,
     campaignName,
-    tracks: parsedTracks as Track[],
+    tracks: parsedTracks as BoardTrack[],
     boardTracks: parsedBoardTracks as BoardTrack[],
     playerCards: parsedPlayerCards as PlayerCard[],
     clocks: parsedClocks as Clock[],

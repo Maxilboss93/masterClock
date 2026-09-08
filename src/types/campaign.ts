@@ -46,6 +46,7 @@ export interface BoardTrack extends Track {
   position: ClockPosition
   size: ClockSize
   locked: boolean
+  pinnedToTop: boolean
   updatedAt: string
 }
 
@@ -66,7 +67,7 @@ export interface PlayerCard {
 export interface CampaignState {
   schemaVersion: 1
   campaignName: string
-  tracks: Track[]
+  tracks: BoardTrack[]
   boardTracks: BoardTrack[]
   playerCards: PlayerCard[]
   clocks: Clock[]

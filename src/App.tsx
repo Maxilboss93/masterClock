@@ -3,8 +3,8 @@ import { AddClockModal } from './components/AddClockModal'
 import { AddPlayerCardModal } from './components/AddPlayerCardModal'
 import { Board } from './components/Board'
 import { CampaignHeader } from './components/CampaignHeader'
-import { FixedTracks } from './components/FixedTracks'
 import { SavedScenesSidebar } from './components/SavedScenesSidebar'
+import { TrackRail } from './components/TrackRail'
 import { campaignReducer } from './state/campaignReducer'
 import { defaultCampaign } from './state/defaultCampaign'
 import { campaignToJson, downloadCampaignJson, parseCampaignJson } from './state/jsonPersistence'
@@ -65,6 +65,7 @@ function App() {
         },
         size: 'medium',
         locked: false,
+        pinnedToTop: false,
         updatedAt: new Date().toISOString(),
       }
 
@@ -248,18 +249,42 @@ function App() {
           }}
         />
 
-        <FixedTracks
-          tracks={campaign.tracks}
-          onTrackChange={(id, patch) => dispatch({ type: 'updateTrack', id, patch })}
+        <TrackRail
+          tracks={[
+            ...campaign.tracks
+              .filter((track) => track.pinnedToTop)
+              .map((track) => ({
+                track,
+                canDelete: false,
+                onMoveToBoard: (id: string) =>
+                  dispatch({ type: 'updateTrack', id, patch: { pinnedToTop: false } }),
+                onTrackChange: (id: string, patch: Partial<BoardTrack>) =>
+                  dispatch({ type: 'updateTrack', id, patch }),
+              })),
+            ...campaign.boardTracks
+              .filter((track) => track.pinnedToTop)
+              .map((track) => ({
+                track,
+                canDelete: true,
+                onDelete: (id: string) => dispatch({ type: 'deleteBoardTrack', id }),
+                onMoveToBoard: (id: string) =>
+                  dispatch({ type: 'updateBoardTrack', id, patch: { pinnedToTop: false } }),
+                onTrackChange: (id: string, patch: Partial<BoardTrack>) =>
+                  dispatch({ type: 'updateBoardTrack', id, patch }),
+              })),
+          ]}
         />
 
         {loadError ? <p className="load-error">{loadError}</p> : null}
         {statusMessage ? <p className="status-message">{statusMessage}</p> : null}
 
         <Board
+          tracks={campaign.tracks}
           clocks={campaign.clocks}
           boardTracks={campaign.boardTracks}
           playerCards={campaign.playerCards}
+          onUpdateTrack={(id, patch) => dispatch({ type: 'updateTrack', id, patch })}
+          onMoveTrack={(id, x, y) => dispatch({ type: 'moveTrack', id, x, y })}
           onUpdateClock={(id, patch) => dispatch({ type: 'updateClock', id, patch })}
           onSetClockFilled={(id, filled) => dispatch({ type: 'setClockFilled', id, filled })}
           onMoveClock={(id, x, y) => dispatch({ type: 'moveClock', id, x, y })}

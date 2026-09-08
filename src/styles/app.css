@@ -185,23 +185,37 @@
   background: linear-gradient(rgb(111 44 41 / 0.35), rgb(16 11 7 / 0.86));
 }
 
-.fixed-tracks {
+.track-rail {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
   max-width: 1440px;
   margin: 0 auto 16px;
-}
-
-.track-card {
-  padding: 14px;
-  background: linear-gradient(180deg, rgb(19 23 18 / 0.96), rgb(10 13 10 / 0.96));
-  border: 1px solid rgb(214 196 135 / 0.38);
+  padding: 12px;
+  background: linear-gradient(180deg, rgb(60 57 43 / 0.72), rgb(16 19 15 / 0.92));
+  border: 1px solid rgb(214 196 135 / 0.36);
   border-radius: 8px;
   box-shadow: var(--shadow);
 }
 
-.track-card-header,
+.track-rail h2 {
+  color: var(--gold-soft);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.top-track-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
+.track-rail .track-squares {
+  --track-square-min: 10px;
+}
+
 .clock-token-topline,
 .clock-token-actions,
 .clock-settings-row,
@@ -209,26 +223,6 @@
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.track-card-header {
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-.track-card-header strong {
-  color: var(--gold-soft);
-  min-width: 40px;
-  text-align: right;
-}
-
-.track-name-input {
-  width: 100%;
-  color: var(--text);
-  border-color: transparent;
-  background: transparent;
-  padding: 0;
-  font-weight: 700;
 }
 
 .graph-label-input {
@@ -243,10 +237,6 @@
   line-height: 1.2;
   text-align: center;
   text-overflow: ellipsis;
-}
-
-.track-card .graph-label-input {
-  margin-bottom: 10px;
 }
 
 .track-squares {
@@ -453,6 +443,13 @@
   width: min(520px, calc(100% - 24px));
 }
 
+.track-token.top-pinned {
+  position: relative;
+  left: auto;
+  top: auto;
+  width: 100%;
+}
+
 .player-card {
   width: min(620px, calc(100% - 24px));
 }
@@ -505,6 +502,11 @@
   opacity: 0.45;
 }
 
+.track-token.top-pinned .drag-handle {
+  cursor: default;
+  opacity: 0.45;
+}
+
 .clock-token-topline,
 .track-token-topline,
 .player-card-topline,
@@ -524,9 +526,13 @@
 
 .track-token-topline {
   display: grid;
-  grid-template-columns: 30px minmax(0, 1fr) minmax(42px, auto) 30px;
+  grid-template-columns: 30px minmax(0, 1fr) minmax(42px, auto) 30px 30px;
   align-items: center;
   gap: 8px;
+}
+
+.track-token.has-delete .track-token-topline {
+  grid-template-columns: 30px minmax(0, 1fr) minmax(42px, auto) 30px 30px 40px;
 }
 
 .player-card-topline {
@@ -678,7 +684,7 @@
 
 .track-token-footer {
   display: grid;
-  grid-template-columns: minmax(96px, 140px) 40px;
+  grid-template-columns: minmax(96px, 140px) auto;
   gap: 8px;
   align-items: end;
   justify-content: end;
@@ -872,7 +878,7 @@
   }
 
   .campaign-header,
-  .fixed-tracks {
+  .track-rail {
     grid-template-columns: 1fr;
   }
 
@@ -906,9 +912,16 @@
   }
 
   .clock-token,
-  .track-token,
   .player-card {
     width: min(100%, 280px);
+  }
+
+  .track-token {
+    width: min(100%, 320px);
+  }
+
+  .track-token.top-pinned {
+    width: 100%;
   }
 
   .track-token .track-squares {
