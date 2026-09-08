@@ -90,6 +90,7 @@ Vincoli di leggibilita e contenimento:
 
 - Ogni card deve contenere sempre tutti i propri controlli: input, select, barre segmentate e pulsanti non devono uscire dal bordo della card.
 - Il titolo della card e la label del grafico sono due testi distinti: il titolo identifica la card, la label descrive il singolo grafico visualizzato dentro la card.
+- Nelle barre, il valore reale corrente deve essere molto visibile e vicino al testo principale della barra, non perso tra estremi o controlli secondari.
 - I campi modificabili devono usare placeholder di esempio chiari, per esempio `es. Allarme della cittadella`, `es. Equilibrio onirico`, `es. Sociale` e `es. Fisico`, senza obbligare il master a cancellare testo precompilato.
 - Se il master lascia un campo vuoto in creazione, la webapp deve usare un fallback semplice e sicuro come `Nuovo clock`, `Nuova barra` o `Grafico giocatore`.
 - I controlli dentro una card devono adattarsi alla larghezza disponibile con griglie responsive, `min-width: 0` e dimensioni stabili.
@@ -100,6 +101,8 @@ Vincoli di leggibilita e contenimento:
 - Le card devono poter essere compatte, ma non sacrificare leggibilita e tap target.
 - Quando una card viene puntata o modificata, deve salire visivamente sopra le altre card per mantenere leggibili i controlli anche durante spostamenti o sovrapposizioni temporanee.
 - La plancia non deve avere altezza rigida con contenuti tagliati: deve crescere o permettere scroll verticale per mostrare tutti gli elementi.
+- Il lucchetto di una card blocca sia lo spostamento sia tutte le modifiche della card: valori, testi, impostazioni, eliminazione e fissaggio diventano in sola lettura fino allo sblocco.
+- In una card bloccata deve restare attivo solo il pulsante del lucchetto, cosi il master puo riaprire il pannello quando vuole modificarlo.
 
 ## Responsive E Uso Mobile
 
@@ -111,6 +114,7 @@ Comportamento consigliato:
 - Cellulare: vista semplificata; i gruppi agganciati non superano 2 colonne, oppure una colonna quando la larghezza effettiva e troppo ridotta.
 - Le posizioni delle card restano nel JSON e sono la fonte principale della disposizione spaziale.
 - Le barre devono restare usabili su schermo piccolo anche quando hanno molte caselle, usando quadratini piu compatti o scorrimento interno alla card.
+- Lo scroll orizzontale delle barre deve essere discreto, coerente con lo stile fantasy e spazialmente separato dai quadratini, senza sembrare una barra di sistema incollata al grafico.
 - I controlli principali devono essere raggiungibili con tap: `Aggiungi`, `Salva`, salvataggi laterali, `+1`, `-1`, cambio valore barre.
 
 Gesture mobile consigliate:
@@ -319,6 +323,7 @@ Ogni barra deve:
 - Avere il quadratino che rappresenta il valore `0` marcato chiaramente.
 - Consentire al master di cliccare un quadratino per impostare il valore.
 - Evidenziare il valore corrente.
+- Mostrare il valore corrente in un badge vicino al titolo o alla label della barra.
 - Mostrare chiaramente gli estremi testuali.
 - Mostrare chiaramente anche i valori numerici agli estremi, per esempio `-10` e `+10`, oltre alle eventuali label narrative.
 - Permettere di modificare nome, etichetta sinistra, etichetta destra e valore corrente.
@@ -459,7 +464,7 @@ MVP:
 Opzionale ma utile:
 
 - Dimensione piccola, media, grande.
-- Blocco posizione per evitare spostamenti accidentali durante la sessione.
+- Blocco card per evitare spostamenti e modifiche accidentali durante la sessione.
 - Indicatore visuale dell'area di aggancio prima del rilascio, in una versione successiva.
 
 Per una prima versione rapida, eviterei il ridimensionamento libero: meglio tre taglie stabili, piu facili da usare e meno fragili su mobile.
@@ -477,6 +482,7 @@ Ogni card-clock deve permettere modifiche immediate:
 - Cambiare colore.
 - Spostare liberamente la card nella plancia.
 - Agganciare e sganciare card vicine in modo automatico.
+- Bloccare la card in sola lettura con il lucchetto e sbloccarla quando serve modificarla.
 - Salvare automaticamente lo stato in memoria locale dopo ogni modifica.
 
 Se il master riduce il numero di segmenti sotto il valore gia riempito, il valore `filled` va clampato al nuovo massimo.
@@ -806,6 +812,7 @@ Versione 0.1:
 - Avanzamento del clock cliccando il grafico o usando `-1` / `+1`.
 - Modifica in tempo reale di lunghezza, stile e impostazioni.
 - Card-clock, barre libere e card giocatore spostabili liberamente sulla plancia.
+- Lucchetto card che rende il pannello in sola lettura, lasciando attivo solo lo sblocco.
 - Aggancio responsive automatico solo quando piu card vengono avvicinate.
 - Possibilita di fissare i clock globali in alto nella zona `Party`.
 - Card giocatore spostabili liberamente e agganciabili vicino ad altre card.

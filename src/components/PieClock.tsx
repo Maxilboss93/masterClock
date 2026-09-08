@@ -2,6 +2,7 @@ interface PieClockProps {
   segments: number
   filled: number
   onSetFilled: (filled: number) => void
+  disabled?: boolean
 }
 
 const polarToCartesian = (center: number, radius: number, angle: number) => {
@@ -30,9 +31,15 @@ const describeSlice = (
   ].join(' ')
 }
 
-export function PieClock({ segments, filled, onSetFilled }: PieClockProps) {
+export function PieClock({ segments, filled, onSetFilled, disabled = false }: PieClockProps) {
   return (
-    <svg className="pie-clock" viewBox="0 0 100 100" role="img" aria-label="Clock a torta">
+    <svg
+      className={disabled ? 'pie-clock disabled' : 'pie-clock'}
+      viewBox="0 0 100 100"
+      role="img"
+      aria-label="Clock a torta"
+      aria-disabled={disabled}
+    >
       {Array.from({ length: segments }, (_, index) => {
         const startAngle = (index / segments) * 360
         const endAngle = ((index + 1) / segments) * 360
@@ -43,10 +50,14 @@ export function PieClock({ segments, filled, onSetFilled }: PieClockProps) {
             key={index}
             d={describeSlice(50, 44, startAngle, endAngle)}
             className={isFilled ? 'clock-segment filled' : 'clock-segment'}
-            onClick={() => onSetFilled(index + 1)}
-            tabIndex={0}
+            onClick={() => {
+              if (!disabled) {
+                onSetFilled(index + 1)
+              }
+            }}
+            tabIndex={disabled ? -1 : 0}
             onKeyDown={(event) => {
-              if (event.key === 'Enter' || event.key === ' ') {
+              if (!disabled && (event.key === 'Enter' || event.key === ' ')) {
                 event.preventDefault()
                 onSetFilled(index + 1)
               }

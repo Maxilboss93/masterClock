@@ -32,6 +32,7 @@ export function TrackToken({
   onDragEnd,
 }: TrackTokenProps) {
   const cellCount = track.max - track.min + 1
+  const formattedValue = track.value > 0 ? `+${track.value}` : String(track.value)
 
   const updateCellCount = (value: number) => {
     const range = getCenteredTrackRange(normalizeTrackCellCount(value))
@@ -86,9 +87,11 @@ export function TrackToken({
         'track-token',
         track.size,
         variant === 'top' ? 'top-pinned' : '',
+        track.locked ? 'is-locked' : '',
         layout === 'grid' ? 'grid-item' : '',
         canDelete ? 'has-delete' : '',
       ].join(' ')}
+      aria-readonly={track.locked}
       style={
         variant === 'board' && layout === 'free'
           ? { left: track.position.x, top: track.position.y }
@@ -107,6 +110,7 @@ export function TrackToken({
                 ? 'Sposta barra agganciata'
                 : 'Sposta barra'
           }
+          disabled={variant === 'top' || track.locked}
         >
           <GripHorizontal aria-hidden="true" size={18} />
         </button>
@@ -115,13 +119,17 @@ export function TrackToken({
           placeholder="Titolo barra"
           onChange={(event) => onUpdate(track.id, { name: event.target.value })}
           aria-label="Titolo card"
+          disabled={track.locked}
         />
-        <strong>{track.value > 0 ? `+${track.value}` : track.value}</strong>
+        <strong className="track-value-badge" aria-label={`Valore corrente ${formattedValue}`}>
+          {formattedValue}
+        </strong>
         <button
           type="button"
           className="icon-button small"
           onClick={() => onTogglePinnedTop?.(track.id, !track.pinnedToTop)}
           aria-label={track.pinnedToTop ? 'Sposta in plancia' : 'Fissa in alto'}
+          disabled={track.locked}
         >
           {track.pinnedToTop ? (
             <PinOff aria-hidden="true" size={15} />
@@ -133,7 +141,7 @@ export function TrackToken({
           type="button"
           className="icon-button small"
           onClick={() => onUpdate(track.id, { locked: !track.locked })}
-          aria-label={track.locked ? 'Sblocca posizione' : 'Blocca posizione'}
+          aria-label={track.locked ? 'Sblocca card' : 'Blocca card'}
         >
           {track.locked ? (
             <Lock aria-hidden="true" size={15} />
@@ -149,11 +157,13 @@ export function TrackToken({
         placeholder="Label grafico"
         onChange={(event) => onUpdate(track.id, { graphLabel: event.target.value })}
         aria-label="Label grafico"
+        disabled={track.locked}
       />
 
       <TrackSquares
         track={track}
         onValueChange={(value) => onUpdate(track.id, { value })}
+        disabled={track.locked}
       />
 
       <div className="track-label-row">
@@ -164,6 +174,7 @@ export function TrackToken({
             placeholder="es. Sociale"
             onChange={(event) => onUpdate(track.id, { leftLabel: event.target.value })}
             aria-label={`${track.name}: etichetta sinistra`}
+            disabled={track.locked}
           />
         </div>
         <span>{track.centerLabel}</span>
@@ -174,6 +185,7 @@ export function TrackToken({
             placeholder="es. Fisico"
             onChange={(event) => onUpdate(track.id, { rightLabel: event.target.value })}
             aria-label={`${track.name}: etichetta destra`}
+            disabled={track.locked}
           />
         </div>
       </div>
@@ -186,6 +198,7 @@ export function TrackToken({
             min={2}
             value={cellCount}
             onChange={(event) => updateCellCount(Number(event.target.value))}
+            disabled={track.locked}
           />
         </label>
         <label>
@@ -194,6 +207,7 @@ export function TrackToken({
             value={track.centerLabel}
             placeholder="es. 0"
             onChange={(event) => onUpdate(track.id, { centerLabel: event.target.value })}
+            disabled={track.locked}
           />
         </label>
         {canDelete ? (
@@ -202,6 +216,7 @@ export function TrackToken({
             className="icon-button danger track-delete-button"
             onClick={() => onDelete(track.id)}
             aria-label="Elimina barra"
+            disabled={track.locked}
           >
             <Trash2 aria-hidden="true" size={16} />
           </button>

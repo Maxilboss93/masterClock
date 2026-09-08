@@ -62,6 +62,7 @@ export function PlayerCard({
   const cardClassName = [
     'player-card',
     playerCard.size,
+    playerCard.locked ? 'is-locked' : '',
     layout === 'grid' ? 'grid-item' : '',
   ].join(' ')
   const [isAddingTrack, setIsAddingTrack] = useState(false)
@@ -202,6 +203,7 @@ export function PlayerCard({
   return (
     <article
       className={cardClassName}
+      aria-readonly={playerCard.locked}
       style={
         layout === 'free'
           ? { left: playerCard.position.x, top: playerCard.position.y }
@@ -214,6 +216,7 @@ export function PlayerCard({
           className="drag-handle"
           onPointerDown={beginDrag}
           aria-label={layout === 'grid' ? 'Sposta giocatore agganciato' : 'Sposta giocatore'}
+          disabled={playerCard.locked}
         >
           <GripHorizontal aria-hidden="true" size={18} />
         </button>
@@ -222,12 +225,13 @@ export function PlayerCard({
           placeholder="Nome giocatore"
           onChange={(event) => onUpdate(playerCard.id, { playerName: event.target.value })}
           aria-label="Nome giocatore"
+          disabled={playerCard.locked}
         />
         <button
           type="button"
           className="icon-button small"
           onClick={() => onUpdate(playerCard.id, { locked: !playerCard.locked })}
-          aria-label={playerCard.locked ? 'Sblocca posizione' : 'Blocca posizione'}
+          aria-label={playerCard.locked ? 'Sblocca card' : 'Blocca card'}
         >
           {playerCard.locked ? (
             <Lock aria-hidden="true" size={15} />
@@ -240,6 +244,7 @@ export function PlayerCard({
           className="icon-button danger"
           onClick={() => onDelete(playerCard.id)}
           aria-label="Elimina giocatore"
+          disabled={playerCard.locked}
         >
           <Trash2 aria-hidden="true" size={16} />
         </button>
@@ -249,6 +254,7 @@ export function PlayerCard({
         type="button"
         className="plank-button player-add-button"
         onClick={() => setIsAddingTrack(true)}
+        disabled={playerCard.locked}
       >
         <Plus aria-hidden="true" size={16} />
         Aggiungi
@@ -267,6 +273,7 @@ export function PlayerCard({
             <select
               value={draftKind}
               onChange={(event) => setDraftKind(event.target.value as PlayerGraphDraftKind)}
+              disabled={playerCard.locked}
             >
               <option value="clock">Clock</option>
               <option value="track">Barra -X / 0 / +X</option>
@@ -285,6 +292,7 @@ export function PlayerCard({
                     : 'es. Patto in bilico'
               }
               onChange={(event) => setDraftName(event.target.value)}
+              disabled={playerCard.locked}
             />
           </label>
           <label>
@@ -299,6 +307,7 @@ export function PlayerCard({
                     : 'es. Rintocchi personali'
               }
               onChange={(event) => setDraftLabel(event.target.value)}
+              disabled={playerCard.locked}
             />
           </label>
           {draftKind === 'track' ? (
@@ -309,6 +318,7 @@ export function PlayerCard({
                 min={1}
                 value={draftRange}
                 onChange={(event) => setDraftRange(normalizeRange(Number(event.target.value)))}
+                disabled={playerCard.locked}
               />
             </label>
           ) : (
@@ -322,6 +332,7 @@ export function PlayerCard({
                       type="button"
                       className={preset === draftSegments ? 'preset active' : 'preset'}
                       onClick={() => setDraftSegments(preset)}
+                      disabled={playerCard.locked}
                     >
                       {preset}
                     </button>
@@ -334,6 +345,7 @@ export function PlayerCard({
                   onChange={(event) =>
                     setDraftSegments(normalizeSegmentCount(Number(event.target.value)))
                   }
+                  disabled={playerCard.locked}
                 />
               </fieldset>
               <label>
@@ -341,6 +353,7 @@ export function PlayerCard({
                 <select
                   value={draftColor}
                   onChange={(event) => setDraftColor(event.target.value as ClockColor)}
+                  disabled={playerCard.locked}
                 >
                   {Object.entries(clockColorLabels).map(([value, label]) => (
                     <option key={value} value={value}>
@@ -351,7 +364,7 @@ export function PlayerCard({
               </label>
             </>
           )}
-          <button type="submit" className="plank-button primary">
+          <button type="submit" className="plank-button primary" disabled={playerCard.locked}>
             Crea
           </button>
         </form>
@@ -375,6 +388,7 @@ export function PlayerCard({
                       onUpdateClock(playerCard.id, clock.id, { name: event.target.value })
                     }
                     aria-label="Titolo grafico giocatore"
+                    disabled={playerCard.locked}
                   />
                   <input
                     className="graph-label-input"
@@ -384,6 +398,7 @@ export function PlayerCard({
                       onUpdateClock(playerCard.id, clock.id, { graphLabel: event.target.value })
                     }
                     aria-label="Label grafico giocatore"
+                    disabled={playerCard.locked}
                   />
 
                   <div className="clock-visual">
@@ -394,6 +409,7 @@ export function PlayerCard({
                         onSetFilled={(filled) =>
                           onSetClockFilled(playerCard.id, clock.id, filled)
                         }
+                        disabled={playerCard.locked}
                       />
                     ) : (
                       <SegmentedBarClock
@@ -402,6 +418,7 @@ export function PlayerCard({
                         onSetFilled={(filled) =>
                           onSetClockFilled(playerCard.id, clock.id, filled)
                         }
+                        disabled={playerCard.locked}
                       />
                     )}
                   </div>
@@ -413,6 +430,7 @@ export function PlayerCard({
                         className="icon-button small"
                         onClick={() => onSetClockFilled(playerCard.id, clock.id, clock.filled - 1)}
                         aria-label="Diminuisci avanzamento"
+                        disabled={playerCard.locked}
                       >
                         <Minus aria-hidden="true" size={15} />
                       </button>
@@ -422,6 +440,7 @@ export function PlayerCard({
                         className="icon-button small"
                         onClick={() => onSetClockFilled(playerCard.id, clock.id, clock.filled + 1)}
                         aria-label="Aumenta avanzamento"
+                        disabled={playerCard.locked}
                       >
                         <Plus aria-hidden="true" size={15} />
                       </button>
@@ -437,6 +456,7 @@ export function PlayerCard({
                             segments: Number(event.target.value),
                           })
                         }
+                        disabled={playerCard.locked}
                       />
                     </label>
                     <button
@@ -444,6 +464,7 @@ export function PlayerCard({
                       className="icon-button danger"
                       onClick={() => onDeleteClock(playerCard.id, clock.id)}
                       aria-label="Elimina grafico giocatore"
+                      disabled={playerCard.locked}
                     >
                       <Trash2 aria-hidden="true" size={16} />
                     </button>
@@ -454,20 +475,30 @@ export function PlayerCard({
 
             const track = graphItem.item
             const range = Math.max(Math.abs(track.min), Math.abs(track.max))
+            const formattedValue = track.value > 0 ? `+${track.value}` : String(track.value)
 
             return (
               <section className="player-track" key={track.id}>
-                <input
-                  className="player-graph-title-input"
-                  value={track.name}
-                  placeholder="Titolo grafico"
-                  onChange={(event) =>
-                    onUpdateTrack(playerCard.id, track.id, {
-                      name: event.target.value,
-                    })
-                  }
-                  aria-label="Titolo grafico giocatore"
-                />
+                <div className="player-graph-heading">
+                  <input
+                    className="player-graph-title-input"
+                    value={track.name}
+                    placeholder="Titolo grafico"
+                    onChange={(event) =>
+                      onUpdateTrack(playerCard.id, track.id, {
+                        name: event.target.value,
+                      })
+                    }
+                    aria-label="Titolo grafico giocatore"
+                    disabled={playerCard.locked}
+                  />
+                  <strong
+                    className="track-value-badge"
+                    aria-label={`Valore corrente ${formattedValue}`}
+                  >
+                    {formattedValue}
+                  </strong>
+                </div>
                 <input
                   className="graph-label-input"
                   value={track.graphLabel || track.name}
@@ -478,6 +509,7 @@ export function PlayerCard({
                     })
                   }
                   aria-label="Label grafico giocatore"
+                  disabled={playerCard.locked}
                 />
 
                 <TrackSquares
@@ -485,15 +517,15 @@ export function PlayerCard({
                   onValueChange={(value) =>
                     onUpdateTrack(playerCard.id, track.id, { value })
                   }
+                  disabled={playerCard.locked}
                 />
 
                 <div className="player-track-controls">
-                  <div className="track-label-row player-track-labels">
+                  <div className="player-track-labels">
                     <span>
                       <strong>{track.min}</strong>
                       {track.leftLabel !== String(track.min) ? track.leftLabel : null}
                     </span>
-                    <strong>{track.value > 0 ? `+${track.value}` : track.value}</strong>
                     <span>
                       {track.rightLabel !== `+${track.max}` && track.rightLabel !== String(track.max)
                         ? track.rightLabel
@@ -508,6 +540,7 @@ export function PlayerCard({
                       min={1}
                       value={range}
                       onChange={(event) => updateTrackRange(track, Number(event.target.value))}
+                      disabled={playerCard.locked}
                     />
                   </label>
                   <button
@@ -515,6 +548,7 @@ export function PlayerCard({
                     className="icon-button danger"
                     onClick={() => onDeleteTrack(playerCard.id, track.id)}
                     aria-label="Elimina grafico giocatore"
+                    disabled={playerCard.locked}
                   >
                     <Trash2 aria-hidden="true" size={16} />
                   </button>

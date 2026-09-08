@@ -4,9 +4,10 @@ import type { Track } from '../types/campaign'
 interface TrackSquaresProps {
   track: Track
   onValueChange: (value: number) => void
+  disabled?: boolean
 }
 
-export function TrackSquares({ track, onValueChange }: TrackSquaresProps) {
+export function TrackSquares({ track, onValueChange, disabled = false }: TrackSquaresProps) {
   const label = track.graphLabel || track.name
   const values = Array.from(
     { length: track.max - track.min + 1 },
@@ -19,6 +20,7 @@ export function TrackSquares({ track, onValueChange }: TrackSquaresProps) {
       style={{ '--track-count': values.length } as CSSProperties}
       role="group"
       aria-label={label}
+      aria-disabled={disabled}
     >
       {values.map((value) => {
         const isCenter = value === 0
@@ -36,6 +38,7 @@ export function TrackSquares({ track, onValueChange }: TrackSquaresProps) {
             onClick={() => onValueChange(value)}
             aria-label={`${label}: ${value}`}
             aria-pressed={isSelected}
+            disabled={disabled}
           >
             {isCenter ? track.centerLabel : ''}
           </button>

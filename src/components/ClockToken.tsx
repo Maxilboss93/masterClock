@@ -48,6 +48,7 @@ export function ClockToken({
     clock.color,
     clock.size,
     clock.pinnedToParty ? 'party-pinned' : '',
+    clock.locked ? 'is-locked' : '',
     layout === 'grid' ? 'grid-item' : '',
   ].join(' ')
 
@@ -95,6 +96,7 @@ export function ClockToken({
   return (
     <article
       className={tokenClassName}
+      aria-readonly={clock.locked}
       style={
         clock.pinnedToParty || layout === 'grid'
           ? undefined
@@ -107,6 +109,7 @@ export function ClockToken({
           className="drag-handle"
           onPointerDown={beginDrag}
           aria-label={layout === 'grid' ? 'Sposta clock agganciato' : 'Sposta clock'}
+          disabled={clock.locked || clock.pinnedToParty}
         >
           <GripHorizontal aria-hidden="true" size={18} />
         </button>
@@ -116,12 +119,13 @@ export function ClockToken({
           placeholder="Titolo card"
           onChange={(event) => onUpdate(clock.id, { name: event.target.value })}
           aria-label="Titolo card"
+          disabled={clock.locked}
         />
         <button
           type="button"
           className="icon-button small"
           onClick={() => onUpdate(clock.id, { locked: !clock.locked })}
-          aria-label={clock.locked ? 'Sblocca posizione' : 'Blocca posizione'}
+          aria-label={clock.locked ? 'Sblocca card' : 'Blocca card'}
         >
           {clock.locked ? (
             <Lock aria-hidden="true" size={15} />
@@ -134,6 +138,7 @@ export function ClockToken({
           className="icon-button small"
           onClick={() => onUpdate(clock.id, { pinnedToParty: !clock.pinnedToParty })}
           aria-label={clock.pinnedToParty ? 'Libera dalla zona Party' : 'Fissa in Party'}
+          disabled={clock.locked}
         >
           {clock.pinnedToParty ? (
             <PinOff aria-hidden="true" size={15} />
@@ -149,6 +154,7 @@ export function ClockToken({
         placeholder="Label grafico"
         onChange={(event) => onUpdate(clock.id, { graphLabel: event.target.value })}
         aria-label="Label grafico"
+        disabled={clock.locked}
       />
 
       <div className="clock-visual">
@@ -157,12 +163,14 @@ export function ClockToken({
             segments={clock.segments}
             filled={clock.filled}
             onSetFilled={(filled) => onSetFilled(clock.id, filled)}
+            disabled={clock.locked}
           />
         ) : (
           <SegmentedBarClock
             segments={clock.segments}
             filled={clock.filled}
             onSetFilled={(filled) => onSetFilled(clock.id, filled)}
+            disabled={clock.locked}
           />
         )}
       </div>
@@ -173,6 +181,7 @@ export function ClockToken({
           className="icon-button small"
           onClick={() => onSetFilled(clock.id, clock.filled - 1)}
           aria-label="Diminuisci avanzamento"
+          disabled={clock.locked}
         >
           <Minus aria-hidden="true" size={15} />
         </button>
@@ -182,6 +191,7 @@ export function ClockToken({
           className="icon-button small"
           onClick={() => onSetFilled(clock.id, clock.filled + 1)}
           aria-label="Aumenta avanzamento"
+          disabled={clock.locked}
         >
           <Plus aria-hidden="true" size={15} />
         </button>
@@ -197,6 +207,7 @@ export function ClockToken({
             onChange={(event) =>
               onUpdate(clock.id, { segments: Number(event.target.value) })
             }
+            disabled={clock.locked}
           />
         </label>
       </div>
@@ -209,6 +220,7 @@ export function ClockToken({
             onChange={(event) =>
               onUpdate(clock.id, { color: event.target.value as ClockColor })
             }
+            disabled={clock.locked}
           >
             {Object.entries(clockColorLabels).map(([value, label]) => (
               <option key={value} value={value}>
@@ -222,6 +234,7 @@ export function ClockToken({
           className="icon-button danger"
           onClick={() => onDelete(clock.id)}
           aria-label="Elimina clock"
+          disabled={clock.locked}
         >
           <Trash2 aria-hidden="true" size={16} />
         </button>
