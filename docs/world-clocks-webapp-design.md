@@ -74,6 +74,7 @@ La webapp implementa:
 - valore corrente delle barre mostrato in modo evidente vicino al testo principale;
 - quadratini e controlli contenuti dentro le card;
 - target di icone e maniglie rinforzati per uso touch;
+- responsive curato per dare priorita visiva a barre, quadranti e grafici rispetto a cornici e spazi vuoti;
 - card bloccate distinguibili tramite tinta di background diversa, senza oscurare i contenuti;
 - scroll verticale della plancia quando il contenuto cresce.
 
@@ -244,7 +245,7 @@ Regole:
 - il valore corrente deve essere mostrato vicino al titolo o alla label, con peso visivo maggiore rispetto ai dettagli secondari;
 - gli estremi narrativi e numerici devono restare leggibili;
 - se le caselle sono troppe per la larghezza disponibile, lo scroll orizzontale deve restare interno e discreto;
-- la barra non deve uscire dalla card.
+- la barra non deve uscire dalla card;
 - su mobile i quadratini devono mantenere una dimensione minima leggibile, anche quando questo richiede scorrimento interno.
 
 ### Barra Segmentata
@@ -374,6 +375,8 @@ Regole attuali:
 - gruppi agganciati a massimo 2 colonne su mobile;
 - passaggio a 1 colonna quando la larghezza effettiva e troppo ridotta;
 - card e controlli devono restare contenuti;
+- su schermi stretti, padding e cornici devono ridursi per lasciare piu spazio utile a barre e grafici;
+- clock, barre segmentate e barre a caselle devono restare gli elementi piu leggibili della card;
 - barre lunghe devono usare scorrimento interno, non rompere il layout;
 - tap target e pulsanti devono restare leggibili;
 - la barra laterale deve comportarsi come elemento richiudibile per liberare spazio.
