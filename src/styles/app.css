@@ -202,9 +202,9 @@
 }
 
 .icon-button.small {
-  width: 30px;
-  height: 30px;
-  min-height: 30px;
+  width: 36px;
+  height: 36px;
+  min-height: 36px;
 }
 
 .icon-button.danger {
@@ -260,7 +260,7 @@ button:disabled:not(.icon-button.small[aria-label="Sblocca card"]) {
 }
 
 .track-rail .track-squares {
-  --track-square-min: 11px;
+  --track-square-min: 14px;
 }
 
 .clock-token-topline,
@@ -557,10 +557,10 @@ button:disabled:not(.icon-button.small[aria-label="Sblocca card"]) {
   background:
     repeating-linear-gradient(
       -45deg,
-      rgb(255 242 214 / 0.025) 0,
-      rgb(255 242 214 / 0.025) 7px,
-      transparent 7px,
-      transparent 14px
+      rgb(255 242 214 / 0.016) 0,
+      rgb(255 242 214 / 0.016) 8px,
+      transparent 8px,
+      transparent 18px
     );
 }
 
@@ -696,27 +696,27 @@ button:disabled:not(.icon-button.small[aria-label="Sblocca card"]) {
 
 .clock-token-topline {
   display: grid;
-  grid-template-columns: 30px minmax(0, 1fr) 30px 30px;
+  grid-template-columns: 36px minmax(0, 1fr) 36px 36px;
   align-items: center;
   gap: 8px;
 }
 
 .track-token-topline {
   display: grid;
-  grid-template-columns: 30px minmax(0, 1fr) minmax(54px, auto) 30px 30px;
+  grid-template-columns: 36px minmax(0, 1fr) minmax(54px, auto) 36px 36px;
   align-items: center;
   gap: 8px;
 }
 
 .player-card-topline {
   display: grid;
-  grid-template-columns: 30px minmax(0, 1fr) 30px 40px;
+  grid-template-columns: 36px minmax(0, 1fr) 36px 40px;
   align-items: center;
   gap: 8px;
 }
 
 .clock-token-topline:has(.party-chip) {
-  grid-template-columns: 30px auto minmax(0, 1fr) 30px 30px;
+  grid-template-columns: 36px auto minmax(0, 1fr) 36px 36px;
 }
 
 .clock-token-topline input,
@@ -753,9 +753,9 @@ button:disabled:not(.icon-button.small[aria-label="Sblocca card"]) {
 
 .drag-handle {
   display: grid;
-  width: 30px;
-  height: 30px;
-  min-height: 30px;
+  width: 36px;
+  height: 36px;
+  min-height: 36px;
   place-items: center;
   padding: 0;
   color: var(--muted);
@@ -993,7 +993,7 @@ button:disabled:not(.icon-button.small[aria-label="Sblocca card"]) {
 }
 
 .player-track .track-squares {
-  --track-square-min: 10px;
+  --track-square-min: 13px;
   gap: 3px;
 }
 
@@ -1163,7 +1163,7 @@ button:disabled:not(.icon-button.small[aria-label="Sblocca card"]) {
   }
 
   .track-squares {
-    --track-square-min: 10px;
+    --track-square-min: 14px;
     gap: 3px;
   }
 
@@ -1202,7 +1202,7 @@ button:disabled:not(.icon-button.small[aria-label="Sblocca card"]) {
   }
 
   .track-token .track-squares {
-    --track-square-min: 8px;
+    --track-square-min: 14px;
   }
 
   .track-token .track-label-row,

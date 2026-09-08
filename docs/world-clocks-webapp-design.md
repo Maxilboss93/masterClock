@@ -73,6 +73,8 @@ La webapp implementa:
 - card bloccabili in sola lettura con lucchetto;
 - valore corrente delle barre mostrato in modo evidente vicino al testo principale;
 - quadratini e controlli contenuti dentro le card;
+- target di icone e maniglie rinforzati per uso touch;
+- pattern delle card bloccate alleggerito per non ridurre la leggibilita;
 - scroll verticale della plancia quando il contenuto cresce.
 
 ## Struttura Attuale Del Codice
@@ -243,6 +245,7 @@ Regole:
 - gli estremi narrativi e numerici devono restare leggibili;
 - se le caselle sono troppe per la larghezza disponibile, lo scroll orizzontale deve restare interno e discreto;
 - la barra non deve uscire dalla card.
+- su mobile i quadratini devono mantenere una dimensione minima leggibile, anche quando questo richiede scorrimento interno.
 
 ### Barra Segmentata
 
@@ -377,6 +380,7 @@ Regole attuali:
 Da completare prima di considerare chiusa l'esperienza mobile:
 
 - gesture dedicate per avanzare o ridurre un grafico con swipe;
+- eventuale modalita focus/zoom per barre con molte caselle su smartphone;
 - scelta finale su eventuale drawer mobile della barra laterale;
 - gestione chiara dei conflitti tra drag, swipe e scroll verticale.
 
@@ -416,7 +420,9 @@ Regole di leggibilita:
 - gli stati vuoti, pieni, selezionati e disabilitati devono essere distinguibili;
 - i placeholder devono essere leggibili ma secondari;
 - le barre devono restare dentro le card;
+- icone, maniglie e controlli rapidi devono avere una dimensione comoda per mouse e touch;
 - le barre di scroll non devono sembrare elementi di sistema fuori stile;
+- il pattern di blocco deve comunicare sola lettura senza coprire testo e grafici;
 - nessun testo deve uscire dai pulsanti o sovrapporsi ai controlli vicini;
 - gli elementi interattivi devono restare comodi anche su mobile.
 
@@ -445,4 +451,5 @@ Questi punti restano aperti e richiedono decisione condivisa prima di implementa
 - su mobile la barra laterale deve diventare drawer, tendina o sezione superiore?
 - i grafici dentro una card giocatore devono poter essere collassati?
 - la card giocatore deve avere un riepilogo automatico o solo grafici inseriti manualmente?
+- per barre da 40-50 caselle su smartphone basta lo scroll interno o serve una modalita focus/zoom?
 - quali gesture mobile definitive usare senza creare conflitti tra drag, swipe e scroll?
