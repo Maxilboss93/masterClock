@@ -28,7 +28,7 @@ export function PlayerCard({
   onDeleteTrack,
 }: PlayerCardProps) {
   const [isAddingTrack, setIsAddingTrack] = useState(false)
-  const [draftLabel, setDraftLabel] = useState('Atteggiamento verso popolazione')
+  const [draftLabel, setDraftLabel] = useState('')
   const [draftRange, setDraftRange] = useState(20)
 
   const beginDrag = (event: React.PointerEvent<HTMLButtonElement>) => {
@@ -84,7 +84,7 @@ export function PlayerCard({
       updatedAt: now,
     })
     setIsAddingTrack(false)
-    setDraftLabel('Atteggiamento verso popolazione')
+    setDraftLabel('')
     setDraftRange(20)
   }
 
@@ -115,6 +115,7 @@ export function PlayerCard({
         </button>
         <input
           value={playerCard.playerName}
+          placeholder="Nome giocatore"
           onChange={(event) => onUpdate(playerCard.id, { playerName: event.target.value })}
           aria-label="Nome giocatore"
         />
@@ -158,11 +159,15 @@ export function PlayerCard({
           }}
         >
           <label>
-            Label
-            <input value={draftLabel} onChange={(event) => setDraftLabel(event.target.value)} />
+            Label grafico
+            <input
+              value={draftLabel}
+              placeholder="es. Atteggiamento verso popolazione"
+              onChange={(event) => setDraftLabel(event.target.value)}
+            />
           </label>
           <label>
-            X
+            Ampiezza X
             <input
               type="number"
               min={1}
@@ -188,6 +193,7 @@ export function PlayerCard({
                 <input
                   className="graph-label-input"
                   value={track.graphLabel || track.name}
+                  placeholder="Label grafico"
                   onChange={(event) =>
                     onUpdateTrack(playerCard.id, track.id, {
                       name: event.target.value,
@@ -211,7 +217,7 @@ export function PlayerCard({
                     <span>{track.rightLabel}</span>
                   </div>
                   <label>
-                    X
+                    Ampiezza X
                     <input
                       type="number"
                       min={1}

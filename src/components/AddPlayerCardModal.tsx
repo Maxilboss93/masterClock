@@ -1,3 +1,4 @@
+import { X } from 'lucide-react'
 import { useState } from 'react'
 
 interface AddPlayerCardModalProps {
@@ -6,7 +7,7 @@ interface AddPlayerCardModalProps {
 }
 
 export function AddPlayerCardModal({ onClose, onCreate }: AddPlayerCardModalProps) {
-  const [playerName, setPlayerName] = useState('Shisui')
+  const [playerName, setPlayerName] = useState('')
 
   return (
     <div className="modal-backdrop" role="presentation">
@@ -19,14 +20,24 @@ export function AddPlayerCardModal({ onClose, onCreate }: AddPlayerCardModalProp
       >
         <header>
           <h2>Aggiungi giocatore</h2>
-          <button type="button" className="icon-button small" onClick={onClose}>
-            x
+          <button
+            type="button"
+            className="icon-button small"
+            onClick={onClose}
+            aria-label="Chiudi"
+            title="Chiudi"
+          >
+            <X aria-hidden="true" size={16} />
           </button>
         </header>
 
         <label>
           Nome
-          <input value={playerName} onChange={(event) => setPlayerName(event.target.value)} />
+          <input
+            value={playerName}
+            placeholder="es. Shisui"
+            onChange={(event) => setPlayerName(event.target.value)}
+          />
         </label>
 
         <footer>

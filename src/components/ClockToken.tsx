@@ -95,6 +95,7 @@ export function ClockToken({
         {clock.pinnedToParty ? <span className="party-chip">Party</span> : null}
         <input
           value={clock.name}
+          placeholder="Titolo card"
           onChange={(event) => onUpdate(clock.id, { name: event.target.value })}
           aria-label="Titolo card"
         />
@@ -127,6 +128,7 @@ export function ClockToken({
       <input
         className="graph-label-input"
         value={clock.graphLabel || clock.name}
+        placeholder="Label grafico"
         onChange={(event) => onUpdate(clock.id, { graphLabel: event.target.value })}
         aria-label="Label grafico"
       />

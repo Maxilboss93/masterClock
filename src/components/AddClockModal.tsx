@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { X } from 'lucide-react'
 import { normalizeSegmentCount, normalizeTrackCellCount } from '../state/numbers'
 import type { ClockColor, ClockType } from '../types/campaign'
 
@@ -33,14 +34,18 @@ const segmentPresets = [4, 6, 8, 10, 12]
 export function AddClockModal({ onClose, onCreate }: AddClockModalProps) {
   const [kind, setKind] = useState<AddItemKind>('clock')
   const [type, setType] = useState<ClockType>('pie')
-  const [name, setName] = useState('Nuovo clock')
-  const [graphLabel, setGraphLabel] = useState('Avanzamento')
+  const [name, setName] = useState('')
+  const [graphLabel, setGraphLabel] = useState('')
   const [segments, setSegments] = useState(6)
   const [trackCells, setTrackCells] = useState(21)
   const [color, setColor] = useState<ClockColor>('gold')
-  const [leftLabel, setLeftLabel] = useState('Sinistra')
+  const [leftLabel, setLeftLabel] = useState('')
   const [centerLabel, setCenterLabel] = useState('0')
-  const [rightLabel, setRightLabel] = useState('Destra')
+  const [rightLabel, setRightLabel] = useState('')
+
+  const isTrack = kind === 'track'
+  const titlePlaceholder = isTrack ? 'es. Tensione del sogno' : 'es. Allarme della cittadella'
+  const labelPlaceholder = isTrack ? 'es. Equilibrio onirico' : 'es. Rintocchi mancanti'
 
   return (
     <div className="modal-backdrop" role="presentation">
@@ -74,8 +79,14 @@ export function AddClockModal({ onClose, onCreate }: AddClockModalProps) {
       >
         <header>
           <h2>Aggiungi</h2>
-          <button type="button" className="icon-button small" onClick={onClose}>
-            x
+          <button
+            type="button"
+            className="icon-button small"
+            onClick={onClose}
+            aria-label="Chiudi"
+            title="Chiudi"
+          >
+            <X aria-hidden="true" size={16} />
           </button>
         </header>
 
@@ -86,8 +97,6 @@ export function AddClockModal({ onClose, onCreate }: AddClockModalProps) {
             onChange={(event) => {
               const nextKind = event.target.value as AddItemKind
               setKind(nextKind)
-              setName(nextKind === 'track' ? 'Nuova barra' : 'Nuovo clock')
-              setGraphLabel(nextKind === 'track' ? 'Bilanciamento' : 'Avanzamento')
             }}
           >
             <option value="clock">Clock</option>
@@ -97,12 +106,20 @@ export function AddClockModal({ onClose, onCreate }: AddClockModalProps) {
 
         <label>
           Titolo card
-          <input value={name} onChange={(event) => setName(event.target.value)} />
+          <input
+            value={name}
+            placeholder={titlePlaceholder}
+            onChange={(event) => setName(event.target.value)}
+          />
         </label>
 
         <label>
           Label grafico
-          <input value={graphLabel} onChange={(event) => setGraphLabel(event.target.value)} />
+          <input
+            value={graphLabel}
+            placeholder={labelPlaceholder}
+            onChange={(event) => setGraphLabel(event.target.value)}
+          />
         </label>
 
         {kind === 'clock' ? (
@@ -164,19 +181,28 @@ export function AddClockModal({ onClose, onCreate }: AddClockModalProps) {
             </label>
             <div className="track-draft-grid">
               <label>
-                Etichetta sinistra
-                <input value={leftLabel} onChange={(event) => setLeftLabel(event.target.value)} />
+                Sinistra
+                <input
+                  value={leftLabel}
+                  placeholder="es. Sociale"
+                  onChange={(event) => setLeftLabel(event.target.value)}
+                />
               </label>
               <label>
                 Centro
                 <input
                   value={centerLabel}
+                  placeholder="es. 0"
                   onChange={(event) => setCenterLabel(event.target.value)}
                 />
               </label>
               <label>
-                Etichetta destra
-                <input value={rightLabel} onChange={(event) => setRightLabel(event.target.value)} />
+                Destra
+                <input
+                  value={rightLabel}
+                  placeholder="es. Fisico"
+                  onChange={(event) => setRightLabel(event.target.value)}
+                />
               </label>
             </div>
           </>

@@ -228,9 +228,10 @@
 .graph-label-input {
   width: 100%;
   min-width: 0;
+  min-height: 32px;
   color: var(--gold-soft);
-  background: rgb(16 11 7 / 0.54);
-  border-color: rgb(214 196 135 / 0.28);
+  background: rgb(16 11 7 / 0.78);
+  border-color: rgb(214 196 135 / 0.42);
   padding: 0.32rem 0.45rem;
   font-size: 0.82rem;
   font-weight: 800;
@@ -243,7 +244,10 @@
   display: grid;
   grid-template-columns: repeat(var(--track-count, 21), minmax(var(--track-square-min, 16px), 1fr));
   gap: 4px;
+  width: 100%;
+  max-width: 100%;
   overflow-x: auto;
+  overflow-y: hidden;
   padding-bottom: 2px;
 }
 
@@ -266,9 +270,15 @@
 }
 
 .track-square.selected {
+  color: var(--field);
   background: var(--gold-soft);
   border-color: #fff2d6;
   box-shadow: 0 0 0 2px rgb(185 154 86 / 0.25), 0 0 18px rgb(214 196 135 / 0.35);
+}
+
+.track-square:focus-visible {
+  position: relative;
+  z-index: 1;
 }
 
 .track-label-row {
@@ -531,10 +541,6 @@
   gap: 8px;
 }
 
-.track-token.has-delete .track-token-topline {
-  grid-template-columns: 30px minmax(0, 1fr) minmax(42px, auto) 30px 30px 40px;
-}
-
 .player-card-topline {
   display: grid;
   grid-template-columns: 30px minmax(0, 1fr) 30px 40px;
@@ -552,6 +558,7 @@
   min-width: 0;
   width: 100%;
   padding: 0.25rem 0.35rem;
+  color: #fff7df;
   font-weight: 800;
   border-color: transparent;
   background: transparent;
@@ -559,7 +566,10 @@
 }
 
 .track-token-topline strong {
+  min-width: 38px;
   color: var(--gold-soft);
+  font-size: 0.92rem;
+  white-space: nowrap;
   text-align: right;
 }
 
@@ -744,6 +754,8 @@
 .player-track {
   display: grid;
   gap: 8px;
+  min-width: 0;
+  overflow: hidden;
   padding-top: 12px;
   border-top: 1px solid rgb(214 196 135 / 0.18);
 }
@@ -790,6 +802,8 @@
 .add-clock-modal {
   display: grid;
   width: min(440px, 100%);
+  max-height: calc(100svh - 36px);
+  overflow: auto;
   gap: 14px;
   padding: 18px;
   color: var(--text);
@@ -805,6 +819,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .add-clock-modal h2 {

@@ -57,10 +57,14 @@ input,
 select {
   min-width: 0;
   color: var(--text);
-  background: rgb(16 11 7 / 0.9);
-  border: 1px solid rgb(214 196 135 / 0.42);
+  background: rgb(16 11 7 / 0.94);
+  border: 1px solid rgb(214 196 135 / 0.5);
   border-radius: 6px;
   padding: 0.55rem 0.65rem;
+}
+
+input::placeholder {
+  color: rgb(214 196 135 / 0.7);
 }
 
 input:focus,

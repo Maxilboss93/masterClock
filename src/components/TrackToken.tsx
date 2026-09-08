@@ -90,6 +90,7 @@ export function TrackToken({
         </button>
         <input
           value={track.name}
+          placeholder="Titolo barra"
           onChange={(event) => onUpdate(track.id, { name: event.target.value })}
           aria-label="Titolo card"
         />
@@ -123,6 +124,7 @@ export function TrackToken({
       <input
         className="graph-label-input"
         value={track.graphLabel || track.name}
+        placeholder="Label grafico"
         onChange={(event) => onUpdate(track.id, { graphLabel: event.target.value })}
         aria-label="Label grafico"
       />
@@ -135,12 +137,14 @@ export function TrackToken({
       <div className="track-label-row">
         <input
           value={track.leftLabel}
+          placeholder="es. Sociale"
           onChange={(event) => onUpdate(track.id, { leftLabel: event.target.value })}
           aria-label={`${track.name}: etichetta sinistra`}
         />
         <span>{track.centerLabel}</span>
         <input
           value={track.rightLabel}
+          placeholder="es. Fisico"
           onChange={(event) => onUpdate(track.id, { rightLabel: event.target.value })}
           aria-label={`${track.name}: etichetta destra`}
         />
@@ -160,6 +164,7 @@ export function TrackToken({
           Centro
           <input
             value={track.centerLabel}
+            placeholder="es. 0"
             onChange={(event) => onUpdate(track.id, { centerLabel: event.target.value })}
           />
         </label>

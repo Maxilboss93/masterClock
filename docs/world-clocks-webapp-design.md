@@ -81,10 +81,13 @@ Vincoli di leggibilita e contenimento:
 
 - Ogni card deve contenere sempre tutti i propri controlli: input, select, barre segmentate e pulsanti non devono uscire dal bordo della card.
 - Il titolo della card e la label del grafico sono due testi distinti: il titolo identifica la card, la label descrive il singolo grafico visualizzato dentro la card.
+- I campi modificabili devono usare placeholder di esempio chiari, per esempio `es. Allarme della cittadella`, `es. Equilibrio onirico`, `es. Sociale` e `es. Fisico`, senza obbligare il master a cancellare testo precompilato.
+- Se il master lascia un campo vuoto in creazione, la webapp deve usare un fallback semplice e sicuro come `Nuovo clock`, `Nuova barra` o `Grafico giocatore`.
 - I controlli dentro una card devono adattarsi alla larghezza disponibile con griglie responsive, `min-width: 0` e dimensioni stabili.
 - L'header deve poter mandare i pulsanti a capo sotto al titolo quando lo spazio orizzontale non basta, senza tagliare il nome della campagna.
 - Il contrasto tra testo, controlli, segmenti e sfondo deve essere controllato con attenzione, perche lo sfondo fantasy e molto scuro e textureizzato.
 - Gli stati vuoti, pieni, selezionati e disabilitati dei clock devono essere distinguibili anche quando il colore scelto e scuro.
+- I placeholder devono restare leggibili ma secondari rispetto al testo inserito.
 - Le card devono poter essere compatte, ma non sacrificare leggibilita e tap target.
 - Quando una card viene puntata o modificata, deve salire visivamente sopra le altre card per mantenere leggibili i controlli anche durante spostamenti o sovrapposizioni temporanee.
 
@@ -367,6 +370,7 @@ Quando il master preme `Aggiungi`, appare una piccola finestra/modale con:
 - Numero di spicchi, segmenti o caselle.
 - Colore o tono visivo opzionale.
 - Pulsante `Crea`.
+- Placeholder di esempio sui campi testuali, lasciando i valori effettivi liberi.
 
 Il numero di elementi deve essere richiesto sempre. Preset consigliati:
 
