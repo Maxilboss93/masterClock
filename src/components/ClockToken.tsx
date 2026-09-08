@@ -21,6 +21,8 @@ interface ClockTokenProps {
   onSetFilled: (id: string, filled: number) => void
   onMove: (id: string, x: number, y: number) => void
   onDelete: (id: string) => void
+  onDragStart?: () => void
+  onDragEnd?: () => void
 }
 
 const clockColorLabels: Record<ClockColor, string> = {
@@ -38,6 +40,8 @@ export function ClockToken({
   onSetFilled,
   onMove,
   onDelete,
+  onDragStart,
+  onDragEnd,
 }: ClockTokenProps) {
   const tokenClassName = [
     'clock-token',
@@ -49,32 +53,39 @@ export function ClockToken({
 
   const beginDrag = (event: React.PointerEvent<HTMLButtonElement>) => {
     const boardElement = boardRef.current
+    const tokenRect = event.currentTarget.closest('.clock-token')?.getBoundingClientRect()
 
-    if (layout === 'grid' || clock.locked || clock.pinnedToParty || !boardElement) {
+    if (clock.locked || clock.pinnedToParty || !boardElement || !tokenRect) {
       return
     }
 
     const boardRect = boardElement.getBoundingClientRect()
     const startX = event.clientX
     const startY = event.clientY
-    const initialX = clock.position.x
-    const initialY = clock.position.y
+    const initialX =
+      layout === 'grid' ? tokenRect.left - boardRect.left : clock.position.x
+    const initialY =
+      layout === 'grid' ? tokenRect.top - boardRect.top : clock.position.y
 
     event.currentTarget.setPointerCapture(event.pointerId)
+    onMove(clock.id, initialX, initialY)
+    onDragStart?.()
 
     const handleMove = (moveEvent: PointerEvent) => {
       const nextX = initialX + moveEvent.clientX - startX
       const nextY = initialY + moveEvent.clientY - startY
+
       onMove(
         clock.id,
-        Math.min(Math.max(nextX, 0), boardRect.width - 160),
-        Math.min(Math.max(nextY, 0), boardRect.height - 120),
+        Math.min(Math.max(nextX, 0), boardRect.width - tokenRect.width),
+        Math.max(nextY, 0),
       )
     }
 
     const handleUp = () => {
       window.removeEventListener('pointermove', handleMove)
       window.removeEventListener('pointerup', handleUp)
+      onDragEnd?.()
     }
 
     window.addEventListener('pointermove', handleMove)
@@ -95,7 +106,7 @@ export function ClockToken({
           type="button"
           className="drag-handle"
           onPointerDown={beginDrag}
-          aria-label={layout === 'grid' ? 'Clock agganciato in griglia' : 'Sposta clock'}
+          aria-label={layout === 'grid' ? 'Sposta clock agganciato' : 'Sposta clock'}
         >
           <GripHorizontal aria-hidden="true" size={18} />
         </button>

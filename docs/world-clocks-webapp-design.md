@@ -75,11 +75,12 @@ Lateralmente:
 
 Al centro:
 
-- Una plancia a griglia dove il master mette le card dei clock globali, le barre non fissate in alto e le card giocatore.
-- Le card sulla plancia si agganciano automaticamente una accanto all'altra e si ridimensionano in base allo spazio disponibile.
-- Su desktop la plancia usa al massimo 3 colonne.
-- Su smartphone la plancia usa al massimo 2 colonne, scendendo a una sola colonna quando lo spazio reale non permette una lettura comoda.
-- Quando non c'e spazio per tenere una card nella riga corrente, la card va automaticamente a capo.
+- Una plancia libera dove il master puo spostare nello spazio le card dei clock globali, le barre non fissate in alto e le card giocatore.
+- La griglia non deve essere obbligatoria: ogni card puo restare libera se e lontana dalle altre.
+- Quando il master avvicina due o piu card, queste si agganciano in un gruppo responsive, si affiancano e si ridimensionano in base allo spazio disponibile.
+- Su desktop un gruppo agganciato usa al massimo 3 colonne.
+- Su smartphone un gruppo agganciato usa al massimo 2 colonne, scendendo a una sola colonna quando lo spazio reale non permette una lettura comoda.
+- Quando non c'e spazio per tenere una card nella riga corrente, il gruppo agganciato va automaticamente a capo.
 - Una zona alta `Party`, facoltativa, dove fissare i clock globali che devono restare sempre visibili.
 - Quando il master crea un nuovo elemento, questo deve comparire sotto gli elementi gia presenti nella plancia, oppure comunque sopra visivamente se c'e sovrapposizione temporanea: non deve nascere dietro o sotto altre card.
 
@@ -106,9 +107,9 @@ La webapp deve essere comoda anche da cellulare, ma senza forzare la stessa espe
 
 Comportamento consigliato:
 
-- Desktop e tablet: plancia a griglia responsive, con card agganciate in massimo 3 colonne.
-- Cellulare: vista semplificata con card in massimo 2 colonne, oppure una colonna quando la larghezza effettiva e troppo ridotta.
-- Le posizioni delle card restano nel JSON per compatibilita e per possibili evoluzioni, ma la resa visuale principale usa l'ordine della griglia.
+- Desktop e tablet: plancia libera con drag and drop; se card vicine formano un gruppo, il gruppo usa una griglia responsive a massimo 3 colonne.
+- Cellulare: vista semplificata; i gruppi agganciati non superano 2 colonne, oppure una colonna quando la larghezza effettiva e troppo ridotta.
+- Le posizioni delle card restano nel JSON e sono la fonte principale della disposizione spaziale.
 - Le barre devono restare usabili su schermo piccolo anche quando hanno molte caselle, usando quadratini piu compatti o scorrimento interno alla card.
 - I controlli principali devono essere raggiungibili con tap: `Aggiungi`, `Salva`, salvataggi laterali, `+1`, `-1`, cambio valore barre.
 
@@ -120,7 +121,7 @@ Gesture mobile consigliate:
 - Tap lungo o pulsante dedicato per aprire impostazioni/modifica della card.
 - Drag della posizione disattivato o secondario su cellulare, per non creare conflitto con lo scroll.
 
-La scelta strutturale e quindi una modalita ibrida: griglia responsive dove c'e spazio, lista operativa compatta quando il master usa il telefono.
+La scelta strutturale e quindi una modalita ibrida: plancia libera come comportamento base, aggancio responsive solo quando le card vengono avvicinate, lista operativa compatta quando il master usa il telefono.
 
 ## Flusso Principale
 
@@ -131,7 +132,7 @@ Il flusso centrale per un clock globale deve essere questo:
 3. Inserisce titolo della card, label del grafico e quantita di segmenti, spicchi o caselle.
 4. Conferma.
 5. La webapp crea una card-clock sulla plancia.
-6. La card entra nella griglia della plancia, dopo gli elementi gia presenti.
+6. La card nasce libera sulla plancia, dopo gli elementi gia presenti.
 7. Durante la sessione modifica avanzamento, lunghezza e impostazioni direttamente dalla card.
 8. Alla fine preme `Salva`, inserisce un nome per il salvataggio e lo ritrova nella barra laterale.
 9. Insieme al salvataggio interno, la webapp scarica anche un JSON completo della plancia per backup o importazione futura.
@@ -145,7 +146,7 @@ Il flusso centrale per una barra da plancia deve essere questo:
 3. Inserisce titolo della card, label del grafico, numero di caselle, etichetta sinistra, etichetta centrale ed etichetta destra.
 4. Conferma.
 5. La webapp crea una card-barra sulla plancia.
-6. Il master puo cliccare i quadratini per impostare il valore, fissare la card in alto, modificarne numero di caselle ed etichette o eliminarla.
+6. Il master puo cliccare i quadratini per impostare il valore, spostare la card, fissarla in alto, modificarne numero di caselle ed etichette o eliminarla.
 
 Il flusso centrale per una barra segmentata da plancia deve essere questo:
 
@@ -162,7 +163,8 @@ I grafici totali/globali restano card-clock libere sulla plancia. Il master deve
 Comportamento:
 
 - Ogni clock globale puo essere libero sulla plancia oppure fissato nella zona `Party`.
-- Quando e libero, entra nella griglia della plancia e non deve sovrapporsi alle altre card.
+- Quando e libero, usa la propria `position` e puo essere trascinato nello spazio della plancia.
+- Se viene avvicinato ad altre card libere, entra temporaneamente in un gruppo agganciato con resize automatico.
 - Quando e fissato in `Party`, viene mostrato nella fascia alta della plancia e non usa visivamente la posizione libera.
 - Se viene sbloccato da `Party`, torna sulla plancia usando la sua ultima `position` salvata.
 - La zona `Party` rappresenta i grafici globali/totali del gruppo, non un singolo giocatore.
@@ -201,7 +203,7 @@ Il flusso deve essere questo:
 6. Ogni aggiunta permette di scegliere tra `Clock`, `Barra -X / 0 / +X` e `Barra segmentata`.
 7. Se il master sceglie `Barra -X / 0 / +X` e `X = 20`, il grafico mostra una scala discreta da `-20` a `+20`, con `0` al centro e 41 quadratini cliccabili.
 8. Ogni grafico interno ha titolo, label, valore corrente e impostazioni specifiche modificabili.
-9. La card giocatore entra nella griglia della plancia come una card-clock globale.
+9. La card giocatore puo essere spostata liberamente sulla plancia come una card-clock globale.
 10. Su mobile, le card giocatore entrano nella vista semplificata verticale insieme ai clock globali.
 
 Scopo:
@@ -337,7 +339,7 @@ Comportamento:
 - Non entrano nella zona `Party`, che resta dedicata ai clock globali/totali.
 - Possono invece entrare nella fascia `Barre`, insieme alle barre iniziali.
 - Su mobile vengono mostrate come card in lista, con quadratini tappabili.
-- Nella plancia principale si agganciano alla griglia responsive come clock e card giocatore.
+- Nella plancia principale restano libere, ma si agganciano alla griglia responsive quando vengono avvicinate a clock e card giocatore.
 
 Decisione strutturale:
 
@@ -442,22 +444,23 @@ Implementazione consigliata:
 
 ### Posizionamento
 
-Il master deve poter decidere l'ordine e la zona delle card-clock nella pagina senza rischiare sovrapposizioni.
+Il master deve poter decidere dove mettere ogni card-clock nella pagina senza perdere la possibilita di agganciare card vicine.
 
 MVP:
 
-- Il nuovo clock nasce nella plancia, dopo gli elementi gia presenti.
-- La plancia aggancia automaticamente le card in una griglia responsive.
-- Con 2 card vicine, le card si affiancano e si ridimensionano.
-- Con 3 card vicine su desktop, la riga si stringe in 3 colonne.
-- Su smartphone la griglia non supera 2 colonne.
-- La posizione viene ancora salvata nel JSON per compatibilita, ma non deve causare sovrapposizione visuale.
+- Il nuovo clock nasce nella plancia, sotto gli elementi gia presenti.
+- La card si puo trascinare liberamente.
+- La posizione viene salvata nel JSON ed e la fonte della disposizione libera.
+- Se una card viene avvicinata a un'altra, le due card si agganciano una accanto all'altra e si ridimensionano.
+- Se tre card vengono avvicinate su desktop, il gruppo si stringe in 3 colonne.
+- Su smartphone un gruppo agganciato non supera 2 colonne.
+- Se una card viene allontanata dal gruppo, torna a essere libera nello spazio.
 
 Opzionale ma utile:
 
 - Dimensione piccola, media, grande.
 - Blocco posizione per evitare spostamenti accidentali durante la sessione.
-- Ordinamento manuale con drag dentro la griglia, in una versione successiva.
+- Indicatore visuale dell'area di aggancio prima del rilascio, in una versione successiva.
 
 Per una prima versione rapida, eviterei il ridimensionamento libero: meglio tre taglie stabili, piu facili da usare e meno fragili su mobile.
 
@@ -472,7 +475,8 @@ Ogni card-clock deve permettere modifiche immediate:
 - Cambiare nome.
 - Cambiare label del grafico.
 - Cambiare colore.
-- Spostare o riordinare la card nella plancia, secondo il modello di griglia scelto.
+- Spostare liberamente la card nella plancia.
+- Agganciare e sganciare card vicine in modo automatico.
 - Salvare automaticamente lo stato in memoria locale dopo ogni modifica.
 
 Se il master riduce il numero di segmenti sotto il valore gia riempito, il valore `filled` va clampato al nuovo massimo.
@@ -801,9 +805,10 @@ Versione 0.1:
 - Creazione barra segmentata con nome e numero caselle.
 - Avanzamento del clock cliccando il grafico o usando `-1` / `+1`.
 - Modifica in tempo reale di lunghezza, stile e impostazioni.
-- Card-clock, barre libere e card giocatore agganciate nella griglia responsive della plancia.
+- Card-clock, barre libere e card giocatore spostabili liberamente sulla plancia.
+- Aggancio responsive automatico solo quando piu card vengono avvicinate.
 - Possibilita di fissare i clock globali in alto nella zona `Party`.
-- Card giocatore disposte nella stessa griglia responsive della plancia.
+- Card giocatore spostabili liberamente e agganciabili vicino ad altre card.
 - Download automatico del JSON completo quando si preme `Salva`.
 - Caricamento da JSON.
 - Autosave in `localStorage`.
@@ -831,7 +836,7 @@ Versione 0.2, solo se serve:
 - Tabelle o layout troppo gestionali.
 - Troppe opzioni nella modale di creazione.
 - Ridimensionamento libero nella prima versione.
-- Forzare il drag libero come interazione principale quando la griglia evita sovrapposizioni.
+- Bloccare tutta la plancia in una griglia obbligatoria.
 - Permettere a card vicine di sovrapporsi invece di ridimensionarsi o andare a capo.
 - Dipendenze pesanti per disegnare i clock.
 - Un editor da grafica professionale: deve restare uno strumento da sessione, non un costruttore complesso.
@@ -876,7 +881,7 @@ Totale realistico: una giornata corta, con margine per rifinire il feeling visiv
 
 Procedere con React + Vite + TypeScript, senza backend.
 
-Il cuore dell'app deve essere questo: una plancia fantasy vuota, due barre iniziali da 21 caselle e un pulsante `Aggiungi` che crea tre tipi grafico globali: `Clock`, `Barra -X / 0 / +X` e `Barra segmentata`. Le barre possono stare nella fascia alta `Barre`, con resize e ritorno a capo automatico, oppure vivere nella griglia della plancia. I clock globali restano nella griglia della plancia, ma possono essere fissati in alto nella zona `Party`. Deve esserci anche `Aggiungi giocatore`, che crea una card giocatore con nome e con la possibilita di aggiungere gli stessi tre tipi grafico dentro la card. Il master deve poter salvare schermate con nome nella barra laterale e richiamarle subito; il JSON deve restare il formato portabile per backup e passaggio tra sessioni o dispositivi. Su desktop la webapp funziona come plancia scrollabile a massimo 3 colonne, mentre su cellulare diventa una plancia semplificata a massimo 2 colonne con gesture rapide.
+Il cuore dell'app deve essere questo: una plancia fantasy vuota, due barre iniziali da 21 caselle e un pulsante `Aggiungi` che crea tre tipi grafico globali: `Clock`, `Barra -X / 0 / +X` e `Barra segmentata`. Le barre possono stare nella fascia alta `Barre`, con resize e ritorno a capo automatico, oppure vivere libere sulla plancia. I clock globali restano liberi sulla plancia, ma possono essere fissati in alto nella zona `Party`. Quando il master avvicina piu card libere, queste si agganciano in gruppi responsive a massimo 3 colonne desktop e massimo 2 colonne su smartphone. Deve esserci anche `Aggiungi giocatore`, che crea una card giocatore con nome e con la possibilita di aggiungere gli stessi tre tipi grafico dentro la card. Il master deve poter salvare schermate con nome nella barra laterale e richiamarle subito; il JSON deve restare il formato portabile per backup e passaggio tra sessioni o dispositivi. Su desktop la webapp funziona come plancia libera scrollabile con aggancio contestuale, mentre su cellulare diventa una plancia semplificata con gesture rapide.
 
 ## Regola Di Lavoro Sul Documento
 

@@ -26,6 +26,8 @@ interface PlayerCardProps {
   onUpdateClock: (playerId: string, clockId: string, patch: Partial<PlayerClock>) => void
   onSetClockFilled: (playerId: string, clockId: string, filled: number) => void
   onDeleteClock: (playerId: string, clockId: string) => void
+  onDragStart?: () => void
+  onDragEnd?: () => void
 }
 
 type PlayerGraphDraftKind = 'clock' | 'track' | 'segmented'
@@ -54,6 +56,8 @@ export function PlayerCard({
   onUpdateClock,
   onSetClockFilled,
   onDeleteClock,
+  onDragStart,
+  onDragEnd,
 }: PlayerCardProps) {
   const cardClassName = [
     'player-card',
@@ -73,19 +77,23 @@ export function PlayerCard({
 
   const beginDrag = (event: React.PointerEvent<HTMLButtonElement>) => {
     const boardElement = boardRef.current
+    const tokenRect = event.currentTarget.closest('.player-card')?.getBoundingClientRect()
 
-    if (layout === 'grid' || playerCard.locked || !boardElement) {
+    if (playerCard.locked || !boardElement || !tokenRect) {
       return
     }
 
     const boardRect = boardElement.getBoundingClientRect()
-    const tokenRect = event.currentTarget.closest('.player-card')?.getBoundingClientRect()
     const startX = event.clientX
     const startY = event.clientY
-    const initialX = playerCard.position.x
-    const initialY = playerCard.position.y
+    const initialX =
+      layout === 'grid' ? tokenRect.left - boardRect.left : playerCard.position.x
+    const initialY =
+      layout === 'grid' ? tokenRect.top - boardRect.top : playerCard.position.y
 
     event.currentTarget.setPointerCapture(event.pointerId)
+    onMove(playerCard.id, initialX, initialY)
+    onDragStart?.()
 
     const handleMove = (moveEvent: PointerEvent) => {
       const nextX = initialX + moveEvent.clientX - startX
@@ -93,14 +101,15 @@ export function PlayerCard({
 
       onMove(
         playerCard.id,
-        Math.min(Math.max(nextX, 0), boardRect.width - (tokenRect?.width ?? 280)),
-        Math.min(Math.max(nextY, 0), boardRect.height - (tokenRect?.height ?? 160)),
+        Math.min(Math.max(nextX, 0), boardRect.width - tokenRect.width),
+        Math.max(nextY, 0),
       )
     }
 
     const handleUp = () => {
       window.removeEventListener('pointermove', handleMove)
       window.removeEventListener('pointerup', handleUp)
+      onDragEnd?.()
     }
 
     window.addEventListener('pointermove', handleMove)
@@ -204,7 +213,7 @@ export function PlayerCard({
           type="button"
           className="drag-handle"
           onPointerDown={beginDrag}
-          aria-label={layout === 'grid' ? 'Giocatore agganciato in griglia' : 'Sposta giocatore'}
+          aria-label={layout === 'grid' ? 'Sposta giocatore agganciato' : 'Sposta giocatore'}
         >
           <GripHorizontal aria-hidden="true" size={18} />
         </button>

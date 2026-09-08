@@ -14,6 +14,8 @@ interface TrackTokenProps {
   onMove: (id: string, x: number, y: number) => void
   onDelete: (id: string) => void
   onTogglePinnedTop?: (id: string, pinnedToTop: boolean) => void
+  onDragStart?: () => void
+  onDragEnd?: () => void
 }
 
 export function TrackToken({
@@ -26,6 +28,8 @@ export function TrackToken({
   onMove,
   onDelete,
   onTogglePinnedTop,
+  onDragStart,
+  onDragEnd,
 }: TrackTokenProps) {
   const cellCount = track.max - track.min + 1
 
@@ -37,19 +41,23 @@ export function TrackToken({
 
   const beginDrag = (event: React.PointerEvent<HTMLButtonElement>) => {
     const boardElement = boardRef?.current
+    const tokenRect = event.currentTarget.closest('.track-token')?.getBoundingClientRect()
 
-    if (variant === 'top' || layout === 'grid' || track.locked || !boardElement) {
+    if (variant === 'top' || track.locked || !boardElement || !tokenRect) {
       return
     }
 
     const boardRect = boardElement.getBoundingClientRect()
-    const tokenRect = event.currentTarget.closest('.track-token')?.getBoundingClientRect()
     const startX = event.clientX
     const startY = event.clientY
-    const initialX = track.position.x
-    const initialY = track.position.y
+    const initialX =
+      layout === 'grid' ? tokenRect.left - boardRect.left : track.position.x
+    const initialY =
+      layout === 'grid' ? tokenRect.top - boardRect.top : track.position.y
 
     event.currentTarget.setPointerCapture(event.pointerId)
+    onMove(track.id, initialX, initialY)
+    onDragStart?.()
 
     const handleMove = (moveEvent: PointerEvent) => {
       const nextX = initialX + moveEvent.clientX - startX
@@ -57,14 +65,15 @@ export function TrackToken({
 
       onMove(
         track.id,
-        Math.min(Math.max(nextX, 0), boardRect.width - (tokenRect?.width ?? 220)),
-        Math.min(Math.max(nextY, 0), boardRect.height - (tokenRect?.height ?? 120)),
+        Math.min(Math.max(nextX, 0), boardRect.width - tokenRect.width),
+        Math.max(nextY, 0),
       )
     }
 
     const handleUp = () => {
       window.removeEventListener('pointermove', handleMove)
       window.removeEventListener('pointerup', handleUp)
+      onDragEnd?.()
     }
 
     window.addEventListener('pointermove', handleMove)
@@ -95,7 +104,7 @@ export function TrackToken({
             variant === 'top'
               ? 'Barra fissata in alto'
               : layout === 'grid'
-                ? 'Barra agganciata in griglia'
+                ? 'Sposta barra agganciata'
                 : 'Sposta barra'
           }
         >
