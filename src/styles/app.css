@@ -82,6 +82,15 @@
   gap: 8px;
 }
 
+.saved-scene {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgb(60 57 43 / 0.5), rgb(16 11 7 / 0.9));
+  border: 1px solid rgb(214 196 135 / 0.28);
+  border-radius: 6px;
+}
+
 .saved-scene-button {
   display: grid;
   gap: 5px;
@@ -90,14 +99,29 @@
   padding: 10px;
   color: var(--text);
   text-align: left;
-  background: linear-gradient(180deg, rgb(60 57 43 / 0.5), rgb(16 11 7 / 0.9));
-  border: 1px solid rgb(214 196 135 / 0.28);
-  border-radius: 6px;
+  background: none;
+  border: 0;
 }
 
-.saved-scene-button.active {
+.saved-scene.active {
   border-color: rgb(214 196 135 / 0.84);
   box-shadow: inset 3px 0 0 var(--gold-soft), 0 10px 22px rgb(0 0 0 / 0.22);
+}
+
+.saved-scene-delete {
+  align-self: stretch;
+  width: 36px;
+  padding: 0;
+  color: var(--muted);
+  background: rgb(0 0 0 / 0.14);
+  border: 0;
+  border-left: 1px solid rgb(214 196 135 / 0.18);
+}
+
+.saved-scene-delete:hover,
+.saved-scene-delete:focus-visible {
+  color: #fff3d4;
+  background: rgb(137 45 34 / 0.72);
 }
 
 .saved-scene-name {
@@ -1140,7 +1164,7 @@ button:disabled:not(.icon-button.small[aria-label="Sblocca card"]) {
     padding-bottom: 2px;
   }
 
-  .saved-scene-button {
+  .saved-scene {
     flex: 0 0 210px;
   }
 

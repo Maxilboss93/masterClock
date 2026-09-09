@@ -229,6 +229,21 @@ function App() {
     setStatusMessage(`Schermata "${save.name}" caricata.`)
   }
 
+  const deleteSavedScene = (save: SavedScene) => {
+    const shouldDelete = window.confirm(`Eliminare definitivamente il salvataggio "${save.name}"?`)
+
+    if (!shouldDelete) {
+      return
+    }
+
+    setSavedScenes((current) => ({
+      ...current,
+      activeSaveId: current.activeSaveId === save.id ? null : current.activeSaveId,
+      saves: current.saves.filter((currentSave) => currentSave.id !== save.id),
+    }))
+    setStatusMessage(`Salvataggio "${save.name}" eliminato.`)
+  }
+
   const loadFile = async (file: File) => {
     setLoadError('')
     setStatusMessage('')
@@ -259,6 +274,7 @@ function App() {
         isOpen={isSidebarOpen}
         onToggle={() => setIsSidebarOpen((current) => !current)}
         onLoadScene={loadSavedScene}
+        onDeleteScene={deleteSavedScene}
       />
 
       <div className="app-workspace">

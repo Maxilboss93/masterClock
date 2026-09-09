@@ -1,4 +1,4 @@
-import { Clock3, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import { Clock3, PanelLeftClose, PanelLeftOpen, Trash2 } from 'lucide-react'
 import type { SavedScene } from '../types/savedScene'
 
 interface SavedScenesSidebarProps {
@@ -7,6 +7,7 @@ interface SavedScenesSidebarProps {
   isOpen: boolean
   onToggle: () => void
   onLoadScene: (save: SavedScene) => void
+  onDeleteScene: (save: SavedScene) => void
 }
 
 const formatDate = (isoDate: string) =>
@@ -23,6 +24,7 @@ export function SavedScenesSidebar({
   isOpen,
   onToggle,
   onLoadScene,
+  onDeleteScene,
 }: SavedScenesSidebarProps) {
   const orderedSaves = [...saves].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
 
@@ -63,18 +65,28 @@ export function SavedScenesSidebar({
               const isActive = save.id === activeSaveId
 
               return (
-                <button
-                  key={save.id}
-                  type="button"
-                  className={`saved-scene-button${isActive ? ' active' : ''}`}
-                  onClick={() => onLoadScene(save)}
-                >
-                  <span className="saved-scene-name">{save.name}</span>
-                  <span className="saved-scene-meta">
-                    {formatDate(save.updatedAt)} · {clockCount} clock · {trackCount} barre ·{' '}
-                    {playerCount} giocatori
-                  </span>
-                </button>
+                <div key={save.id} className={`saved-scene${isActive ? ' active' : ''}`}>
+                  <button
+                    type="button"
+                    className="saved-scene-button"
+                    onClick={() => onLoadScene(save)}
+                  >
+                    <span className="saved-scene-name">{save.name}</span>
+                    <span className="saved-scene-meta">
+                      {formatDate(save.updatedAt)} · {clockCount} clock · {trackCount} barre ·{' '}
+                      {playerCount} giocatori
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    className="saved-scene-delete"
+                    onClick={() => onDeleteScene(save)}
+                    aria-label={`Elimina il salvataggio ${save.name}`}
+                    title="Elimina salvataggio"
+                  >
+                    <Trash2 aria-hidden="true" size={15} />
+                  </button>
+                </div>
               )
             })}
           </div>
